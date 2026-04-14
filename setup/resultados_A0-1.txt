@@ -1,0 +1,179 @@
+Explored 2694 nodes (158891 simplex iterations) in 26.12 seconds (26.26 work units)
+Thread count was 8 (of 8 available processors)
+
+Solution count 10: 47055.4 47301.8 47381 ... 72531.6
+
+Optimal solution found (tolerance 1.00e-02)
+Best objective 4.705542645713e+04, best bound 4.698785089768e+04, gap 0.1436%
+
+Multi-objectives: solved in 26.13 seconds (26.26 work units), solution count 10
+
+----------------------------------------------------------------------------------------------------------------------------------
+Status: Ótimo
+Energia total (E[19]): 47055.4265
+AoI coletada nesta rodada (sum w[j,t]): 81.0
+Posições (t, nó): [(0, 0), (1, 5), (2, 5), (3, 18), (4, 18), (5, 6), (6, 6), (7, 22), (8, 22), (9, 16), (10, 16), (11, 3), (12, 3), (13, 25), (14, 25), (15, 28), (16, 28), (17, 9), (18, 9), (19, 0)]
+Estado de AoI atualizado e historizado para a rodada 1.
+
+Explored 1 nodes (18715 simplex iterations) in 17.87 seconds (14.16 work units)
+Thread count was 8 (of 8 available processors)
+
+Solution count 6: 61184 61784.2 62726.6 ... 136912
+
+Optimal solution found (tolerance 1.00e-02)
+Best objective 6.118398404746e+04, best bound 6.114093705424e+04, gap 0.0704%
+
+Multi-objectives: solved in 17.88 seconds (14.16 work units), solution count 10
+
+
+Status: Ótimo
+Energia total (E[19]): 61183.9840
+AoI coletada nesta rodada (sum w[j,t]): 250.0
+Posições (t, nó): [(0, 0), (1, 5), (2, 5), (3, 7), (4, 7), (5, 15), (6, 15), (7, 27), (8, 27), (9, 26), (10, 26), (11, 30), (12, 30), (13, 13), (14, 13), (15, 14), (16, 14), (17, 2), (18, 2), (19, 0)]
+Estado de AoI atualizado e historizado para a rodada 2.
+----------------------------------------------------------------------------------------------------------------------------------
+
+Explored 1 nodes (19497 simplex iterations) in 20.49 seconds (11.87 work units)
+Thread count was 8 (of 8 available processors)
+
+Solution count 8: 87642.2 91551.6 151879 ... 309092
+
+Optimal solution found (tolerance 1.00e-02)
+Best objective 8.764222065891e+04, best bound 8.740983242122e+04, gap 0.2652%
+
+Multi-objectives: solved in 20.49 seconds (11.87 work units), solution count 10
+
+
+Status: Ótimo
+Energia total (E[19]): 87642.2207
+AoI coletada nesta rodada (sum w[j,t]): 423.0
+Posições (t, nó): [(0, 0), (1, 19), (2, 19), (3, 23), (4, 23), (5, 21), (6, 21), (7, 4), (8, 4), (9, 29), (10, 29), (11, 17), (12, 17), (13, 10), (14, 10), (15, 8), (16, 8), (17, 12), (18, 12), (19, 0)]
+Estado de AoI atualizado e historizado para a rodada 3.
+----------------------------------------------------------------------------------------------------------------------------------
+
+
+Explored 1 nodes (47632 simplex iterations) in 24.03 seconds (20.20 work units)
+Thread count was 8 (of 8 available processors)
+
+Solution count 9: 120424 120861 123173 ... 213515
+
+Optimal solution found (tolerance 1.00e-02)
+Best objective 1.204240800753e+05, best bound 1.193578259832e+05, gap 0.8854%
+
+Multi-objectives: solved in 24.04 seconds (20.20 work units), solution count 10
+
+
+Status: Ótimo
+Energia total (E[19]): 120424.0801
+AoI coletada nesta rodada (sum w[j,t]): 550.0
+Posições (t, nó): [(0, 0), (1, 18), (2, 18), (3, 6), (4, 6), (5, 11), (6, 11), (7, 20), (8, 20), (9, 22), (10, 22), (11, 24), (12, 24), (13, 1), (14, 1), (15, 16), (16, 16), (17, 28), (18, 28), (19, 0)]
+Estado de AoI atualizado e historizado para a rodada 4.
+----------------------------------------------------------------------------------------------------------------------------------
+
+
+Explored 1 nodes (6738 simplex iterations) in 9.15 seconds (7.15 work units)
+Thread count was 8 (of 8 available processors)
+
+Solution count 6: 52851.5 52888.2 102733 ... 196641
+
+Optimal solution found (tolerance 1.00e-02)
+Best objective 5.285148474936e+04, best bound 5.285148474936e+04, gap 0.0000%
+
+Multi-objectives: solved in 9.16 seconds (7.15 work units), solution count 10
+
+
+Status: Ótimo
+Energia total (E[19]): 52851.4847
+AoI coletada nesta rodada (sum w[j,t]): 561.0
+Posições (t, nó): [(0, 0), (1, 9), (2, 9), (3, 30), (4, 30), (5, 13), (6, 13), (7, 27), (8, 27), (9, 15), (10, 15), (11, 7), (12, 7), (13, 3), (14, 3), (15, 25), (16, 25), (17, 5), (18, 5), (19, 0)]
+Estado de AoI atualizado e historizado para a rodada 5.
+----------------------------------------------------------------------------------------------------------------------------------
+
+Explored 1 nodes (17379 simplex iterations) in 12.81 seconds (9.51 work units)
+Thread count was 8 (of 8 available processors)
+
+Solution count 7: 72079.9 73268 74267.8 ... 195051
+
+Optimal solution found (tolerance 1.00e-02)
+Best objective 7.207986874946e+04, best bound 7.135908579012e+04, gap 1.0000%
+
+Multi-objectives: solved in 12.82 seconds (9.51 work units), solution count 10
+
+
+Status: Ótimo
+Energia total (E[19]): 72079.8687
+AoI coletada nesta rodada (sum w[j,t]): 561.0
+Posições (t, nó): [(0, 0), (1, 2), (2, 2), (3, 14), (4, 14), (5, 26), (6, 26), (7, 8), (8, 8), (9, 29), (10, 29), (11, 4), (12, 4), (13, 21), (14, 21), (15, 23), (16, 23), (17, 19), (18, 19), (19, 0)]
+Estado de AoI atualizado e historizado para a rodada 6.
+----------------------------------------------------------------------------------------------------------------------------------
+
+Explored 703 nodes (73265 simplex iterations) in 16.75 seconds (19.68 work units)
+Thread count was 8 (of 8 available processors)
+
+Solution count 10: 115401 115639 116203 ... 462591
+
+Optimal solution found (tolerance 1.00e-02)
+Best objective 1.154007955731e+05, best bound 1.154007955731e+05, gap 0.0000%
+
+Multi-objectives: solved in 16.76 seconds (19.68 work units), solution count 10
+
+
+Status: Ótimo
+Energia total (E[19]): 115400.7956
+AoI coletada nesta rodada (sum w[j,t]): 561.0
+Posições (t, nó): [(0, 0), (1, 12), (2, 12), (3, 10), (4, 10), (5, 17), (6, 17), (7, 1), (8, 1), (9, 24), (10, 24), (11, 6), (12, 6), (13, 20), (14, 20), (15, 11), (16, 11), (17, 18), (18, 18), (19, 0)]
+Estado de AoI atualizado e historizado para a rodada 7.
+----------------------------------------------------------------------------------------------------------------------------------
+
+Explored 1 nodes (10906 simplex iterations) in 15.61 seconds (11.17 work units)
+Thread count was 8 (of 8 available processors)
+
+Solution count 6: 56277 57197.2 96616.5 ... 252194
+
+Optimal solution found (tolerance 1.00e-02)
+Best objective 5.627700543962e+04, best bound 5.627700543962e+04, gap 0.0000%
+
+Multi-objectives: solved in 15.62 seconds (11.17 work units), solution count 10
+
+
+Status: Ótimo
+Energia total (E[19]): 56277.0054
+AoI coletada nesta rodada (sum w[j,t]): 561.0000000000811
+Posições (t, nó): [(0, 0), (1, 28), (2, 28), (3, 3), (4, 3), (5, 22), (6, 22), (7, 16), (8, 16), (9, 7), (10, 7), (11, 27), (12, 27), (13, 13), (14, 13), (15, 30), (16, 30), (17, 9), (18, 9), (19, 0)]
+Estado de AoI atualizado e historizado para a rodada 8.
+----------------------------------------------------------------------------------------------------------------------------------
+
+Explored 300 nodes (24354 simplex iterations) in 12.83 seconds (12.02 work units)
+Thread count was 8 (of 8 available processors)
+
+Solution count 6: 66683.5 240539 240854 ... 248875
+
+Optimal solution found (tolerance 1.00e-02)
+Best objective 6.668351675052e+04, best bound 6.668351675052e+04, gap 0.0000%
+
+Multi-objectives: solved in 12.84 seconds (12.02 work units), solution count 10
+
+
+Status: Ótimo
+Energia total (E[19]): 66683.5168
+AoI coletada nesta rodada (sum w[j,t]): 565.0
+Posições (t, nó): [(0, 0), (1, 5), (2, 5), (3, 25), (4, 25), (5, 15), (6, 15), (7, 8), (8, 8), (9, 29), (10, 29), (11, 4), (12, 4), (13, 26), (14, 26), (15, 14), (16, 14), (17, 2), (18, 2), (19, 0)]
+Estado de AoI atualizado e historizado para a rodada 9.
+----------------------------------------------------------------------------------------------------------------------------------
+
+Explored 115 nodes (44530 simplex iterations) in 29.96 seconds (20.90 work units)
+Thread count was 8 (of 8 available processors)
+
+Solution count 8: 124657 130834 141882 ... 313759
+
+Optimal solution found (tolerance 1.00e-02)
+Best objective 1.246566131188e+05, best bound 1.246566131188e+05, gap 0.0000%
+
+Multi-objectives: solved in 29.97 seconds (20.90 work units), solution count 10
+
+
+Status: Ótimo
+Energia total (E[19]): 124656.6131
+AoI coletada nesta rodada (sum w[j,t]): 561.0000000000063
+Posições (t, nó): [(0, 0), (1, 19), (2, 19), (3, 12), (4, 12), (5, 21), (6, 21), (7, 23), (8, 23), (9, 10), (10, 10), (11, 17), (12, 17), (13, 1), (14, 1), (15, 24), (16, 24), (17, 6), (18, 6), (19, 0)]
+Estado de AoI atualizado e historizado para a rodada 10.
