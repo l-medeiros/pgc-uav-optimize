@@ -1,0 +1,74 @@
+\section{Fundamentação Teórica}
+
+\subsection{IoT e WSN}
+
+A Internet das Coisas (IoT, do inglês \textit{Internet of Things}) é um paradigma que integra objetos físicos — sensores, atuadores e dispositivos embarcados — à infraestrutura digital por meio de protocolos de comunicação sem fio, permitindo a coleta, transmissão e processamento autônomo de dados do ambiente \cite{yang2020surveyUAVIoT}. Dentro desse paradigma, as redes de sensores sem fio (WSNs, do inglês \textit{Wireless Sensor Networks}) constituem uma das tecnologias de suporte mais consolidadas: consistem em conjuntos de nós de baixo consumo energético, distribuídos em uma área de interesse, responsáveis por amostrar grandezas físicas — temperatura, umidade, vibração, entre outras — e encaminhá-las periodicamente a um ponto de coleta centralizado \cite{liu2018uavWSN}.
+
+Em aplicações de monitoramento ambiental, agricultura de precisão, vigilância urbana e resposta a desastres, os nós sensores frequentemente operam em áreas de difícil acesso ou sem cobertura de infraestrutura fixa. Nesse contexto, UAVs têm sido explorados como \emph{sinks} móveis, percorrendo a área de missão para coletar dados diretamente dos sensores \cite{wei2022survey,messaoudi2023survey}.
+
+\subsubsection{Age of Information (AoI)}
+
+Uma métrica central para avaliar a qualidade da informação coletada nessas redes é a \emph{Age of Information} (AoI), introduzida para quantificar a \emph{frescor} dos dados disponíveis em um ponto de destino \cite{messaoudi2023survey}. Intuitivamente, a AoI mede há quanto tempo a última atualização de um determinado sensor foi recebida. Quanto maior a AoI, mais desatualizada é a informação disponível.
+
+\paragraph{Definição formal.}
+
+No modelo de tempo discreto adotado neste trabalho, o horizonte de missão é dividido em \emph{slots} de duração $\Delta t$. Para cada sensor $j \in S$, define-se a variável $A_{j,t}$ como a \textbf{idade da informação} do sensor $j$ no início do slot $t$, medida em número de slots desde a última coleta. Sua dinâmica é dada por:
+
+\begin{align}
+    A_{j,1} &= A_j^0, \qquad \forall j \in S, \tag{AoI-0} \\[4pt]
+    A_{j,t+1} &=
+    \begin{cases}
+        0, & \text{se } v_{j,t} = 1 \text{ (coleta realizada no slot } t\text{)}, \\[4pt]
+        A_{j,t} + 1, & \text{se } v_{j,t} = 0 \text{ (sem coleta)},
+    \end{cases}
+    \tag{AoI-1}
+\end{align}
+
+onde $A_j^0$ é o valor inicial carregado do estado persistido entre missões e $v_{j,t} \in \{0,1\}$ é a variável de decisão que indica se o sensor $j$ é coletado no slot $t$.
+
+Quando o UAV coleta o sensor $j$ no slot $t$, a AoI é zerada no slot seguinte, pois o destino passa a dispor de uma atualização recente. Caso contrário, a AoI cresce em uma unidade por slot, refletindo o envelhecimento da informação. Maximizar a soma $\sum_{j,t} A_{j,t}\, v_{j,t}$ — isto é, priorizar sensores com AoI mais alta no momento da coleta — é equivalente a maximizar o \emph{ganho informacional} acumulado pela missão, incentivando visitas a nós cujos dados estejam mais desatualizados.
+
+\subsection{UAVs}
+
+Veículos aéreos não tripulados (UAVs, do inglês \textit{Unmanned Aerial Vehicles}), popularmente chamados de drones, são aeronaves controladas remotamente ou de forma autônoma, sem piloto a bordo \cite{messaoudi2023survey}. Originalmente desenvolvidos para fins militares, os UAVs passaram a ser amplamente utilizados em aplicações civis como mapeamento, agricultura de precisão, vigilância, entrega de cargas e, em particular, coleta de dados em redes IoT \cite{wei2022survey}.
+
+Do ponto de vista da propulsão, os UAVs mais relevantes para coleta de dados em WSNs se dividem em dois grandes grupos:
+
+\begin{itemize}
+    \item \textbf{Asa fixa (\textit{fixed-wing})}: aeronaves que geram sustentação pelo perfil aerodinâmico das asas durante o deslocamento horizontal. Possuem maior autonomia e velocidade de cruzeiro, mas não conseguem pairar estáticos sobre um ponto — exigem velocidade mínima de voo para manter sustentação.
+    \item \textbf{Asa rotativa (\textit{rotary-wing})}: aeronaves com um ou mais rotores horizontais (helicópteros, quadricópteros, hexacópteros). Têm menor autonomia e velocidade máxima, mas são capazes de realizar \emph{hover} — permanecer estacionários no ar — o que facilita a comunicação direta com sensores fixos no solo \cite{zeng2019rotarywing}.
+\end{itemize}
+
+Neste trabalho, adota-se o modelo de asa rotativa, coerente com os UAVs utilizados nos experimentos (DJI Matrice 300 RTK e Parrot Anafi USA).
+
+\subsubsection{Modos de coleta}
+
+A estratégia de sobrevoo adotada pelo UAV determina como e quando a comunicação com os sensores ocorre. Três modos principais são identificados na literatura \cite{messaoudi2023survey,wei2022survey}:
+
+\begin{itemize}
+    \item \textbf{\textit{Hovering}}: o UAV desloca-se até a posição do sensor e paira estático acima dele pelo tempo necessário para completar a transmissão. Garante máxima qualidade de enlace (menor distância e velocidade relativa nula), à custa de maior consumo energético para manter o voo estacionário.
+    \item \textbf{\textit{Fly-by}}: o drone sobrevoa o sensor em movimento contínuo, realizando a coleta em trânsito. Reduz o tempo total de missão e o consumo associado ao hover, porém a janela de comunicação é curta e a qualidade do enlace pode ser comprometida pela variação da distância e pelo efeito Doppler.
+    \item \textbf{Híbrido}: combina os dois modos anteriores, selecionando a estratégia mais adequada para cada sensor conforme seus requisitos de enlace e localização.
+\end{itemize}
+
+No modelo adotado neste trabalho, a coleta ocorre exclusivamente em modo \textit{hovering}: o UAV deve permanecer parado sobre o sensor durante um slot inteiro para que a transmissão seja considerada bem-sucedida. Esse pressuposto é modelado pela restrição $v_{j,t} = x_{jjt}$, que vincula a coleta ao \emph{self-loop} do grafo de movimento (ver Seção~5).
+
+\subsubsection{Restrições operacionais}
+
+A operação de um UAV de asa rotativa é condicionada por dois limites principais:
+
+\begin{itemize}
+    \item \textbf{Capacidade de bateria ($E^{\max}$)}: a energia armazenada na bateria limita o tempo total de missão. O consumo depende da velocidade de deslocamento e do tempo em hover, conforme o modelo de potência de Zeng et al.~\cite{zeng2019rotarywing} descrito na Seção~5.
+    \item \textbf{Horizonte temporal ($T_f$)}: o número máximo de slots disponíveis para a missão, que define o comprimento do plano de voo a ser otimizado.
+\end{itemize}
+
+A interação entre esses dois limites é central para o problema de otimização formulado neste trabalho: aumentar o número de sensores visitados exige mais deslocamentos e mais tempo em hover, elevando o consumo e eventualmente inviabilizando a missão dentro do orçamento energético disponível.
+
+{\color{red}
+\subsection{Modelo de energia UAV}
+
+\subsection{Modelo de comunicação de UAV}
+}
+
+
+
