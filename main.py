@@ -32,8 +32,8 @@ CDS = 0.01509     # d0 * s * A
 
 # Capacidade total de energia da bateria (duas TB60)
 # Arthur chega a 616,2 Wh convertendo para Joules: 616.2 * 3600 ≈ 2_218_320 J
-# BATTERY_MAX = 141_372.0 # (PARROT ANAFI USA)
-BATTERY_MAX = 50_000.0
+BATTERY_MAX = 141_372.0 # (PARROT ANAFI USA)
+# BATTERY_MAX = 50_000.0
 
 TIME_SLOTS = 20  # número de slots discretos
 
@@ -436,12 +436,14 @@ def add_visit_constraints(
     x,
     v,
     y,
+    allow_revisit: bool = False,
 ):
     """
     Relaciona movimentos com visitas:
     - v[j,t] = 1 se o UAV paira (hover) no sensor j durante o slot t (j->j).
-    - Cada sensor é visitado no máximo uma vez.
-    - y[j] = sum_t v[j,t].
+    - y[j] = 1 se o sensor j foi visitado ao menos uma vez.
+    - y[j] = min(1, sum_t v[j,t]).
+    - Se allow_revisit=False (padrão), cada sensor é visitado no máximo uma vez.
     """
     for j in sensor_ids:
         for t in T_slots[:-1]:
@@ -451,13 +453,20 @@ def add_visit_constraints(
             )
 
     for j in sensor_ids:
+        if not allow_revisit:
+            m.addConstr(
+                quicksum(v[j, t] for t in T_slots[:-1]) <= 1,
+                name=f"visit_at_most_once_{j}",
+            )
+        # y[j] >= v[j,t] para todo t  →  y[j] = 1 se visitou ao menos uma vez
+        for t in T_slots[:-1]:
+            m.addConstr(
+                y[j] >= v[j, t],
+                name=f"visit_lb_{j}_{t}",
+            )
         m.addConstr(
-            quicksum(v[j, t] for t in T_slots[:-1]) <= 1,
-            name=f"visit_at_most_once_{j}",
-        )
-        m.addConstr(
-            y[j] == quicksum(v[j, t] for t in T_slots[:-1]),
-            name=f"visit_equals_sumv_{j}",
+            y[j] <= quicksum(v[j, t] for t in T_slots[:-1]),
+            name=f"visit_ub_{j}",
         )
 
 
@@ -536,6 +545,7 @@ def build_optimization_model(
     sensor_ids: List[int],
     base: Base,
     aoi_before: Dict[int, int],
+    allow_revisit: bool = False,
 ):
     """
     Cria e retorna o modelo Gurobi e todos os componentes relevantes.
@@ -556,7 +566,7 @@ def build_optimization_model(
     add_unique_position_constraints(m, node_ids, T_slots, p)
     add_flow_constraints(m, node_ids, T_slots, p, x)
     add_energy_constraints(m, T_slots, E, x, energy_cost)
-    add_visit_constraints(m, node_ids, sensor_ids, T_slots, x, v, y)
+    add_visit_constraints(m, node_ids, sensor_ids, T_slots, x, v, y, allow_revisit)
     add_aoi_gain_linearization(m, sensor_ids, T_slots, A, v, w, M_A)
 
     # Objetivo
@@ -699,6 +709,12 @@ def main():
     parser.add_argument("--aoi-state",     default=AOI_STATE_PATH)
     parser.add_argument("--aoi-history",   default=AOI_HISTORY_PATH)
     parser.add_argument("--round-summary", default=ROUND_SUMMARY_PATH)
+    parser.add_argument(
+        "--allow-revisit",
+        action="store_true",
+        default=False,
+        help="Remove a restrição de visita única: o UAV pode visitar cada sensor múltiplas vezes.",
+    )
     args = parser.parse_args()
 
     AOI_STATE_PATH     = args.aoi_state
@@ -723,6 +739,7 @@ def main():
         sensor_ids=sensor_ids,
         base=base,
         aoi_before=aoi_before,
+        allow_revisit=args.allow_revisit,
     )
 
     # Resolve
