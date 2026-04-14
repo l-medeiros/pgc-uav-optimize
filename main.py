@@ -598,9 +598,19 @@ def build_optimization_model(
 def solve_model(m: Model) -> None:
     """
     Configura parâmetros do solver e executa a otimização.
+
+    Parâmetros de memória:
+    - Threads: limita paralelismo; menos threads = menos nós simultâneos na RAM.
+    - NodefileStart: quando o uso de RAM atingir este valor (GB), Gurobi derrama
+      os nós da árvore B&B para disco em vez de travar o sistema.
+    - SoftMemLimit: se ultrapassar este valor (GB), encerra graciosamente e
+      retorna a melhor solução encontrada até ali (evita desligar o computador).
     """
     m.setParam("TimeLimit", 60)
     m.setParam("MIPGap", 0.01)
+    m.setParam("Threads", 2)
+    m.setParam("NodefileStart", 0.5)
+    m.setParam("SoftMemLimit", 4)
     m.optimize()
 
 
