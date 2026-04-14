@@ -2,8 +2,9 @@
 
 set -e
 
-BASE_DIR="$(dirname "$0")/setup/anafi_usa"
-PYTHON="$(dirname "$0")/venv/bin/python"
+# Sensores reutilizados do conjunto anafi_usa (mesmas posições, comparação justa)
+SENSORS_DIR="$(dirname "$0")/setup/anafi_usa"
+RESULTS_DIR="$(dirname "$0")/setup/revisit"
 RUNS=30
 
 SENSOR_COUNTS=(5 10 15 20 25 30)
@@ -14,16 +15,16 @@ DONE=0
 SKIPPED=0
 
 echo "=============================="
-echo "UAV Experiments — posicao"
+echo "UAV Experiments — revisit"
 echo "Cenários: $TOTAL | Rodadas por cenário: $RUNS"
 echo "=============================="
 
 for n in "${SENSOR_COUNTS[@]}"; do
     for L in "${MAP_SIZES[@]}"; do
 
-        SENSORS_CSV="$BASE_DIR/$n/sensors_${L}x${L}.csv"
-        RESULTADOS_DIR="$BASE_DIR/$n/resultados"
-        AOI_STATE="$BASE_DIR/$n/aoi_state_${L}x${L}.tmp.csv"
+        SENSORS_CSV="$SENSORS_DIR/$n/sensors_${L}x${L}.csv"
+        RESULTADOS_DIR="$RESULTS_DIR/$n/resultados"
+        AOI_STATE="$RESULTS_DIR/$n/aoi_state_${L}x${L}.tmp.csv"
         AOI_HISTORY="$RESULTADOS_DIR/aoi_history_${L}x${L}.csv"
         ROUND_SUMMARY="$RESULTADOS_DIR/round_summary_${L}x${L}.csv"
 
@@ -35,6 +36,11 @@ for n in "${SENSOR_COUNTS[@]}"; do
                 SKIPPED=$(( SKIPPED + 1 ))
                 continue
             fi
+        fi
+
+        if [ ! -f "$SENSORS_CSV" ]; then
+            echo "[WARN] Arquivo de sensores não encontrado, pulando: $SENSORS_CSV"
+            continue
         fi
 
         mkdir -p "$RESULTADOS_DIR"
@@ -49,11 +55,12 @@ for n in "${SENSOR_COUNTS[@]}"; do
 
         for ((i=1; i<=RUNS; i++)); do
             echo "  Rodada $i / $RUNS"
-            "$PYTHON" main.py \
+            python main.py \
                 --sensors-csv   "$SENSORS_CSV" \
                 --aoi-state     "$AOI_STATE" \
                 --aoi-history   "$AOI_HISTORY" \
-                --round-summary "$ROUND_SUMMARY"
+                --round-summary "$ROUND_SUMMARY" \
+                --allow-revisit
         done
 
         rm -f "$AOI_STATE"
