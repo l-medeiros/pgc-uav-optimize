@@ -1,0 +1,402 @@
+\documentclass{article}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage[portuguese]{babel}
+\usepackage{xcolor}
+\usepackage{pgfgantt}
+\usepackage{adjustbox}
+\usepackage{xcolor}
+\usepackage{soul}
+\usepackage{graphicx}
+
+
+\begin{document}
+
+    \pretextual
+    \include{pretextual/capa}
+
+    \input{introdução}
+
+
+    \input{trabalhos_relacionados}
+ 
+    \input{objetivos}
+    
+    \section{Modelagem Matemática do Problema de Otimização de Plano de Voo para UAVs}
+    
+    \subsection{Descrição do Problema}
+    
+    O problema de otimização de plano de voo para UAVs consiste em determinar a trajetória ótima que um drone deve seguir para coletar dados de um conjunto de sensores IoT distribuídos em uma área geográfica. O objetivo principal é maximizar a quantidade de dados coletados enquanto se minimiza o consumo de energia do drone e a idade da informação (Age of Information - AoI), respeitando suas limitações operacionais. O drone parte de uma posição inicial conhecida, deve visitar um subconjunto de sensores dentro do seu alcance de comunicação, e retornar a uma posição final (que pode ser igual à inicial). Durante o voo, o drone consome energia de acordo com sua velocidade e manobras, e coleta dados quando está dentro do raio de comunicação dos sensores. A qualidade da comunicação entre o drone e os sensores depende da distância entre eles. Este problema pode ser modelado como um problema de otimização combinatória com restrições de energia, tempo de voo, e requisitos de comunicação, considerando também a idade dos dados nos sensores para priorizar a coleta de informações mais antigas.
+    
+    Esta formulação é relevante para aplicações como monitoramento ambiental, agricultura de precisão, vigilância urbana e resposta a desastres, onde a coleta eficiente e oportuna de dados de sensores distribuídos é crucial para a tomada de decisões.
+
+    
+    \subsection{Parâmetros e Variáveis}
+    
+    \begin{table}[htbp]
+      \centering
+      \caption{Parâmetros do Modelo}
+      \begin{tabular}{>{\raggedright\arraybackslash}p{2.2cm} >{\raggedright\arraybackslash}p{10cm}}
+        \toprule
+        \textbf{Notação} & \textbf{Descrição} \\
+        \midrule
+        \multicolumn{2}{l}{\textit{Conjuntos}} \\
+        \midrule
+        $T$ & Conjunto de intervalos de tempo discretos: $T = \{1, 2, \ldots, T_f\}$ \\
+        $S$ & Conjunto de sensores distribuídos na área: $S = \{1, 2, \ldots, n\}$ \\
+        $b$ & Índice da base (nó inicial e final do voo) \\
+        $N$ & Conjunto de locais onde o drone pode permanecer parado (sensores $S$ e base $b$): $N = S \cup \{b\}$ \\
+        $A = N \times N$ & Conjunto de arestas dirigidas (inclui \textit{self-loop} $(i,i)$) \\
+        \midrule
+        \multicolumn{2}{l}{\textit{Parâmetros Geométricos}} \\
+        \midrule
+        $S_j$ & Posição fixa do sensor $j \in S$: $S_j = (x_j, y_j, h_j)$ \\
+        $d_{ij}$ & Distância euclidiana entre os locais $i,j \in N$ \\
+        \midrule
+        \multicolumn{2}{l}{\textit{Parâmetros de Tempo e Energia}} \\
+        \midrule
+        $\Delta t$ & Duração de cada intervalo de tempo (slot) \\
+        $E^{\max}$ & Capacidade máxima de energia da bateria do UAV \\
+        $A_j^0$ & Idade inicial da informação do sensor $j \in S$ antes do voo \\
+        $M_A$ & Constante \textit{Big-M} segura para AoI (por exemplo, $M_A \ge \max_j A_j^0 + T_f$) \\
+        \midrule
+        \multicolumn{2}{l}{\textit{Parâmetros do Modelo de Potência do UAV}} \\
+        \midrule
+        $P_0$ & Termo de potência de perfil das pás do rotor \\
+        $\Pi$ & Termo de potência induzida em voo \\
+        $U_{\text{tip}}$ & Velocidade da ponta da hélice \\
+        $v_0$ & Velocidade induzida em \textit{hover} \\
+        $\rho$ & Densidade do ar \\
+        $C_{DS}$ & Parâmetro de arrasto parasita efetivo (área equivalente) \\
+        $c_{ij}$ & Custo energético associado à aresta $(i,j)$ em um slot \\
+        \bottomrule
+      \end{tabular}
+    \end{table}
+    
+    \begin{table}[htbp]
+      \centering
+      \caption{Variáveis de Decisão}
+      \begin{tabular}{>{\raggedright\arraybackslash}p{2.2cm} >{\raggedright\arraybackslash}p{10cm}}
+        \toprule
+        \textbf{Notação} & \textbf{Descrição} \\
+        \midrule
+        $p_{n,t}$ & Indica se o drone está no local $n \in N$ no início do slot $t \in T$ \\
+        $x_{ijt}$ & Indica se o drone realiza o movimento de $i \to j$ entre os slots $t$ e $t+1$ \\
+        $v_{j,t}$ & Indica se o drone realiza coleta de dados do sensor $j \in S$ no slot $t$ \\
+        $y_j$ & Indica se o sensor $j$ foi visitado (coletado) ao menos uma vez ao longo do horizonte \\
+        $E_t$ & Energia acumulada pelo drone até o início do slot $t \in T$ \\
+        $A_{j,t}$ & Idade da informação do sensor $j$ no início do slot $t$ \\
+        $w_{j,t}$ & Variável auxiliar que representa $A_{j,t}\cdot v_{j,t}$ (AoI efetivamente coletada) \\
+        \bottomrule
+      \end{tabular}
+    \end{table}
+
+    
+    \subsection{Formulação do Problema}
+    
+    Seja $T = \{1, 2, \dots, \tau\}$ o conjunto de intervalos de tempo discretos. O objetivo
+    é planejar a trajetória de um ou mais UAVs para coleta eficiente de dados em sensores IoT, respeitando restrições de mobilidade, energia, e requisitos de comunicação. O problema pode ser formulado pelas seguintes equações:
+
+    \subsubsection{Definição do Grafo de Movimento}
+
+    O conjunto de posições possíveis para o UAV é dado por:
+    
+    \[
+    N = S \cup \{b\},
+    \]
+    
+    onde $b$ representa a base.  
+    Diferentemente de modelos que usam grafos esparsos, aqui adotamos:
+    
+    \[
+    A = N \times N,
+    \]
+    
+    um grafo dirigido completo com \emph{self-loops}.  
+    Isso significa que:
+    
+    \begin{itemize}
+        \item o UAV pode transitar de qualquer nó para qualquer outro em um único slot;
+        \item o caso $(i,i)$ modela \textbf{hover}, isto é, o UAV permanece parado;
+        \item a dinâmica de movimento é totalmente determinada pelas variáveis $x_{ijt}$.
+    \end{itemize}
+    
+    O uso de um grafo completo fornece maior generalidade, permitindo representar tanto deslocamentos quanto posicionamento estático.
+    
+    
+    \subsubsection{Funções Objetivo}
+
+    A formulação do problema busca equilibrar dois aspectos fundamentais da missão: 
+    (i) a maximização da quantidade de informação relevante coletada pelo UAV, medida pela Age of Information (AoI), e 
+    (ii) a minimização do consumo total de energia durante o voo.  
+    Esses objetivos, embora distintos, podem ser combinados em uma única função objetivo multicritério, refletindo o compromisso natural entre qualidade da coleta e economia energética.
+    
+    \paragraph{Maximização da Informação Coletada (AoI).}
+    
+    Para cada sensor $j$ e instante $t$, a variável $w_{j,t}$ representa a AoI efetivamente coletada naquele slot. Esse valor corresponde à idade da informação disponível no sensor no início do slot ($A_{j,t}$), desde que ocorra coleta ($v_{j,t}=1$), e é igual a zero caso contrário.
+    
+    Assim, a soma total de informação coletada ao longo da missão é dada por:
+    
+    \begin{align}
+        f_{\text{AoI}}
+        =
+        \sum_{j \in S}
+        \sum_{t = 1}^{T_f - 1}
+        w_{j,t}.
+        \tag{1a}
+    \end{align}
+    
+    Essa função incentiva visitas a sensores cujos dados estejam mais desatualizados, priorizando trajetórias que maximizem o impacto informacional da missão.
+    
+    \paragraph{Minimização do Consumo Energético.}
+    
+    A energia acumulada até o final do voo é representada pela variável $E_{T_f}$, que sintetiza todo o gasto resultante dos deslocamentos e períodos de \emph{hover}. Assim, o custo energético total da missão é expresso por:
+    
+    \begin{align}
+        f_{\text{energia}}
+        =
+        E_{T_f}.
+        \tag{1b}
+    \end{align}
+    
+    Minimizar esse valor corresponde a promover trajetórias mais econômicas, aumentando a autonomia do veículo e preservando os recursos energéticos disponíveis.
+    
+    \paragraph{Função Objetivo Multicritério.}
+    
+    Combinando as duas componentes anteriores, obtemos uma função objetivo global que, em termos matemáticos, reflete o compromisso entre qualidade informacional e eficiência energética:
+    
+    \begin{align}
+        \max\ 
+        F
+        \;=\;
+        \lambda 
+        \sum_{j \in S}
+        \sum_{t = 1}^{T_f - 1}
+            w_{j,t}
+        \;-\;
+        E_{T_f},
+        \tag{1}
+    \end{align}
+    
+    onde $\lambda > 0$ é um parâmetro de ponderação que controla a importância relativa entre os dois termos.
+    
+    A primeira parcela recompensa soluções que coletam grande quantidade de AoI, especialmente de sensores que acumulam atraso informacional. A segunda parcela penaliza soluções energeticamente dispendiosas, promovendo trajetórias mais curtas e econômicas.  
+    A função $F$ captura, assim, a essência do trade-off inerente ao problema: obter informação relevante com o menor gasto energético possível.
+    
+    \paragraph{Interpretação de $x_{ijt}$.}
+
+    A variável binária $x_{ijt}$ indica que o UAV se encontra no nó $i$ no início do slot $t$ e estará no nó $j$ no início do slot $t+1$.  
+    Assim:
+    
+    \[
+    x_{ijt} = 
+    \begin{cases}
+    1, & \text{se o UAV realiza a transição } i \to j, \\[4pt]
+    0, & \text{caso contrário}.
+    \end{cases}
+    \]
+    
+    O caso especial
+    \[
+    x_{iit} = 1
+    \]
+    implica que o UAV permanece parado (\emph{hover}), o que também é utilizado para caracterizar coletas via $v_{j,t} = x_{jjt}$.
+    
+
+    \subsubsection{Restrições de Movimento}
+
+    \begin{align}
+      &\text{(i) início/fim na base:}& p_{b,1}&=1,\quad p_{b,T_f}=1 \tag{2}\\
+      &\text{(ii) unicidade de posição:}& \sum_{n\in N} p_{n,t} &= 1,\ \forall t\in\{1,\ldots,T_f\} \tag{3}\\
+      &\text{(iii) fluxo por slot:}& \sum_{j\in N} x_{i j t} &= p_{i,t},\ \sum_{i\in N} x_{i j t} = p_{j,t+1},\ \forall t\in\{1,\ldots,T_f-1\} \tag{4}
+    \end{align}
+
+    As restrições (2)--(4) modelam a dinâmica de movimento do UAV ao longo dos slots de tempo. A restrição (2) fixa a base $b$ como ponto de partida e de chegada da missão, garantindo que o drone inicie o voo na base e retorne a ela no final do horizonte $T_f$. A restrição (3) impõe que, em cada slot $t$, o UAV esteja exatamente em um único nó $n \in N$, isto é, o drone não pode estar em dois locais ao mesmo tempo nem ``desaparecer'' do grafo. Já a restrição (4) garante a consistência do fluxo entre nós sucessivos: para cada slot $t$, o número de arestas saindo de um nó $i$ é igual à indicação de que o drone está em $i$ no início do slot, e o número de arestas chegando em um nó $j$ é igual à indicação de que o drone estará em $j$ no início do slot seguinte. Em conjunto, essas restrições asseguram que a trajetória do UAV é uma caminhada viável no grafo $N$ ao longo do horizonte de tempo.
+
+    
+    \subsubsection{Restrições de Comunicação}
+
+    No modelo, uma coleta de dados ocorre somente quando o UAV permanece pairando sobre o sensor durante todo o slot.  
+    
+    Esse comportamento é modelado por meio de um \emph{self-loop} na aresta $(j,j)$:
+    
+    \begin{align}
+        v_{j,t} = x_{j j t},
+        \qquad \forall j \in S,\ t = 1,\ldots,T_f - 1.
+        \tag{5}
+    \end{align}
+    
+    Assim, $v_{j,t}=1$ indica que o drone está parado sobre o sensor $j$ durante o slot $t$ e realiza coleta.  
+    Se o UAV estiver se deslocando entre quaisquer nós distintos $(i \ne j)$, então $x_{j j t} = 0$ e, portanto, nenhuma coleta ocorre.
+    
+    Também impomos que cada sensor seja visitado no máximo uma vez:
+    
+    \begin{align}
+        y_j &= \sum_{t=1}^{T_f - 1} v_{j,t},
+        \tag{6a}\\[4pt]
+        \sum_{t=1}^{T_f - 1} v_{j,t} &\le 1,
+        \qquad \forall j \in S.
+        \tag{6b}
+    \end{align}
+    
+    A variável $y_j$ indica se o sensor $j$ foi ou não visitado em algum instante.
+    
+    \subsubsection{Modelo de Energia e Potência do UAV}
+    
+    O modelo de consumo energético utilizado é baseado no modelo de potência para VANTs de asa rotativa descrito por Zeng \& Mu (2017), que considera três componentes:
+    
+    \begin{itemize}
+        \item potência de perfil das pás;
+        \item potência induzida;
+        \item potência de arrasto parasita.
+    \end{itemize}
+    
+    A potência consumida pelo UAV quando se desloca com velocidade $V$ é dada por:
+    
+    \begin{align}
+    P(V) &= 
+    P_0\!\left(1 + 3\frac{V^2}{U_{\text{tip}}^2}\right)
+    \;+\;
+    \Pi \sqrt{
+            \sqrt{1 + \frac{V^4}{4 v_0^4}}
+            \;-\;
+            \frac{V^2}{2 v_0^2}
+        }
+    \;+\;
+    \frac{1}{2}\rho C_{DS} V^3 ,
+    \tag{7}
+    \end{align}
+    
+    onde $P_0$, $\Pi$, $U_\text{tip}$, $v_0$, $\rho$ e $C_{DS}$ são parâmetros físicos do UAV.
+    
+    Para uma transição $(i,j)$ em um slot de duração $\Delta t$, adotamos velocidade constante:
+    
+    \[
+    V_{ij} = \frac{d_{ij}}{\Delta t}.
+    \]
+    
+    Assim, o custo energético associado a uma aresta é:
+    
+    \begin{align}
+        c_{ij} = P(V_{ij}) \, \Delta t.
+        \tag{8}
+    \end{align}
+    
+    O caso especial de \emph{hover} corresponde à aresta $(i,i)$, onde $V_{ii}=0$ e portanto:
+    
+    \[
+    c_{ii} = P(0)\,\Delta t.
+    \]
+    
+    Este modelo substitui formulações lineares simplificadas como $c_{ij} = k\, d_{ij}$, oferecendo maior precisão física na simulação do voo.
+    
+    
+    \subsubsection{Restrições de Energia}
+    
+    A energia acumulada no início do voo é nula:
+    
+    \begin{align}
+        E_1 = 0. \tag{9}
+    \end{align}
+    
+    A evolução da energia é dada pela soma dos custos das arestas percorridas:
+    
+    \begin{align}
+        E_{t+1}
+        =
+        E_t
+        +
+        \sum_{i \in N}
+        \sum_{j \in N}
+            c_{ij}\, x_{ijt},
+        \qquad t = 1,\ldots,T_f - 1.
+        \tag{10}
+    \end{align}
+    
+    O consumo final acumulado não deve exceder a capacidade da bateria:
+    
+    \begin{align}
+        E_{T_f} \le E^{\max}. \tag{11}
+    \end{align}
+    
+    As restrições acima refletem exatamente a dinâmica implementada no código, onde $E_t$ é a energia total acumulada e $c_{ij}$ segue a modelagem de potência do UAV.
+
+    \subsubsection{Restrições de Age of Information (AoI)}
+
+    Para o primeiro voo, $A_j^0 = 0$ para todos os sensores $j \in S$. Para voos subsequentes, $A_j^0$ representa o número de intervalos de tempo desde a última coleta de dados do sensor $j$.
+    \begin{align}
+      A_{j,1} &= A_j^0, \forall j \in S \tag{10}
+    \end{align}
+    
+    A evolução da AoI ao longo do tempo é descrita por:
+    \begin{align}
+        A_{j,t+1} = (1 - v_{j,t})\,(A_{j,t} + 1),
+        \qquad \forall j \in S,\ \forall t = 1,\ldots,T_f-1.
+        \tag{11}
+    \end{align}
+    
+    Essa equação expressa duas situações:
+    \[
+        A_{j,t+1} =
+        \begin{cases}
+            0, & \text{se } v_{j,t}=1 \text{ (coleta realizada)},\\[4pt]
+            A_{j,t}+1, & \text{se } v_{j,t}=0.
+        \end{cases}
+    \]
+
+    Ela descreve a dinâmica, mas envolve um termo não linear. Na implementação, essa equação é reescrita por meio de restrições lineares.
+
+    Para utilizar o termo $A_{j,t} v_{j,t}$ na função objetivo, introduzimos a
+    variável auxiliar contínua $w_{j,t}$, que representa exatamente esse produto.
+    Como termos bilineares não são permitidos em programação linear inteira,
+    utilizamos a seguinte linearização:
+    
+    \begin{align}
+        w_{j,t} &\le A_{j,t}, \tag{12a}\\
+        w_{j,t} &\le M_A\, v_{j,t}, \tag{12b}\\
+        w_{j,t} &\ge A_{j,t} - M_A (1 - v_{j,t}), \tag{12c}
+    \end{align}
+    \[
+        \forall j\in S,\ \forall t = 1,\ldots,T_f-1.
+    \]
+    
+    As Equações~(12a)--(12c) têm como objetivo implementar de forma linear o produto $w_{j,t} = A_{j,t} v_{j,t}$, onde $v_{j,t} \in \{0,1\}$ indica se o sensor $j$ é visitado no slot $t$ e $A_{j,t}$ é a AoI nesse instante. Assumimos ainda que $0 \leq A_{j,t} \leq M_A$ e $w_{j,t} \geq 0$. Podemos analisar separadamente os dois casos de $v_{j,t}$.
+    
+    \textbf{Caso $v_{j,t} = 0$.}
+    Substituindo $v_{j,t}=0$ em (12a)--(12c), obtemos:
+    \[
+        w_{j,t} \leq A_{j,t}, \qquad
+        w_{j,t} \leq 0, \qquad
+        w_{j,t} \geq A_{j,t} - M_A.
+    \]
+    
+    Como $A_{j,t} \leq M_A$, temos $A_{j,t} - M_A \leq 0$, de modo que a terceira desigualdade apenas impõe um limite inferior. Combinando $w_{j,t} \leq 0$ com $w_{j,t} \geq 0$, concluímos que necessariamente $w_{j,t} = 0$. Nota-se que $w_{j,t} = 0$ satisfaz $w_{j,t} \leq A_{j,t}$ e $w_{j,t} \geq A_{j,t} - M_A$. Portanto, quando $v_{j,t}=0$, temos $w_{j,t}=0$.
+    
+    \textbf{Caso $v_{j,t} = 1$.}
+    Substituindo $v_{j,t}=1$ em (12a)--(12c), obtemos:
+    \[
+        w_{j,t} \leq A_{j,t}, \qquad
+        w_{j,t} \leq M_A, \qquad
+        w_{j,t} \geq A_{j,t}.
+    \]
+    Como $A_{j,t} \leq M_A$, a desigualdade $w_{j,t} \leq M_A$ se torna redundante. Combinando $w_{j,t} \leq A_{j,t}$ com $w_{j,t} \geq A_{j,t}$, obtemos $w_{j,t} = A_{j,t}$. Logo, quando $v_{j,t}=1$, vale $w_{j,t}=A_{j,t}$.
+    
+    Dessa forma, as restrições (12a)--(12c) garantem que
+    \[
+        w_{j,t} =
+        \begin{cases}
+            0,        & \text{se } v_{j,t} = 0,\\[4pt]
+            A_{j,t},  & \text{se } v_{j,t} = 1,
+        \end{cases}
+    \]
+    isto é, $w_{j,t}$ representa exatamente a AoI coletada no slot $j$. Isso permite utilizar a soma $\sum_{i,j} w_{j,t}$ na função objetivo como medida linear.
+
+
+    \input{metodologia}
+    \input{cronograma}
+
+    \bibliographystyle{abbrv}
+    \bibliography{refs}
+\end{document}

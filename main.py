@@ -1,6 +1,7 @@
 from gurobipy import Model, GRB, quicksum
-from setup.sensors import read_sensors_csv, build_nodes_map, Base
+from setup.sensors import read_sensors_csv, build_nodes_map, Base, DEFAULT_SENSORS_CSV
 from typing import Dict, Tuple, List
+import argparse
 import csv
 import os
 import math
@@ -31,13 +32,14 @@ CDS = 0.01509     # d0 * s * A
 
 # Capacidade total de energia da bateria (duas TB60)
 # Arthur chega a 616,2 Wh convertendo para Joules: 616.2 * 3600 ≈ 2_218_320 J
-BATTERY_MAX = 2_218_320.0
+# BATTERY_MAX = 141_372.0 # (PARROT ANAFI USA)
+BATTERY_MAX = 50_000.0
 
 TIME_SLOTS = 20  # número de slots discretos
 
-AOI_STATE_PATH   = "/home/lucas/workspace/pgc/uav_optimize/setup/aoi_state.csv"
-AOI_HISTORY_PATH = "/home/lucas/workspace/pgc/uav_optimize/setup/aoi_history.csv"
-
+AOI_STATE_PATH     = "/home/lucas/workspace/pgc/uav_optimize/setup/aoi_state.csv"
+AOI_HISTORY_PATH   = "/home/lucas/workspace/pgc/uav_optimize/setup/posicao/30/resultados/aoi_history_1000x1000.csv"
+ROUND_SUMMARY_PATH = "/home/lucas/workspace/pgc/uav_optimize/setup/posicao/30/resultados/round_summary_1000x1000.csv"
 
 
 # ---------------------------------------------------------------------------
@@ -88,9 +90,11 @@ def next_round_index() -> int:
 
     last = 0
     with open(AOI_HISTORY_PATH, newline="", encoding="utf-8") as f:
-        r = csv.DictReader(f)
+        r = csv.DictReader(line.replace("\x00", "") for line in f)
         for row in r:
-            last = max(last, int(row["round"]))
+            val = row.get("round", "").strip()
+            if val:
+                last = max(last, int(val))
     return last + 1
 
 
@@ -117,6 +121,45 @@ def append_aoi_history(
                 aoi_after[sid],
                 visited.get(sid, 0)
             ])
+
+
+def append_round_summary(
+    round_idx: int,
+    energy_final: float,
+    collected_aoi: float,
+    avg_final_aoi: float,
+    visited_count: int,
+    total_distance: float,
+    path_taken: List[int],
+) -> None:
+    """
+    Acrescenta uma linha de resumo por rodada.
+    """
+    file_exists = os.path.exists(ROUND_SUMMARY_PATH)
+
+    with open(ROUND_SUMMARY_PATH, "a", newline="", encoding="utf-8") as f:
+        w = csv.writer(f)
+
+        if not file_exists:
+            w.writerow([
+                "round",
+                "energy_final",
+                "collected_aoi",
+                "avg_final_aoi",
+                "visited_count",
+                "total_distance",
+                "path_taken",
+            ])
+
+        w.writerow([
+            round_idx,
+            f"{energy_final:.4f}",
+            f"{collected_aoi:.4f}",
+            f"{avg_final_aoi:.4f}",
+            visited_count,
+            f"{total_distance:.4f}",
+            " -> ".join(map(str, path_taken)),
+        ])
 
 
 # ---------------------------------------------------------------------------
@@ -521,6 +564,7 @@ def build_optimization_model(
 
     return {
         "model": m,
+        "nodes_map": nodes_map,
         "T_slots": T_slots,
         "node_ids": node_ids,
         "sensor_ids": sensor_ids,
@@ -582,6 +626,7 @@ def handle_solution(
     y = model_components["y"]
     A = model_components["A"]
     w = model_components["w"]
+    nodes_map = model_components["nodes_map"]
 
     last_t = T_slots[-1]
 
@@ -592,27 +637,53 @@ def handle_solution(
     last_energy = E[last_t].X
     collected_aoi = sum(w[j, t].X for j in sensor_ids for t in T_slots[:-1])
     visited = {j: int(y[j].X > 0.5) for j in sensor_ids}
+    visited_count = sum(visited.values())
 
-    print(f"Energia total (E[{last_t}]): {last_energy:.4f}")
-    print(f"AoI coletada nesta rodada (sum w[j,t]): {collected_aoi}")
-
-    # Posições por slot
     positions = []
+    path_taken = []
     for t in T_slots:
         node_here = [n for n in node_ids if p[n, t].X > 0.5][0]
         positions.append((t, node_here))
-    print("Posições (t, nó):", positions)
+        path_taken.append(node_here)
 
-    # Atualizar AoI pós-voo:
+    total_distance = 0.0
+    for idx in range(len(path_taken) - 1):
+        i = path_taken[idx]
+        j = path_taken[idx + 1]
+        total_distance += nodes_map.distances[(i, j)]
+
     aoi_after: Dict[int, int] = {}
     for sid in sensor_ids:
         val = A[sid, last_t].X
-        # protege contra ruído numérico: clamp e arredonda p/ inteiro
         aoi_after[sid] = max(0, int(round(val)))
 
+    avg_final_aoi = (
+        sum(aoi_after.values()) / len(sensor_ids)
+        if sensor_ids else 0.0
+    )
+
+    print(f"Energia total (E[{last_t}]): {last_energy:.4f}")
+    print(f"AoI coletada nesta rodada (sum w[j,t]): {collected_aoi:.4f}")
+    print(f"AoI média final dos sensores: {avg_final_aoi:.4f}")
+    print(f"Sensores visitados: {visited_count}")
+    print(f"Distância total percorrida: {total_distance:.4f}")
+    print("Posições (t, nó):", positions)
+    print("Caminho percorrido:", " -> ".join(map(str, path_taken)))
+
     save_aoi_state(aoi_after)
+
     r = next_round_index()
     append_aoi_history(r, aoi_before, aoi_after, visited)
+    append_round_summary(
+        round_idx=r,
+        energy_final=last_energy,
+        collected_aoi=collected_aoi,
+        avg_final_aoi=avg_final_aoi,
+        visited_count=visited_count,
+        total_distance=total_distance,
+        path_taken=path_taken,
+    )
+
     print(f"Estado de AoI atualizado e historizado para a rodada {r}.")
 
 
@@ -621,8 +692,21 @@ def handle_solution(
 # ---------------------------------------------------------------------------
 
 def main():
+    global AOI_STATE_PATH, AOI_HISTORY_PATH, ROUND_SUMMARY_PATH
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--sensors-csv",   default=DEFAULT_SENSORS_CSV)
+    parser.add_argument("--aoi-state",     default=AOI_STATE_PATH)
+    parser.add_argument("--aoi-history",   default=AOI_HISTORY_PATH)
+    parser.add_argument("--round-summary", default=ROUND_SUMMARY_PATH)
+    args = parser.parse_args()
+
+    AOI_STATE_PATH     = args.aoi_state
+    AOI_HISTORY_PATH   = args.aoi_history
+    ROUND_SUMMARY_PATH = args.round_summary
+
     # Carrega dados geométricos e de sensores
-    sensores = read_sensors_csv()
+    sensores = read_sensors_csv(args.sensors_csv)
     base = Base()
     nodes_map = build_nodes_map(sensores, base)
 

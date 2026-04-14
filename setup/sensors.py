@@ -25,13 +25,14 @@ class NodesMap:
     distances: DistanceMatrix
 
 
-def read_sensors_csv() -> List[Sensor]:
+DEFAULT_SENSORS_CSV = "/home/lucas/workspace/pgc/uav_optimize/setup/posicao/30/sensors_1000x1000.csv"
+
+def read_sensors_csv(path: str = DEFAULT_SENSORS_CSV) -> List[Sensor]:
     sensors: List[Sensor] = []
-    with open("/home/lucas/workspace/pgc/uav_optimize/setup/sensors.csv", newline="", encoding="utf-8") as f:
+    with open(path, newline="", encoding="utf-8") as f:
         r = csv.DictReader(f)
         for row in r:
             sensors.append(Sensor(int(row["id"]), float(row["x"]), float(row["y"])))
- 
     return sensors
 
 def build_nodes_map(sensors: List[Sensor], base: Base = Base()) -> NodesMap:
