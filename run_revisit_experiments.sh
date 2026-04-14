@@ -60,7 +60,8 @@ for n in "${SENSOR_COUNTS[@]}"; do
                 --aoi-state     "$AOI_STATE" \
                 --aoi-history   "$AOI_HISTORY" \
                 --round-summary "$ROUND_SUMMARY" \
-                --allow-revisit
+                --allow-revisit \
+                --max-revisits  3
         done
 
         rm -f "$AOI_STATE"
