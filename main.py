@@ -650,8 +650,25 @@ def handle_solution(
 
     last_t = T_slots[-1]
 
-    if m.status not in (GRB.OPTIMAL, GRB.TIME_LIMIT, GRB.SUBOPTIMAL):
-        print("Modelo não encontrou solução viável.")
+    has_solution = m.SolCount > 0
+    if not has_solution:
+        # Sem solução viável: envelhece a AoI por TIME_SLOTS slots (UAV não voou)
+        # e registra a rodada com zeros para manter o histórico consistente.
+        print("Modelo não encontrou solução viável. Registrando rodada sem voo.")
+        aoi_after = {sid: aoi_before[sid] + TIME_SLOTS for sid in sensor_ids}
+        visited = {sid: 0 for sid in sensor_ids}
+        save_aoi_state(aoi_after)
+        r = next_round_index()
+        append_aoi_history(r, aoi_before, aoi_after, visited)
+        append_round_summary(
+            round_idx=r,
+            energy_final=0.0,
+            collected_aoi=0.0,
+            avg_final_aoi=sum(aoi_after.values()) / len(sensor_ids),
+            visited_count=0,
+            total_distance=0.0,
+            path_taken=[],
+        )
         return
 
     last_energy = E[last_t].X
