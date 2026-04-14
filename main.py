@@ -437,6 +437,7 @@ def add_visit_constraints(
     v,
     y,
     allow_revisit: bool = False,
+    max_revisits: int = 1,
 ):
     """
     Relaciona movimentos com visitas:
@@ -444,6 +445,8 @@ def add_visit_constraints(
     - y[j] = 1 se o sensor j foi visitado ao menos uma vez.
     - y[j] = min(1, sum_t v[j,t]).
     - Se allow_revisit=False (padrão), cada sensor é visitado no máximo uma vez.
+    - Se allow_revisit=True, cada sensor pode ser visitado no máximo max_revisits vezes,
+      o que devolve ao solver um corte forte sem proibir revisitas.
     """
     for j in sensor_ids:
         for t in T_slots[:-1]:
@@ -453,11 +456,11 @@ def add_visit_constraints(
             )
 
     for j in sensor_ids:
-        if not allow_revisit:
-            m.addConstr(
-                quicksum(v[j, t] for t in T_slots[:-1]) <= 1,
-                name=f"visit_at_most_once_{j}",
-            )
+        limit = max_revisits if allow_revisit else 1
+        m.addConstr(
+            quicksum(v[j, t] for t in T_slots[:-1]) <= limit,
+            name=f"visit_at_most_{limit}_{j}",
+        )
         # y[j] >= v[j,t] para todo t  →  y[j] = 1 se visitou ao menos uma vez
         for t in T_slots[:-1]:
             m.addConstr(
@@ -546,6 +549,7 @@ def build_optimization_model(
     base: Base,
     aoi_before: Dict[int, int],
     allow_revisit: bool = False,
+    max_revisits: int = 1,
 ):
     """
     Cria e retorna o modelo Gurobi e todos os componentes relevantes.
@@ -566,7 +570,7 @@ def build_optimization_model(
     add_unique_position_constraints(m, node_ids, T_slots, p)
     add_flow_constraints(m, node_ids, T_slots, p, x)
     add_energy_constraints(m, T_slots, E, x, energy_cost)
-    add_visit_constraints(m, node_ids, sensor_ids, T_slots, x, v, y, allow_revisit)
+    add_visit_constraints(m, node_ids, sensor_ids, T_slots, x, v, y, allow_revisit, max_revisits)
     add_aoi_gain_linearization(m, sensor_ids, T_slots, A, v, w, M_A)
 
     # Objetivo
@@ -608,9 +612,9 @@ def solve_model(m: Model) -> None:
     """
     m.setParam("TimeLimit", 60)
     m.setParam("MIPGap", 0.01)
-    m.setParam("Threads", 2)
-    m.setParam("NodefileStart", 0.5)
-    m.setParam("SoftMemLimit", 4)
+    m.setParam("Threads", 1)
+    m.setParam("NodefileStart", 0.1)
+    m.setParam("SoftMemLimit", 1.5)
     m.optimize()
 
 
@@ -740,7 +744,13 @@ def main():
         "--allow-revisit",
         action="store_true",
         default=False,
-        help="Remove a restrição de visita única: o UAV pode visitar cada sensor múltiplas vezes.",
+        help="Permite que o UAV visite cada sensor múltiplas vezes (limitado por --max-revisits).",
+    )
+    parser.add_argument(
+        "--max-revisits",
+        type=int,
+        default=3,
+        help="Número máximo de visitas por sensor quando --allow-revisit está ativo (padrão: 3).",
     )
     args = parser.parse_args()
 
@@ -767,6 +777,7 @@ def main():
         base=base,
         aoi_before=aoi_before,
         allow_revisit=args.allow_revisit,
+        max_revisits=args.max_revisits,
     )
 
     # Resolve
