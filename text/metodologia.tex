@@ -4,9 +4,9 @@ A condução deste trabalho segue uma abordagem estruturada em três etapas prin
 
 \subsection{Levantamento de Dados e Cenários}
 
-Inicialmente, realiza-se o levantamento dos principais parâmetros e cenários utilizados nos modelos de coleta de dados assistida por VANTs, conforme apresentado em trabalhos como (citar os trabalhos). São coletadas informações sobre os modos de coleta (hovering, fly-by e híbrido), características dos sensores, limitações energéticas dos UAVs, padrões de cobertura, e tipos de topologia das redes de sensores sem fio.
+Inicialmente, realizou-se o levantamento dos principais parâmetros e cenários utilizados nos modelos de coleta de dados assistida por VANTs, conforme apresentado em trabalhos como \cite{wei2022survey,messaoudi2023survey,liu2018uavWSN}. São coletadas informações sobre os modos de coleta (hovering, fly-by e híbrido), características dos sensores, limitações energéticas dos UAVs, padrões de cobertura, e tipos de topologia das redes de sensores sem fio.
 
-Além disso, define-se o cenário base da simulação, como a área de cobertura, número e distribuição dos sensores, tipo de UAV (asa fixa ou rotativo), tempo máximo de voo e parâmetros de consumo energético. Esses dados são utilizados como entrada para a etapa de modelagem matemática.
+Além disso, definiu-se o cenário base da simulação, como a área de cobertura, número e distribuição dos sensores, tipo de UAV (asa fixa ou rotativo), tempo máximo de voo e parâmetros de consumo energético. Esses dados são utilizados como entrada para a etapa de modelagem matemática.
 
 \subsection{Modelagem Matemática}
 
@@ -33,13 +33,11 @@ São analisadas as métricas:
 \item energia total consumida por missão;
 \item tempo de cobertura dos sensores;
 \item distância percorrida;
-
-\item quantidade de sensores visitados; \colorbox{yellow!25}{não tem nos resultados mas poderia ser uma boa métrica}
-\item tempo computacional de resolução. \colorbox{yellow!25}{não tem nos resultados mas poderia ser uma boa métrica}
+\item quantidade de sensores visitados.
 \end{itemize}
 
 \subsubsection{Cenários}
-Os experimentos foram conduzidos sobre um conjunto de cenários sintéticos que variam dois parâmetros independentes: quantidade de sensores implantados na área de monitoramento e o tamanho da área coberta. Para a quantidade de sensores, foram considerados os valores $n_s \in \{5, 10, 15, 20, 25, 30\}$, e para a dimensão da área quadrada foram adotados os tamanhos $L \in \{100, 200, 400, 600, 800, 1000\}$ metros. A combinação fatorial desses dois parâmetros resulta em 36 cenários distintos, denominados $P_{n_s\text{-}L}$ (ex.: $P_{10\text{-}400}$ para 10 sensores em área de 400×400 m).
+Os experimentos foram conduzidos sobre um conjunto de cenários sintéticos que variam dois parâmetros independentes: quantidade de sensores implantados na área de monitoramento e o tamanho da área coberta. Para a quantidade de sensores, foram considerados os valores $n_s \in \{5, 10, 15, 20, 25, 30\}$, e para a dimensão da área quadrada foram adotados os tamanhos $L \in \{100, 200, 400, 600, 800, 1000\}$metros. A combinação fatorial desses dois parâmetros resulta em 36 cenários distintos, denominados $P_{n_s\text{-}L}$ (ex.: $P_{10\text{-}400}$ para 10 sensores em área de 400×400 m).
 
 Para cada cenário, as coordenadas $(x, y)$ dos sensores são geradas aleatoriamente e distribuídas de forma uniforme dentro da área quadrada de lado $L$, sendo fixadas em arquivos CSV para garantir reprodutibilidade. O posicionamento é mantido constante ao longo de todas as rodadas de simulação, de modo a isolar os efeitos da variação de escala sobre as métricas de desempenho.
 
@@ -104,16 +102,21 @@ Após a execução de todos os cenários, os resultados são agregados calculand
   \label{fig:heatmap_energy}
 \end{figure}
 
-Os resultados obtidos são comparados com a literatura, sempre que possível, com o objetivo de validar a eficiência da abordagem proposta e explorar a sensibilidade do modelo a diferentes configurações.
+Os resultados obtidos são analisados quantitativamente, com referência aos padrões observados em trabalhos relacionados, com o objetivo de explorar a sensibilidade do modelo a diferentes configurações de cenário.
 
 \subsubsection{Configuração dos Drones}
 
 Os experimentos foram conduzidos com dois modelos distintos de VANT, cujos parâmetros físicos são utilizados no modelo de potência de asa rotativa (Equação~7).
 
+As Figuras~\ref{fig:aoi_vs_map}--\ref{fig:heatmap_energy} mostram os resultados para o DJI Matrice 300 RTK. Observa-se que a AoI média tende a crescer com o aumento do tamanho do mapa, reflexo da maior dificuldade do UAV em cobrir todos os sensores dentro do horizonte de missão de 200\,s. A distância total percorrida também aumenta com $L$, enquanto o consumo de energia acompanha esse crescimento devido ao maior tempo de deslocamento. Cenários com maior densidade de sensores (maior $n_s$ em área pequena) apresentam AoI mais baixa, pois o drone consegue visitar mais sensores por missão.
+
+% TODO: adicionar gráfico comparativo entre DJI Matrice 300 RTK e Parrot Anafi USA para destacar as diferenças de autonomia e cobertura entre os dois modelos.
+
 \paragraph{DJI Matrice 300 RTK.}
-O primeiro conjunto de experimentos utiliza os parâmetros físicos do DJI Matrice 300 RTK, um drone de uso profissional amplamente empregado em aplicações industriais e de monitoramento. Para estes experimentos, a capacidade de bateria foi fixada em $E^{\max} = 50.000$\,J, representando um subconjunto da autonomia total do veículo com o objetivo de avaliar o comportamento do otimizador em condições mais restritivas de energia.
+O primeiro conjunto de experimentos utiliza os parâmetros físicos do DJI Matrice 300 RTK, um drone de uso profissional amplamente empregado em aplicações industriais e de monitoramento. Para estes experimentos, a capacidade de bateria foi fixada em $E^{\max} = 2$\,MJ, representando um subconjunto da autonomia total do veículo com o objetivo de avaliar o comportamento do otimizador em condições mais restritivas de energia.
 
 \paragraph{Parrot Anafi USA.}
+
 O segundo conjunto de experimentos foi realizado com os parâmetros do Parrot Anafi USA, um drone compacto voltado para aplicações de segurança e mapeamento. Para este modelo, a capacidade de bateria utilizada foi $E^{\max} = 141.372$\,J, correspondendo à capacidade real da bateria do equipamento.
 
 Os resultados do DJI Matrice 300 RTK são apresentados nas Figuras~\ref{fig:aoi_vs_map}--\ref{fig:heatmap_energy}. Os resultados para o Parrot Anafi USA são apresentados a seguir.

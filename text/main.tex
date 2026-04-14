@@ -21,6 +21,8 @@
 
 
     \input{trabalhos_relacionados}
+
+    \input{fundamentacao}
  
     \input{objetivos}
     
@@ -28,13 +30,17 @@
     
     \subsection{Descrição do Problema}
     
-    O problema de otimização de plano de voo para UAVs consiste em determinar a trajetória ótima que um drone deve seguir para coletar dados de um conjunto de sensores IoT distribuídos em uma área geográfica. O objetivo principal é maximizar a quantidade de dados coletados enquanto se minimiza o consumo de energia do drone e a idade da informação (Age of Information - AoI), respeitando suas limitações operacionais. O drone parte de uma posição inicial conhecida, deve visitar um subconjunto de sensores dentro do seu alcance de comunicação, e retornar a uma posição final (que pode ser igual à inicial). Durante o voo, o drone consome energia de acordo com sua velocidade e manobras, e coleta dados quando está dentro do raio de comunicação dos sensores. A qualidade da comunicação entre o drone e os sensores depende da distância entre eles. Este problema pode ser modelado como um problema de otimização combinatória com restrições de energia, tempo de voo, e requisitos de comunicação, considerando também a idade dos dados nos sensores para priorizar a coleta de informações mais antigas.
+    O problema de otimização de plano de voo para UAVs consiste em determinar a trajetória ótima que um drone deve seguir para coletar dados de um conjunto de sensores IoT distribuídos em uma área geográfica. O objetivo principal é maximizar a quantidade de dados coletados enquanto se minimiza o consumo de energia do drone e a idade da informação (Age of Information - AoI), respeitando suas limitações operacionais. O drone parte de uma posição inicial conhecida, deve visitar um subconjunto de sensores dentro do seu alcance de comunicação, e se dirigir a uma posição final (que pode ser igual à inicial). Durante o voo, o drone consome energia de acordo com sua velocidade e manobras, e coleta dados quando está dentro do raio de comunicação dos sensores. A qualidade da comunicação entre o drone e os sensores depende da distância entre eles. Este problema pode ser modelado como um problema de otimização combinatória com restrições de energia, tempo de voo, e requisitos de comunicação, considerando também a idade dos dados nos sensores para priorizar a coleta de informações mais antigas.
     
     Esta formulação é relevante para aplicações como monitoramento ambiental, agricultura de precisão, vigilância urbana e resposta a desastres, onde a coleta eficiente e oportuna de dados de sensores distribuídos é crucial para a tomada de decisões.
 
-    
+O modelo de comunicação adotado é simplificado: assume-se que a transmissão ocorre com sucesso sempre que o UAV permanece pairando (\textit{hovering}) diretamente sobre o sensor durante um slot completo de duração $\Delta t$. Não são modelados aspectos de camada de enlace como modulação, interferência ou protocolo MAC; a coleta é representada por uma variável binária que indica se o drone está posicionado sobre o nó sensor no instante correspondente (ver Equação~(5)).
+
+
     \subsection{Parâmetros e Variáveis}
-    
+
+O modelo representa o voo do UAV como uma sequência de estados discretos no tempo, divididos em slots de duração $\Delta t$. O espaço de movimentação é modelado como um grafo completo sobre o conjunto de nós $N = S \cup \{b\}$ (sensores e base), com coordenadas bidimensionais $(x, y)$. O custo energético de cada transição é determinado pelo modelo de potência de asa rotativa em função da velocidade de voo. As variáveis de decisão binárias controlam a posição e os deslocamentos do UAV ao longo do horizonte temporal; variáveis contínuas registram a energia acumulada e a \textit{Age of Information} (AoI) de cada sensor a cada slot. A solução ótima define uma sequência de posições do UAV que maximiza a informação coletada respeitando a restrição de capacidade de bateria $E^{\max}$. As Tabelas~1 e 2 listam, respectivamente, os parâmetros e as variáveis de decisão do modelo.
+
     \begin{table}[htbp]
       \centering
       \caption{Parâmetros do Modelo}
@@ -97,35 +103,92 @@
     \subsection{Formulação do Problema}
     
     Seja $T = \{1, 2, \dots, \tau\}$ o conjunto de intervalos de tempo discretos. O objetivo
-    é planejar a trajetória de um ou mais UAVs para coleta eficiente de dados em sensores IoT, respeitando restrições de mobilidade, energia, e requisitos de comunicação. O problema pode ser formulado pelas seguintes equações:
+    é planejar a trajetória de um ou mais UAVs para coleta eficiente de dados em sensores IoT, respeitando restrições de mobilidade, energia, e requisitos de comunicação. O problema pode ser formulado pelas equações nas subseções a seguir.
 
     \subsubsection{Definição do Grafo de Movimento}
 
-    O conjunto de posições possíveis para o UAV é dado por:
-    
-    \[
-    N = S \cup \{b\},
-    \]
-    
-    onde $b$ representa a base.  
-    Diferentemente de modelos que usam grafos esparsos, aqui adotamos:
-    
-    \[
-    A = N \times N,
-    \]
-    
-    um grafo dirigido completo com \emph{self-loops}.  
+    O conjunto de posições possíveis para o UAV é dado por    
+    $N = S \cup \{b\}$, onde $b$ representa a base.  
+    Diferentemente de modelos que usam grafos esparsos, aqui adotamos $A = N \times N$, um grafo dirigido completo com \emph{self-loops}.  
     Isso significa que:
     
     \begin{itemize}
-        \item o UAV pode transitar de qualquer nó para qualquer outro em um único slot;
+        \item o UAV pode transitar de qualquer nó para qualquer outro em um único slot (pressuposto do grafo completo; na prática, transições longas são desincentivadas pelo custo energético $c_{ij}$);
         \item o caso $(i,i)$ modela \textbf{hover}, isto é, o UAV permanece parado;
-        \item a dinâmica de movimento é totalmente determinada pelas variáveis $x_{ijt}$.
+        \item a dinâmica de movimento é totalmente determinada pelas variáveis $x_{ijt}$. 
     \end{itemize}
     
     O uso de um grafo completo fornece maior generalidade, permitindo representar tanto deslocamentos quanto posicionamento estático.
-    
-    
+
+    \paragraph{Interpretação de $x_{ijt}$.}
+
+    A variável binária $x_{ijt}$ indica que o UAV se encontra no nó $i$ no início do slot $t$ e estará no nó $j$ no início do slot $t+1$.
+    Assim:
+
+    \[
+    x_{ijt} =
+    \begin{cases}
+    1, & \text{se o UAV realiza a transição } i \to j, \\[4pt]
+    0, & \text{caso contrário}.
+    \end{cases}
+    \]
+
+    O caso especial
+    \[
+    x_{iit} = 1
+    \]
+    implica que o UAV permanece parado (\emph{hover}), o que também é utilizado para caracterizar coletas via $v_{j,t} = x_{jjt}$.
+
+    \subsubsection{Modelo de Energia e Potência do UAV}
+
+    O modelo de consumo energético utilizado é baseado no modelo de potência para VANTs de asa rotativa descrito por \cite{zeng2019rotarywing}, que considera três componentes:
+
+    \begin{itemize}
+        \item potência de perfil das pás;
+        \item potência induzida;
+        \item potência de arrasto parasita.
+    \end{itemize}
+
+    A potência consumida pelo UAV quando se desloca com velocidade $V$ é dada por:
+
+    \begin{align}
+    P(V) &=
+    P_0\!\left(1 + 3\frac{V^2}{U_{\text{tip}}^2}\right)
+    \;+\;
+    \Pi \sqrt{
+            \sqrt{1 + \frac{V^4}{4 v_0^4}}
+            \;-\;
+            \frac{V^2}{2 v_0^2}
+        }
+    \;+\;
+    \frac{1}{2}\rho C_{DS} V^3 ,
+    \tag{7}
+    \end{align}
+
+    onde $P_0$, $\Pi$, $U_\text{tip}$, $v_0$, $\rho$ e $C_{DS}$ são parâmetros físicos do UAV.
+
+    Para uma transição $(i,j)$ em um slot de duração $\Delta t$, adotamos velocidade constante:
+
+    \[
+    V_{ij} = \frac{d_{ij}}{\Delta t}.
+    \]
+
+    Assim, o custo energético associado a uma aresta é:
+
+    \begin{align}
+        c_{ij} = P(V_{ij}) \, \Delta t.
+        \tag{8}
+    \end{align}
+
+    O caso especial de \emph{hover} corresponde à aresta $(i,i)$, onde $V_{ii}=0$ e portanto:
+
+    \[
+    c_{ii} = P(0)\,\Delta t.
+    \]
+
+    Este modelo substitui formulações lineares simplificadas como $c_{ij} = k\, d_{ij}$, oferecendo maior precisão física na simulação do voo.
+
+
     \subsubsection{Funções Objetivo}
 
     A formulação do problema busca equilibrar dois aspectos fundamentais da missão: 
@@ -185,26 +248,6 @@
     A primeira parcela recompensa soluções que coletam grande quantidade de AoI, especialmente de sensores que acumulam atraso informacional. A segunda parcela penaliza soluções energeticamente dispendiosas, promovendo trajetórias mais curtas e econômicas.  
     A função $F$ captura, assim, a essência do trade-off inerente ao problema: obter informação relevante com o menor gasto energético possível.
     
-    \paragraph{Interpretação de $x_{ijt}$.}
-
-    A variável binária $x_{ijt}$ indica que o UAV se encontra no nó $i$ no início do slot $t$ e estará no nó $j$ no início do slot $t+1$.  
-    Assim:
-    
-    \[
-    x_{ijt} = 
-    \begin{cases}
-    1, & \text{se o UAV realiza a transição } i \to j, \\[4pt]
-    0, & \text{caso contrário}.
-    \end{cases}
-    \]
-    
-    O caso especial
-    \[
-    x_{iit} = 1
-    \]
-    implica que o UAV permanece parado (\emph{hover}), o que também é utilizado para caracterizar coletas via $v_{j,t} = x_{jjt}$.
-    
-
     \subsubsection{Restrições de Movimento}
 
     \begin{align}
@@ -231,7 +274,7 @@
     Assim, $v_{j,t}=1$ indica que o drone está parado sobre o sensor $j$ durante o slot $t$ e realiza coleta.  
     Se o UAV estiver se deslocando entre quaisquer nós distintos $(i \ne j)$, então $x_{j j t} = 0$ e, portanto, nenhuma coleta ocorre.
     
-    Também impomos que cada sensor seja visitado no máximo uma vez:
+    Também impomos que cada sensor seja visitado no máximo uma vez, conforme a restrição~(6b):
     
     \begin{align}
         y_j &= \sum_{t=1}^{T_f - 1} v_{j,t},
@@ -242,56 +285,6 @@
     \end{align}
     
     A variável $y_j$ indica se o sensor $j$ foi ou não visitado em algum instante.
-    
-    \subsubsection{Modelo de Energia e Potência do UAV}
-    
-    O modelo de consumo energético utilizado é baseado no modelo de potência para VANTs de asa rotativa descrito por Zeng \& Mu (2017), que considera três componentes:
-    
-    \begin{itemize}
-        \item potência de perfil das pás;
-        \item potência induzida;
-        \item potência de arrasto parasita.
-    \end{itemize}
-    
-    A potência consumida pelo UAV quando se desloca com velocidade $V$ é dada por:
-    
-    \begin{align}
-    P(V) &= 
-    P_0\!\left(1 + 3\frac{V^2}{U_{\text{tip}}^2}\right)
-    \;+\;
-    \Pi \sqrt{
-            \sqrt{1 + \frac{V^4}{4 v_0^4}}
-            \;-\;
-            \frac{V^2}{2 v_0^2}
-        }
-    \;+\;
-    \frac{1}{2}\rho C_{DS} V^3 ,
-    \tag{7}
-    \end{align}
-    
-    onde $P_0$, $\Pi$, $U_\text{tip}$, $v_0$, $\rho$ e $C_{DS}$ são parâmetros físicos do UAV.
-    
-    Para uma transição $(i,j)$ em um slot de duração $\Delta t$, adotamos velocidade constante:
-    
-    \[
-    V_{ij} = \frac{d_{ij}}{\Delta t}.
-    \]
-    
-    Assim, o custo energético associado a uma aresta é:
-    
-    \begin{align}
-        c_{ij} = P(V_{ij}) \, \Delta t.
-        \tag{8}
-    \end{align}
-    
-    O caso especial de \emph{hover} corresponde à aresta $(i,i)$, onde $V_{ii}=0$ e portanto:
-    
-    \[
-    c_{ii} = P(0)\,\Delta t.
-    \]
-    
-    Este modelo substitui formulações lineares simplificadas como $c_{ij} = k\, d_{ij}$, oferecendo maior precisão física na simulação do voo.
-    
     
     \subsubsection{Restrições de Energia}
     
