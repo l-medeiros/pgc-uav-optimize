@@ -172,3 +172,54 @@ A análise dos resultados do Parrot Anafi USA revela padrões consistentes com o
 Quanto ao consumo de energia (Figura~\ref{fig:anafi_energy_vs_map}), o crescimento com $L$ é pronunciado e apresenta dois saltos distintos: entre $L=400$ e $L=600$\,m e entre $L=600$ e $L=800$\,m. Isso reflete o aumento das distâncias de deslocamento entre nós do grafo, que elevam o custo energético de cada aresta. Um comportamento não-monotônico é observado em $L=1000$\,m: a energia consumida pelo cenário com $n_s=5$ ($\approx$118\,kJ) é superior à dos cenários com $n_s=10$ ($\approx$100\,kJ) e $n_s=15$ ($\approx$76\,kJ). Isso ocorre porque, com apenas 5 sensores distribuídos em uma área de 1000×1000\,m, as distâncias entre os nós são maiores do que em cenários com maior densidade de sensores na mesma área, tornando o roteamento mais custoso.
 
 A distância total percorrida (Figura~\ref{fig:anafi_distance_vs_map}) acompanha o crescimento de $L$ e apresenta comportamento inverso em relação a $n_s$ para mapas grandes: mais sensores na mesma área reduzem as distâncias médias entre vizinhos, resultando em rotas mais curtas. Em mapas pequenos ($L \leq 200$\,m), esse efeito é menos pronunciado, pois mesmo com poucos sensores as distâncias entre nós já são curtas.
+
+\subsubsection{Variante com Revisitas}
+
+Com base nos resultados do modelo base, investigou-se uma variante que relaxa a restrição de visita única por sensor: o modelo com revisitas (\textit{revisit}). Nessa configuração, o UAV pode visitar o mesmo sensor mais de uma vez durante uma missão, com o objetivo de coletar AoI adicional de sensores de alto valor nas rodadas em que a AoI acumulada é elevada.
+
+\paragraph{Implementação.}
+A modificação consiste na substituição da restrição $\sum_t v_{j,t} \leq 1$ por $\sum_t v_{j,t} \leq K$, onde $K$ é o número máximo de revisitas permitido por sensor por missão. O parâmetro $K$ é configurável via argumento de linha de comando (\texttt{--max-revisits}). Nos experimentos desta seção, adotou-se $K = 3$.
+
+\paragraph{Desafios computacionais.}
+A adoção de revisitas amplia consideravelmente o espaço de soluções viáveis do modelo MILP. Com $K = 3$, o número de combinações possíveis de padrões de visita cresce exponencialmente, tornando a exploração da árvore de \textit{branch-and-bound} pelo Gurobi significativamente mais custosa em memória. Em cenários com $n_s \geq 20$ e $L \geq 600$\,m, o processo de otimização chegou a consumir vários gigabytes de RAM, causando instabilidades no ambiente de execução.
+
+Para contornar esses problemas, foram adotadas três medidas: (i) limitação do número de \textit{threads} do Gurobi a 2, reduzindo o paralelismo da exploração da árvore; (ii) ativação do parâmetro \texttt{NodefileStart = 0.5\,GB}, que instrui o solver a descarregar nós da árvore para disco ao atingir esse limite de memória RAM; e (iii) definição de \texttt{SoftMemLimit = 4\,GB}, que encerra a otimização graciosamente e retorna a melhor solução encontrada até o momento quando o uso de memória ultrapassa esse valor. Adicionalmente, rodadas em que o solver não encontrou solução viável dentro do limite de tempo ou memória são registradas com métricas zeradas e AoI envelhecida normalmente, garantindo a consistência da cadeia de estado entre rodadas.
+
+\paragraph{Resultados e comparativo.}
+Os resultados do modelo com revisitas foram comparados com o modelo base para os mesmos 36 cenários, utilizando as mesmas posições de sensores e os mesmos parâmetros do Parrot Anafi USA.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth]{figs/cmp_aoi_vs_map.png}
+  \caption{AoI média final -- comparativo entre modelo base e modelo com revisitas ($K=3$).}
+  \label{fig:cmp_aoi_vs_map}
+\end{figure}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth]{figs/cmp_energy_vs_map.png}
+  \caption{Energia média consumida -- comparativo entre modelo base e modelo com revisitas ($K=3$).}
+  \label{fig:cmp_energy_vs_map}
+\end{figure}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.8\textwidth]{figs/delta_aoi_heatmap.png}
+  \caption{Variação percentual da AoI média (revisit $-$ base) / base. Valores positivos indicam piora.}
+  \label{fig:delta_aoi_heatmap}
+\end{figure}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.8\textwidth]{figs/delta_energy_heatmap.png}
+  \caption{Variação percentual da energia consumida (revisit $-$ base) / base.}
+  \label{fig:delta_energy_heatmap}
+\end{figure}
+
+A análise dos resultados revela que a variante com revisitas \textbf{não trouxe melhora na qualidade da solução} em termos de AoI. Conforme ilustrado nas Figuras~\ref{fig:cmp_aoi_vs_map} e~\ref{fig:delta_aoi_heatmap}, a AoI média final permaneceu estatisticamente equivalente ao modelo base em praticamente todos os cenários, com variações menores que $\pm 3\%$, dentro da margem de ruído experimental das 30 rodadas.
+
+Em contrapartida, o consumo energético aumentou substancialmente com as revisitas (Figuras~\ref{fig:cmp_energy_vs_map} e~\ref{fig:delta_energy_heatmap}). Para mapas pequenos ($L \leq 200$\,m), o acréscimo foi modesto ($+3$ a $+6\%$). Porém, para mapas maiores, o custo energético cresceu de forma expressiva: entre $+33\%$ e $+45\%$ para $L=400$\,m, e entre $+108\%$ e $+189\%$ para $L \geq 600$\,m. Em vários cenários com $L \geq 600$\,m, a energia consumida pelo modelo com revisitas chegou a ser superior a $100$\,kJ, próxima ao limite de bateria de $141$\,kJ.
+
+Esse comportamento pode ser explicado pela natureza do modelo de otimização: ao permitir revisitas, o solver passa a incluir trajetórias em que o UAV retorna a sensores já visitados para coletar a AoI acumulada no mesmo \textit{slot} posterior, mas esse ganho marginal de AoI não compensa o custo energético do deslocamento adicional. Com $K=3$, o orçamento de hovers disponível é distribuído em menos sensores distintos, reduzindo a diversidade de coleta e, consequentemente, sem benefício líquido para a AoI média da rede.
+
+Conclui-se que, para a configuração estudada ($K=3$, 20 slots de 10\,s, Parrot Anafi USA), a restrição de visita única é uma escolha eficiente: ela força o otimizador a diversificar as visitas, obtendo qualidade de AoI equivalente a um custo energético significativamente menor.
