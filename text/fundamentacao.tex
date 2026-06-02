@@ -1,6 +1,32 @@
 \section{Fundamentação Teórica}
 \label{sec:fundamentacao}
 
+\subsection{Programação Linear e Otimização Inteira}
+\label{sec:prog-linear}
+
+A otimização matemática trata da escolha, dentre um conjunto de alternativas viáveis, daquela que minimiza (ou maximiza) uma medida de desempenho. Quando tanto a função objetivo quanto as restrições que delimitam as alternativas são expressas por relações lineares, o problema é dito de \emph{programação linear}. Esta seção introduz os conceitos de programação linear, sua extensão ao domínio inteiro e o caso misto, que constitui a base formal do modelo proposto neste trabalho.
+
+\paragraph{Programação Linear (PL).}
+Um problema de programação linear busca otimizar uma função objetivo linear sujeita a um conjunto de restrições também lineares. Na forma padrão, pode ser escrito como
+\begin{align}
+    \min_{x}\quad & c^{\top} x \notag \\
+    \text{sujeito a}\quad & A x \le b, \label{eq:pl-padrao} \\
+    & x \ge 0, \notag
+\end{align}
+onde $x \in \mathbb{R}^n$ é o vetor de variáveis de decisão (contínuas), $c \in \mathbb{R}^n$ define os coeficientes da função objetivo, e $A \in \mathbb{R}^{m \times n}$ e $b \in \mathbb{R}^m$ descrevem as restrições. O conjunto de pontos que satisfazem todas as restrições é a \emph{região viável}, um poliedro convexo. Como a função objetivo é linear, a solução ótima, quando existe, encontra-se sempre em um vértice desse poliedro \cite{bertsimas1997introduction}. Problemas de PL podem ser resolvidos de forma eficiente, em tempo polinomial, por algoritmos de pontos interiores, ou pelo método \emph{simplex}, que percorre vértices adjacentes do poliedro até atingir o ótimo.
+
+\paragraph{Programação Linear Inteira (PLI).}
+Em muitas aplicações práticas, as variáveis de decisão representam grandezas indivisíveis ou escolhas lógicas e, portanto, devem assumir apenas valores inteiros. Acrescentar a exigência $x \in \mathbb{Z}^n$ ao problema~\eqref{eq:pl-padrao} caracteriza a \emph{programação linear inteira}. Um caso particularmente importante é o das variáveis \emph{binárias} ($x \in \{0,1\}^n$), capazes de modelar decisões do tipo sim/não, como ``visitar ou não um nó'' ou ``ativar ou não uma rota''. Diferentemente da PL, a PLI pertence à classe dos problemas NP-difíceis: a restrição de integralidade torna a região viável não convexa (um conjunto discreto de pontos), e o número de combinações cresce exponencialmente com a quantidade de variáveis \cite{wolsey1998integer}.
+
+\paragraph{Programação Linear Inteira Mista (MILP).}
+Quando apenas parte das variáveis é restrita a valores inteiros, enquanto as demais permanecem contínuas, tem-se um problema de \emph{programação linear inteira mista} (MILP, do inglês \textit{Mixed-Integer Linear Programming}). Essa formulação é especialmente expressiva para problemas de roteamento e escalonamento, nos quais variáveis binárias capturam decisões discretas (por exemplo, qual aresta percorrer) e variáveis contínuas representam grandezas físicas acumuladas (por exemplo, energia ou tempo).
+
+\paragraph{Resolução por \textit{branch-and-bound}.}
+A principal técnica para resolver problemas de PLI e MILP de forma exata é o \emph{branch-and-bound} \cite{land1960branchbound}. O método parte da \emph{relaxação linear} do problema --- isto é, ignora-se temporariamente a restrição de integralidade, resolvendo-se o PL resultante, cuja solução fornece um limitante para o valor ótimo. Caso a solução relaxada já satisfaça a integralidade, ela é ótima; caso contrário, escolhe-se uma variável com valor fracionário e o problema é dividido (\emph{branching}) em subproblemas que restringem essa variável a faixas inteiras disjuntas. Os limitantes obtidos em cada nó permitem podar (\emph{bounding}) ramos que comprovadamente não contêm a solução ótima, evitando a enumeração completa. Resolvedores modernos, como o Gurobi \cite{gurobi2024}, combinam essa estratégia com planos de corte (\emph{branch-and-cut}) e heurísticas, viabilizando a solução exata de instâncias de porte considerável.
+
+\paragraph{Relação com este trabalho.}
+O problema de planejamento de voo abordado neste trabalho é formulado como um MILP: variáveis binárias descrevem a posição do UAV, os deslocamentos e as coletas, enquanto variáveis contínuas registram a energia acumulada e a \emph{Age of Information} dos sensores. Termos não lineares, como o produto entre a AoI e a decisão de coleta, são convertidos em restrições lineares por meio de técnicas de linearização (Seção~\ref{sec:modelagem}, Equações~\eqref{eq:lin-a}--\eqref{eq:lin-c}), preservando a estrutura linear necessária à resolução exata pelo Gurobi.
+
 \subsection{IoT e WSN}
 
 A Internet das Coisas (IoT, do inglês \textit{Internet of Things}) é um paradigma que integra objetos físicos (sensores, atuadores e dispositivos embarcados) à infraestrutura digital por meio de protocolos de comunicação sem fio, permitindo a coleta, transmissão e processamento autônomo de dados do ambiente \cite{yang2020surveyUAVIoT}. Dentro desse paradigma, as redes de sensores sem fio (WSNs, do inglês \textit{Wireless Sensor Networks}) constituem uma das tecnologias de suporte mais consolidadas: consistem em conjuntos de nós de baixo consumo energético, distribuídos em uma área de interesse, responsáveis por amostrar grandezas físicas (temperatura, umidade, vibração, entre outras) e encaminhá-las periodicamente a um ponto de coleta centralizado \cite{liu2018uavWSN}.
