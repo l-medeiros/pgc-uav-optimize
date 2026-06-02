@@ -27,23 +27,25 @@
     \input{objetivos}
     
     \section{Modelagem Matemática do Problema de Otimização de Plano de Voo para UAVs}
-    
+    \label{sec:modelagem}
+
     \subsection{Descrição do Problema}
     
     O problema de otimização de plano de voo para UAVs consiste em determinar a trajetória ótima que um drone deve seguir para coletar dados de um conjunto de sensores IoT distribuídos em uma área geográfica. O objetivo principal é maximizar a quantidade de dados coletados enquanto se minimiza o consumo de energia do drone e a idade da informação (Age of Information - AoI), respeitando suas limitações operacionais. O drone parte de uma posição inicial conhecida, deve visitar um subconjunto de sensores dentro do seu alcance de comunicação, e se dirigir a uma posição final (que pode ser igual à inicial). Durante o voo, o drone consome energia de acordo com sua velocidade e manobras, e coleta dados quando está dentro do raio de comunicação dos sensores. A qualidade da comunicação entre o drone e os sensores depende da distância entre eles. Este problema pode ser modelado como um problema de otimização combinatória com restrições de energia, tempo de voo, e requisitos de comunicação, considerando também a idade dos dados nos sensores para priorizar a coleta de informações mais antigas.
     
     Esta formulação é relevante para aplicações como monitoramento ambiental, agricultura de precisão, vigilância urbana e resposta a desastres, onde a coleta eficiente e oportuna de dados de sensores distribuídos é crucial para a tomada de decisões.
 
-O modelo de comunicação adotado é simplificado: assume-se que a transmissão ocorre com sucesso sempre que o UAV permanece pairando (\textit{hovering}) diretamente sobre o sensor durante um slot completo de duração $\Delta t$. Não são modelados aspectos de camada de enlace como modulação, interferência ou protocolo MAC; a coleta é representada por uma variável binária que indica se o drone está posicionado sobre o nó sensor no instante correspondente (ver Equação~(5)).
+O modelo de comunicação adotado é simplificado: assume-se que a transmissão ocorre com sucesso sempre que o UAV permanece pairando (\textit{hovering}) diretamente sobre o sensor durante um slot completo de duração $\Delta t$. Não são modelados aspectos de camada de enlace como modulação, interferência ou protocolo MAC; a coleta é representada por uma variável binária que indica se o drone está posicionado sobre o nó sensor no instante correspondente (ver Equação~\eqref{eq:coleta}).
 
 
     \subsection{Parâmetros e Variáveis}
 
-O modelo representa o voo do UAV como uma sequência de estados discretos no tempo, divididos em slots de duração $\Delta t$. O espaço de movimentação é modelado como um grafo completo sobre o conjunto de nós $N = S \cup \{b\}$ (sensores e base), com coordenadas bidimensionais $(x, y)$. O custo energético de cada transição é determinado pelo modelo de potência de asa rotativa em função da velocidade de voo. As variáveis de decisão binárias controlam a posição e os deslocamentos do UAV ao longo do horizonte temporal; variáveis contínuas registram a energia acumulada e a \textit{Age of Information} (AoI) de cada sensor a cada slot. A solução ótima define uma sequência de posições do UAV que maximiza a informação coletada respeitando a restrição de capacidade de bateria $E^{\max}$. As Tabelas~1 e 2 listam, respectivamente, os parâmetros e as variáveis de decisão do modelo.
+O modelo representa o voo do UAV como uma sequência de estados discretos no tempo, divididos em slots de duração $\Delta t$. O espaço de movimentação é modelado como um grafo completo sobre o conjunto de nós $N = S \cup \{b\}$ (sensores e base), com coordenadas bidimensionais $(x, y)$. O custo energético de cada transição é determinado pelo modelo de potência de asa rotativa em função da velocidade de voo. As variáveis de decisão binárias controlam a posição e os deslocamentos do UAV ao longo do horizonte temporal; variáveis contínuas registram a energia acumulada e a \textit{Age of Information} (AoI) de cada sensor a cada slot. A solução ótima define uma sequência de posições do UAV que maximiza a informação coletada respeitando a restrição de capacidade de bateria $E^{\max}$. As Tabelas~\ref{tab:parametros} e~\ref{tab:variaveis} listam, respectivamente, os parâmetros e as variáveis de decisão do modelo.
 
     \begin{table}[htbp]
       \centering
       \caption{Parâmetros do Modelo}
+      \label{tab:parametros}
       \begin{tabular}{>{\raggedright\arraybackslash}p{2.2cm} >{\raggedright\arraybackslash}p{10cm}}
         \toprule
         \textbf{Notação} & \textbf{Descrição} \\
@@ -84,6 +86,7 @@ O modelo representa o voo do UAV como uma sequência de estados discretos no tem
     \begin{table}[htbp]
       \centering
       \caption{Variáveis de Decisão}
+      \label{tab:variaveis}
       \begin{tabular}{>{\raggedright\arraybackslash}p{2.2cm} >{\raggedright\arraybackslash}p{10cm}}
         \toprule
         \textbf{Notação} & \textbf{Descrição} \\
@@ -162,7 +165,7 @@ O modelo representa o voo do UAV como uma sequência de estados discretos no tem
         }
     \;+\;
     \frac{1}{2}\rho C_{DS} V^3 ,
-    \tag{7}
+    \label{eq:potencia}
     \end{align}
 
     onde $P_0$, $\Pi$, $U_\text{tip}$, $v_0$, $\rho$ e $C_{DS}$ são parâmetros físicos do UAV.
@@ -177,7 +180,7 @@ O modelo representa o voo do UAV como uma sequência de estados discretos no tem
 
     \begin{align}
         c_{ij} = P(V_{ij}) \, \Delta t.
-        \tag{8}
+        \label{eq:custo-energia}
     \end{align}
 
     O caso especial de \emph{hover} corresponde à aresta $(i,i)$, onde $V_{ii}=0$ e portanto:
@@ -208,7 +211,7 @@ O modelo representa o voo do UAV como uma sequência de estados discretos no tem
         \sum_{j \in S}
         \sum_{t = 1}^{T_f - 1}
         w_{j,t}.
-        \tag{1a}
+        \label{eq:f-aoi}
     \end{align}
     
     Essa função incentiva visitas a sensores cujos dados estejam mais desatualizados, priorizando trajetórias que maximizem o impacto informacional da missão.
@@ -221,7 +224,7 @@ O modelo representa o voo do UAV como uma sequência de estados discretos no tem
         f_{\text{energia}}
         =
         E_{T_f}.
-        \tag{1b}
+        \label{eq:f-energia}
     \end{align}
     
     Minimizar esse valor corresponde a promover trajetórias mais econômicas, aumentando a autonomia do veículo e preservando os recursos energéticos disponíveis.
@@ -240,7 +243,7 @@ O modelo representa o voo do UAV como uma sequência de estados discretos no tem
             w_{j,t}
         \;-\;
         E_{T_f},
-        \tag{1}
+        \label{eq:objetivo}
     \end{align}
     
     onde $\lambda > 0$ é um parâmetro de ponderação que controla a importância relativa entre os dois termos.
@@ -251,12 +254,12 @@ O modelo representa o voo do UAV como uma sequência de estados discretos no tem
     \subsubsection{Restrições de Movimento}
 
     \begin{align}
-      &\text{(i) início/fim na base:}& p_{b,1}&=1,\quad p_{b,T_f}=1 \tag{2}\\
-      &\text{(ii) unicidade de posição:}& \sum_{n\in N} p_{n,t} &= 1,\ \forall t\in\{1,\ldots,T_f\} \tag{3}\\
-      &\text{(iii) fluxo por slot:}& \sum_{j\in N} x_{i j t} &= p_{i,t},\ \sum_{i\in N} x_{i j t} = p_{j,t+1},\ \forall t\in\{1,\ldots,T_f-1\} \tag{4}
+      &\text{(i) início/fim na base:}& p_{b,1}&=1,\quad p_{b,T_f}=1 \label{eq:mov-base}\\
+      &\text{(ii) unicidade de posição:}& \sum_{n\in N} p_{n,t} &= 1,\ \forall t\in\{1,\ldots,T_f\} \label{eq:mov-unicidade}\\
+      &\text{(iii) fluxo por slot:}& \sum_{j\in N} x_{i j t} &= p_{i,t},\ \sum_{i\in N} x_{i j t} = p_{j,t+1},\ \forall t\in\{1,\ldots,T_f-1\} \label{eq:mov-fluxo}
     \end{align}
 
-    As restrições (2)--(4) modelam a dinâmica de movimento do UAV ao longo dos slots de tempo. A restrição (2) fixa a base $b$ como ponto de partida e de chegada da missão, garantindo que o drone inicie o voo na base e retorne a ela no final do horizonte $T_f$. A restrição (3) impõe que, em cada slot $t$, o UAV esteja exatamente em um único nó $n \in N$, isto é, o drone não pode estar em dois locais ao mesmo tempo nem ``desaparecer'' do grafo. Já a restrição (4) garante a consistência do fluxo entre nós sucessivos: para cada slot $t$, o número de arestas saindo de um nó $i$ é igual à indicação de que o drone está em $i$ no início do slot, e o número de arestas chegando em um nó $j$ é igual à indicação de que o drone estará em $j$ no início do slot seguinte. Em conjunto, essas restrições asseguram que a trajetória do UAV é uma caminhada viável no grafo $N$ ao longo do horizonte de tempo.
+    As Restrições~\eqref{eq:mov-base}--\eqref{eq:mov-fluxo} modelam a dinâmica de movimento do UAV ao longo dos slots de tempo. A restrição~\eqref{eq:mov-base} fixa a base $b$ como ponto de partida e de chegada da missão, garantindo que o drone inicie o voo na base e retorne a ela no final do horizonte $T_f$. A restrição~\eqref{eq:mov-unicidade} impõe que, em cada slot $t$, o UAV esteja exatamente em um único nó $n \in N$, isto é, o drone não pode estar em dois locais ao mesmo tempo nem ``desaparecer'' do grafo. Já a restrição~\eqref{eq:mov-fluxo} garante a consistência do fluxo entre nós sucessivos: para cada slot $t$, o número de arestas saindo de um nó $i$ é igual à indicação de que o drone está em $i$ no início do slot, e o número de arestas chegando em um nó $j$ é igual à indicação de que o drone estará em $j$ no início do slot seguinte. Em conjunto, essas restrições asseguram que a trajetória do UAV é uma caminhada viável no grafo $N$ ao longo do horizonte de tempo.
 
     
     \subsubsection{Restrições de Comunicação}
@@ -268,20 +271,20 @@ O modelo representa o voo do UAV como uma sequência de estados discretos no tem
     \begin{align}
         v_{j,t} = x_{j j t},
         \qquad \forall j \in S,\ t = 1,\ldots,T_f - 1.
-        \tag{5}
+        \label{eq:coleta}
     \end{align}
     
     Assim, $v_{j,t}=1$ indica que o drone está parado sobre o sensor $j$ durante o slot $t$ e realiza coleta.  
     Se o UAV estiver se deslocando entre quaisquer nós distintos $(i \ne j)$, então $x_{j j t} = 0$ e, portanto, nenhuma coleta ocorre.
     
-    Também impomos que cada sensor seja visitado no máximo uma vez, conforme a restrição~(6b):
-    
+    Também impomos que cada sensor seja visitado no máximo uma vez, conforme a restrição~\eqref{eq:visita-unica}:
+
     \begin{align}
         y_j &= \sum_{t=1}^{T_f - 1} v_{j,t},
-        \tag{6a}\\[4pt]
+        \label{eq:y-visita}\\[4pt]
         \sum_{t=1}^{T_f - 1} v_{j,t} &\le 1,
         \qquad \forall j \in S.
-        \tag{6b}
+        \label{eq:visita-unica}
     \end{align}
     
     A variável $y_j$ indica se o sensor $j$ foi ou não visitado em algum instante.
@@ -291,7 +294,7 @@ O modelo representa o voo do UAV como uma sequência de estados discretos no tem
     A energia acumulada no início do voo é nula:
     
     \begin{align}
-        E_1 = 0. \tag{9}
+        E_1 = 0. \label{eq:energia-inicial}
     \end{align}
     
     A evolução da energia é dada pela soma dos custos das arestas percorridas:
@@ -305,13 +308,13 @@ O modelo representa o voo do UAV como uma sequência de estados discretos no tem
         \sum_{j \in N}
             c_{ij}\, x_{ijt},
         \qquad t = 1,\ldots,T_f - 1.
-        \tag{10}
+        \label{eq:energia-evolucao}
     \end{align}
     
     O consumo final acumulado não deve exceder a capacidade da bateria:
     
     \begin{align}
-        E_{T_f} \le E^{\max}. \tag{11}
+        E_{T_f} \le E^{\max}. \label{eq:energia-capacidade}
     \end{align}
     
     As restrições acima refletem exatamente a dinâmica implementada no código, onde $E_t$ é a energia total acumulada e $c_{ij}$ segue a modelagem de potência do UAV.
@@ -320,14 +323,14 @@ O modelo representa o voo do UAV como uma sequência de estados discretos no tem
 
     Para o primeiro voo, $A_j^0 = 0$ para todos os sensores $j \in S$. Para voos subsequentes, $A_j^0$ representa o número de intervalos de tempo desde a última coleta de dados do sensor $j$.
     \begin{align}
-      A_{j,1} &= A_j^0, \forall j \in S \tag{10}
+      A_{j,1} &= A_j^0, \forall j \in S \label{eq:aoi-inicial}
     \end{align}
     
     A evolução da AoI ao longo do tempo é descrita por:
     \begin{align}
         A_{j,t+1} = (1 - v_{j,t})\,(A_{j,t} + 1),
         \qquad \forall j \in S,\ \forall t = 1,\ldots,T_f-1.
-        \tag{11}
+        \label{eq:aoi-evolucao}
     \end{align}
     
     Essa equação expressa duas situações:
@@ -347,18 +350,18 @@ O modelo representa o voo do UAV como uma sequência de estados discretos no tem
     utilizamos a seguinte linearização:
     
     \begin{align}
-        w_{j,t} &\le A_{j,t}, \tag{12a}\\
-        w_{j,t} &\le M_A\, v_{j,t}, \tag{12b}\\
-        w_{j,t} &\ge A_{j,t} - M_A (1 - v_{j,t}), \tag{12c}
+        w_{j,t} &\le A_{j,t}, \label{eq:lin-a}\\
+        w_{j,t} &\le M_A\, v_{j,t}, \label{eq:lin-b}\\
+        w_{j,t} &\ge A_{j,t} - M_A (1 - v_{j,t}), \label{eq:lin-c}
     \end{align}
     \[
         \forall j\in S,\ \forall t = 1,\ldots,T_f-1.
     \]
     
-    As Equações~(12a)--(12c) têm como objetivo implementar de forma linear o produto $w_{j,t} = A_{j,t} v_{j,t}$, onde $v_{j,t} \in \{0,1\}$ indica se o sensor $j$ é visitado no slot $t$ e $A_{j,t}$ é a AoI nesse instante. Assumimos ainda que $0 \leq A_{j,t} \leq M_A$ e $w_{j,t} \geq 0$. Podemos analisar separadamente os dois casos de $v_{j,t}$.
+    As Equações~\eqref{eq:lin-a}--\eqref{eq:lin-c} têm como objetivo implementar de forma linear o produto $w_{j,t} = A_{j,t} v_{j,t}$, onde $v_{j,t} \in \{0,1\}$ indica se o sensor $j$ é visitado no slot $t$ e $A_{j,t}$ é a AoI nesse instante. Assumimos ainda que $0 \leq A_{j,t} \leq M_A$ e $w_{j,t} \geq 0$. Podemos analisar separadamente os dois casos de $v_{j,t}$.
     
     \textbf{Caso $v_{j,t} = 0$.}
-    Substituindo $v_{j,t}=0$ em (12a)--(12c), obtemos:
+    Substituindo $v_{j,t}=0$ em \eqref{eq:lin-a}--\eqref{eq:lin-c}, obtemos:
     \[
         w_{j,t} \leq A_{j,t}, \qquad
         w_{j,t} \leq 0, \qquad
@@ -368,7 +371,7 @@ O modelo representa o voo do UAV como uma sequência de estados discretos no tem
     Como $A_{j,t} \leq M_A$, temos $A_{j,t} - M_A \leq 0$, de modo que a terceira desigualdade apenas impõe um limite inferior. Combinando $w_{j,t} \leq 0$ com $w_{j,t} \geq 0$, concluímos que necessariamente $w_{j,t} = 0$. Nota-se que $w_{j,t} = 0$ satisfaz $w_{j,t} \leq A_{j,t}$ e $w_{j,t} \geq A_{j,t} - M_A$. Portanto, quando $v_{j,t}=0$, temos $w_{j,t}=0$.
     
     \textbf{Caso $v_{j,t} = 1$.}
-    Substituindo $v_{j,t}=1$ em (12a)--(12c), obtemos:
+    Substituindo $v_{j,t}=1$ em \eqref{eq:lin-a}--\eqref{eq:lin-c}, obtemos:
     \[
         w_{j,t} \leq A_{j,t}, \qquad
         w_{j,t} \leq M_A, \qquad
@@ -376,7 +379,7 @@ O modelo representa o voo do UAV como uma sequência de estados discretos no tem
     \]
     Como $A_{j,t} \leq M_A$, a desigualdade $w_{j,t} \leq M_A$ se torna redundante. Combinando $w_{j,t} \leq A_{j,t}$ com $w_{j,t} \geq A_{j,t}$, obtemos $w_{j,t} = A_{j,t}$. Logo, quando $v_{j,t}=1$, vale $w_{j,t}=A_{j,t}$.
     
-    Dessa forma, as restrições (12a)--(12c) garantem que
+    Dessa forma, as restrições \eqref{eq:lin-a}--\eqref{eq:lin-c} garantem que
     \[
         w_{j,t} =
         \begin{cases}
