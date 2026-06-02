@@ -19,7 +19,7 @@ onde $x \in \mathbb{R}^n$ é o vetor de variáveis de decisão (contínuas), $c 
 Em muitas aplicações práticas, as variáveis de decisão representam grandezas indivisíveis ou escolhas lógicas e, portanto, devem assumir apenas valores inteiros. Acrescentar a exigência $x \in \mathbb{Z}^n$ ao problema~\eqref{eq:pl-padrao} caracteriza a \emph{programação linear inteira}. Um caso particularmente importante é o das variáveis \emph{binárias} ($x \in \{0,1\}^n$), capazes de modelar decisões do tipo sim/não, como ``visitar ou não um nó'' ou ``ativar ou não uma rota''. Diferentemente da PL, a PLI é, em geral, computacionalmente muito mais difícil de resolver: a restrição de integralidade torna o conjunto factível discreto (não convexo) e o número de combinações inteiras a examinar cresce rapidamente com a quantidade de variáveis, tornando inviável a enumeração completa das soluções em instâncias de grande porte \cite{arenales2007pesquisa}.
 
 \paragraph{Programação Linear Inteira Mista (MILP).}
-Quando apenas parte das variáveis é restrita a valores inteiros, enquanto as demais permanecem contínuas, tem-se um problema de \emph{programação linear inteira mista} (MILP, do inglês \textit{Mixed-Integer Linear Programming}) \cite{arenales2007pesquisa}. Essa formulação é especialmente expressiva para problemas de roteamento e escalonamento, nos quais variáveis binárias capturam decisões discretas (por exemplo, qual aresta percorrer) e variáveis contínuas representam grandezas físicas acumuladas (por exemplo, energia ou tempo).
+Quando apenas parte das variáveis é restrita a valores inteiros, enquanto as demais permanecem contínuas, tem-se um problema de \emph{programação linear inteira mista} (MILP, do inglês \textit{Mixed-Integer Linear Programming}) \cite{arenales2007pesquisa}. Essa formulação é especialmente expressiva para problemas de roteamento e escalonamento, nos quais variáveis binárias capturam decisões discretas (por exemplo, qual trajeto seguir) e variáveis contínuas representam grandezas físicas acumuladas (por exemplo, energia ou tempo).
 
 \paragraph{Resolução por \textit{branch-and-bound}.}
 A principal técnica para resolver problemas de PLI e MILP de forma exata é o \emph{branch-and-bound} \cite{land1960branchbound, arenales2007pesquisa}. A ideia central é dividir o problema em subproblemas menores (\emph{branching}) e usar limitantes para descartar (\emph{bounding}) aqueles que comprovadamente não podem conter a solução ótima, evitando testar todas as combinações possíveis. Esse método, em conjunto com técnicas de planos de corte, está implementado em resolvedores de otimização como o Gurobi, adotado neste trabalho.
@@ -79,7 +79,7 @@ A estratégia de sobrevoo adotada pelo UAV determina como e quando a comunicaç�
     \item \textbf{Híbrido}: combina os dois modos anteriores, selecionando a estratégia mais adequada para cada sensor conforme seus requisitos de enlace e localização.
 \end{itemize}
 
-No modelo adotado neste trabalho, a coleta ocorre exclusivamente em modo \textit{hovering}: o UAV deve permanecer parado sobre o sensor durante um slot inteiro para que a transmissão seja considerada bem-sucedida. Esse pressuposto é modelado pela restrição $v_{j,t} = x_{jjt}$, que vincula a coleta ao \emph{self-loop} do grafo de movimento (ver Seção~\ref{sec:modelagem}).
+No modelo adotado neste trabalho, a coleta ocorre exclusivamente em modo \textit{hovering}: o UAV deve permanecer parado sobre o sensor durante um slot inteiro para que a transmissão seja considerada bem-sucedida. A formalização desse pressuposto, que vincula a coleta à permanência do UAV sobre o sensor, é apresentada na modelagem matemática (Seção~\ref{sec:modelagem}).
 
 \subsubsection{Restrições operacionais}
 
@@ -108,7 +108,7 @@ A expressão matemática da potência $P(V)$ em função da velocidade horizonta
 
 Os parâmetros físicos completos utilizados nos experimentos, obtidos de \cite{zeng2019rotarywing}, são: $P_0 = 79{,}86$\,W, $P_i = 88{,}63$\,W, $U_{\mathrm{tip}} = 120$\,m/s (velocidade da ponta da pá), $v_0 = 4{,}03$\,m/s (velocidade induzida em \emph{hover}), $\rho = 1{,}225$\,kg/m³ (densidade do ar) e $C_{DS} = 0{,}01509$\,m² (coeficiente de arrasto parasita efetivo, dado por $c_d \cdot s \cdot A$, com $c_d = 0{,}6$, $s = 0{,}05$ e $A = 0{,}503$\,m²). Esses parâmetros são adotados nos dois conjuntos de experimentos; a diferença entre os UAVs está na capacidade de bateria $E^{\max}$: $2$\,MJ para o DJI Matrice 300 RTK e $141{,}372$\,kJ para o Parrot Anafi USA (capacidade nominal real do equipamento).
 
-O custo energético de cada transição no grafo de movimento é obtido multiplicando a potência calculada pela duração do slot $\Delta t = 10$\,s (Equação~\eqref{eq:custo-energia}, Seção~\ref{sec:modelagem}). As restrições de acumulação e capacidade de energia no modelo MILP são apresentadas na Seção~\ref{sec:modelagem} (Equações~\eqref{eq:energia-inicial}--\eqref{eq:energia-capacidade}).
+O custo energético de cada deslocamento do UAV é obtido multiplicando a potência calculada pela duração do slot $\Delta t = 10$\,s (Equação~\eqref{eq:custo-energia}, Seção~\ref{sec:modelagem}). As restrições de acumulação e capacidade de energia no modelo MILP são apresentadas na Seção~\ref{sec:modelagem} (Equações~\eqref{eq:energia-inicial}--\eqref{eq:energia-capacidade}).
 
 \subsection{Modelo de comunicação}
 
@@ -116,7 +116,7 @@ Em sistemas UAV-IoT, modelos de comunicação detalhados descrevem explicitament
 
 Neste trabalho, adota-se um modelo de comunicação binário simplificado, coerente com o modo de coleta \emph{hovering} descrito na Seção~\ref{sec:modos-coleta}. O pressuposto central é que a transmissão de dados ocorre com sucesso garantido se, e somente se, o UAV permanecer estacionário diretamente acima do sensor durante um slot completo de duração $\Delta t$.
 
-Não são modelados aspectos de camada de enlace como taxa de dados, modulação, interferência entre sensores ou protocolo MAC. A coleta é representada pela variável binária $v_{j,t} \in \{0,1\}$, vinculada ao \emph{self-loop} de permanência do UAV sobre o nó sensor (Equação~\eqref{eq:coleta}, Seção~\ref{sec:modelagem}).
+Não são modelados aspectos de camada de enlace como taxa de dados, modulação, interferência entre sensores ou protocolo MAC. A coleta é representada pela variável binária $v_{j,t} \in \{0,1\}$, que indica se o UAV permanece estacionário sobre o sensor $j$ durante o slot $t$ (Equação~\eqref{eq:coleta}, Seção~\ref{sec:modelagem}).
 
 Esta simplificação é adequada por três motivos:
 
