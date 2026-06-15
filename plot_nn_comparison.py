@@ -1,0 +1,150 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+from pathlib import Path
+import re
+import argparse
+
+MAP_PATTERN = re.compile(r"round_summary_(\d+)x(\d+)\.csv")
+
+METRICS = [
+    ("collected_aoi", "AoI coletada por rodada", "comparison_collected_aoi.png"),
+    ("avg_final_aoi", "AoI média final dos sensores", "comparison_avg_final_aoi.png"),
+    ("energy_final", "Energia final (J)", "comparison_energy.png"),
+    ("total_distance", "Distância total (m)", "comparison_distance.png"),
+    ("visited_count", "Sensores visitados", "comparison_visited.png"),
+]
+
+LABELS = {"milp": "MILP (Gurobi)", "nn": "Nearest Neighbor"}
+COLORS = {"milp": "tab:blue", "nn": "tab:orange"}
+
+
+def extract_metadata(path: Path):
+    match = MAP_PATTERN.search(path.name)
+    if not match:
+        return None
+
+    map_n = int(match.group(1))
+    parts = path.parts
+    sensor_count = None
+    for i, p in enumerate(parts):
+        if p == "anafi_usa":
+            sensor_count = int(parts[i + 1])
+            break
+    if sensor_count is None:
+        return None
+    return map_n, sensor_count
+
+
+def load_results(root_dir, results_dirname, algo):
+    records = []
+    for file in Path(root_dir).rglob("round_summary_*.csv"):
+        if file.parent.name != results_dirname:
+            continue
+        meta = extract_metadata(file)
+        if meta is None:
+            continue
+        map_n, sensor_count = meta
+        df = pd.read_csv(file)
+        df["map_n"] = map_n
+        df["sensor_count"] = sensor_count
+        df["algo"] = algo
+        records.append(df)
+    if not records:
+        raise Exception(f"Nenhum CSV encontrado em {results_dirname}")
+    return pd.concat(records, ignore_index=True)
+
+
+def aggregate(df):
+    return (
+        df.groupby(["algo", "sensor_count", "map_n"])
+        .agg(
+            collected_aoi=("collected_aoi", "mean"),
+            avg_final_aoi=("avg_final_aoi", "mean"),
+            energy_final=("energy_final", "mean"),
+            total_distance=("total_distance", "mean"),
+            visited_count=("visited_count", "mean"),
+        )
+        .reset_index()
+    )
+
+
+def plot_metric_facets(agg, metric, ylabel, filename, output_dir):
+    sensors = sorted(agg.sensor_count.unique())
+    fig, axes = plt.subplots(2, 3, figsize=(15, 8), sharex=True)
+    axes = axes.flatten()
+
+    for ax, s in zip(axes, sensors):
+        for algo in ("milp", "nn"):
+            sub = agg[(agg.algo == algo) & (agg.sensor_count == s)].sort_values("map_n")
+            ax.plot(
+                sub.map_n,
+                sub[metric],
+                marker="o",
+                color=COLORS[algo],
+                label=LABELS[algo],
+            )
+        ax.set_title(f"{s} sensores")
+        ax.grid(True, alpha=0.3)
+
+    for ax in axes[len(sensors):]:
+        ax.set_visible(False)
+
+    fig.supxlabel("Tamanho do mapa (L x L, metros)")
+    fig.supylabel(ylabel)
+    fig.suptitle(f"{ylabel}: MILP vs Nearest Neighbor")
+    handles, labels = axes[0].get_legend_handles_labels()
+    fig.legend(handles, labels, loc="upper right")
+    fig.tight_layout()
+    fig.savefig(output_dir / filename, dpi=120)
+    plt.close(fig)
+
+
+def plot_overall_bars(agg, output_dir):
+    overall = agg.groupby("algo")[
+        ["collected_aoi", "avg_final_aoi", "energy_final", "total_distance", "visited_count"]
+    ].mean()
+
+    fig, axes = plt.subplots(1, len(METRICS), figsize=(18, 4))
+    for ax, (metric, ylabel, _) in zip(axes, METRICS):
+        vals = [overall.loc["milp", metric], overall.loc["nn", metric]]
+        ax.bar(["MILP", "NN"], vals, color=[COLORS["milp"], COLORS["nn"]])
+        ax.set_title(ylabel, fontsize=9)
+        ax.grid(True, axis="y", alpha=0.3)
+    fig.suptitle("Média geral entre todos os cenários (36 cenários x 30 rodadas)")
+    fig.tight_layout()
+    fig.savefig(output_dir / "comparison_overall_bars.png", dpi=120)
+    plt.close(fig)
+    return overall
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("root_dir", help="Diretório raiz dos experimentos (anafi_usa)")
+    parser.add_argument("--output-dir", default="plots/comparison")
+    args = parser.parse_args()
+
+    root_dir = Path(args.root_dir)
+    output_dir = Path(args.output_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    print("Carregando resultados MILP e NN...")
+    milp = load_results(root_dir, "resultados", "milp")
+    nn = load_results(root_dir, "resultados_nn", "nn")
+    df = pd.concat([milp, nn], ignore_index=True)
+
+    print("Agregando...")
+    agg = aggregate(df)
+    agg.to_csv(output_dir / "comparison_aggregated.csv", index=False)
+
+    print("Gerando gráficos...")
+    for metric, ylabel, filename in METRICS:
+        plot_metric_facets(agg, metric, ylabel, filename, output_dir)
+    overall = plot_overall_bars(agg, output_dir)
+
+    print("\n=== Média geral (todos os cenários) ===")
+    print(overall.round(2).to_string())
+    print("\nGráficos salvos em:", output_dir)
+
+
+if __name__ == "__main__":
+    main()
