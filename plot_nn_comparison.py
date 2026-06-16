@@ -11,6 +11,7 @@ ALGOS = [
     ("milp", "resultados", "PGC (MILP/Gurobi)", "tab:blue", "PGC"),
     ("nn", "resultados_nn", "Nearest Neighbor", "tab:orange", "NN"),
     ("aoi_greedy", "resultados_aoi_greedy", "AoI-Greedy", "tab:green", "AoI-G"),
+    ("score_greedy", "resultados_score_greedy", "Score-Greedy (AoI/dist)", "tab:red", "Score-G"),
 ]
 
 METRICS = [
