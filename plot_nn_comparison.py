@@ -14,7 +14,7 @@ METRICS = [
     ("visited_count", "Sensores visitados", "comparison_visited.png"),
 ]
 
-LABELS = {"milp": "MILP (Gurobi)", "nn": "Nearest Neighbor"}
+LABELS = {"milp": "PGC (MILP/Gurobi)", "nn": "Nearest Neighbor"}
 COLORS = {"milp": "tab:blue", "nn": "tab:orange"}
 
 
@@ -107,7 +107,7 @@ def plot_overall_bars(agg, output_dir):
     fig, axes = plt.subplots(1, len(METRICS), figsize=(18, 4))
     for ax, (metric, ylabel, _) in zip(axes, METRICS):
         vals = [overall.loc["milp", metric], overall.loc["nn", metric]]
-        ax.bar(["MILP", "NN"], vals, color=[COLORS["milp"], COLORS["nn"]])
+        ax.bar(["PGC", "NN"], vals, color=[COLORS["milp"], COLORS["nn"]])
         ax.set_title(ylabel, fontsize=9)
         ax.grid(True, axis="y", alpha=0.3)
     fig.suptitle("Média geral entre todos os cenários (36 cenários x 30 rodadas)")
