@@ -6,6 +6,13 @@ import argparse
 
 MAP_PATTERN = re.compile(r"round_summary_(\d+)x(\d+)\.csv")
 
+# (chave, pasta de resultados, rótulo, cor, rótulo curto p/ barras)
+ALGOS = [
+    ("milp", "resultados", "PGC (MILP/Gurobi)", "tab:blue", "PGC"),
+    ("nn", "resultados_nn", "Nearest Neighbor", "tab:orange", "NN"),
+    ("aoi_greedy", "resultados_aoi_greedy", "AoI-Greedy", "tab:green", "AoI-G"),
+]
+
 METRICS = [
     ("collected_aoi", "AoI coletada por rodada", "comparison_collected_aoi.png"),
     ("avg_final_aoi", "AoI média final dos sensores", "comparison_avg_final_aoi.png"),
@@ -13,9 +20,6 @@ METRICS = [
     ("total_distance", "Distância total (m)", "comparison_distance.png"),
     ("visited_count", "Sensores visitados", "comparison_visited.png"),
 ]
-
-LABELS = {"milp": "PGC (MILP/Gurobi)", "nn": "Nearest Neighbor"}
-COLORS = {"milp": "tab:blue", "nn": "tab:orange"}
 
 
 def extract_metadata(path: Path):
@@ -74,15 +78,9 @@ def plot_metric_facets(agg, metric, ylabel, filename, output_dir):
     axes = axes.flatten()
 
     for ax, s in zip(axes, sensors):
-        for algo in ("milp", "nn"):
-            sub = agg[(agg.algo == algo) & (agg.sensor_count == s)].sort_values("map_n")
-            ax.plot(
-                sub.map_n,
-                sub[metric],
-                marker="o",
-                color=COLORS[algo],
-                label=LABELS[algo],
-            )
+        for key, _, label, color, _short in ALGOS:
+            sub = agg[(agg.algo == key) & (agg.sensor_count == s)].sort_values("map_n")
+            ax.plot(sub.map_n, sub[metric], marker="o", color=color, label=label)
         ax.set_title(f"{s} sensores")
         ax.grid(True, alpha=0.3)
 
@@ -91,7 +89,7 @@ def plot_metric_facets(agg, metric, ylabel, filename, output_dir):
 
     fig.supxlabel("Tamanho do mapa (L x L, metros)")
     fig.supylabel(ylabel)
-    fig.suptitle(f"{ylabel}: PGC vs Nearest Neighbor")
+    fig.suptitle(f"{ylabel}: PGC vs NN vs AoI-Greedy")
     handles, labels = axes[0].get_legend_handles_labels()
     fig.legend(handles, labels, loc="upper right")
     fig.tight_layout()
@@ -104,10 +102,14 @@ def plot_overall_bars(agg, output_dir):
         ["collected_aoi", "avg_final_aoi", "energy_final", "total_distance", "visited_count"]
     ].mean()
 
+    shorts = [short for _k, _d, _l, _c, short in ALGOS]
+    colors = [c for _k, _d, _l, c, _s in ALGOS]
+    keys = [k for k, _d, _l, _c, _s in ALGOS]
+
     fig, axes = plt.subplots(1, len(METRICS), figsize=(18, 4))
     for ax, (metric, ylabel, _) in zip(axes, METRICS):
-        vals = [overall.loc["milp", metric], overall.loc["nn", metric]]
-        ax.bar(["PGC", "NN"], vals, color=[COLORS["milp"], COLORS["nn"]])
+        vals = [overall.loc[k, metric] for k in keys]
+        ax.bar(shorts, vals, color=colors)
         ax.set_title(ylabel, fontsize=9)
         ax.grid(True, axis="y", alpha=0.3)
     fig.suptitle("Média geral entre todos os cenários (36 cenários x 30 rodadas)")
@@ -127,10 +129,9 @@ def main():
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    print("Carregando resultados PGC e NN...")
-    milp = load_results(root_dir, "resultados", "milp")
-    nn = load_results(root_dir, "resultados_nn", "nn")
-    df = pd.concat([milp, nn], ignore_index=True)
+    print("Carregando resultados...")
+    frames = [load_results(root_dir, dirname, key) for key, dirname, _l, _c, _s in ALGOS]
+    df = pd.concat(frames, ignore_index=True)
 
     print("Agregando...")
     agg = aggregate(df)
