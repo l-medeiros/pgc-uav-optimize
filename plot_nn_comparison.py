@@ -91,7 +91,7 @@ def plot_metric_facets(agg, metric, ylabel, filename, output_dir):
 
     fig.supxlabel("Tamanho do mapa (L x L, metros)")
     fig.supylabel(ylabel)
-    fig.suptitle(f"{ylabel}: MILP vs Nearest Neighbor")
+    fig.suptitle(f"{ylabel}: PGC vs Nearest Neighbor")
     handles, labels = axes[0].get_legend_handles_labels()
     fig.legend(handles, labels, loc="upper right")
     fig.tight_layout()
@@ -127,7 +127,7 @@ def main():
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    print("Carregando resultados MILP e NN...")
+    print("Carregando resultados PGC e NN...")
     milp = load_results(root_dir, "resultados", "milp")
     nn = load_results(root_dir, "resultados_nn", "nn")
     df = pd.concat([milp, nn], ignore_index=True)

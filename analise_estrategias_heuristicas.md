@@ -1,4 +1,4 @@
-# Análise de Estratégias Heurísticas para Comparação com o MILP
+# Análise de Estratégias Heurísticas para Comparação com o PGC
 
 > Referência base: Wei et al. (2022) — *UAV-Assisted Data Collection for Internet of Things: A Survey*
 
@@ -49,7 +49,7 @@
 
 **Implementabilidade:** Alta pura Python, diretamente alinhada ao objetivo do modelo.
 
-**Por que é boa candidata:** É uma heurística construtiva que aproxima o objetivo do MILP (maximizar AoI coletada). Esperamos que seja a heurística com melhor desempenho frente ao MILP.
+**Por que é boa candidata:** É uma heurística construtiva que aproxima o objetivo do PGC (maximizar AoI coletada). Esperamos que seja a heurística com melhor desempenho frente ao PGC.
 
 ---
 
@@ -59,7 +59,7 @@
 
 **Implementabilidade:**  Alta apenas modifica a função de scoring do AoI-Greedy.
 
-**Interesse:** Captura o trade-off entre urgência e custo de deslocamento, mais fiel ao MILP multiobjetivo.
+**Interesse:** Captura o trade-off entre urgência e custo de deslocamento, mais fiel ao PGC multiobjetivo.
 
 ---
 
@@ -106,10 +106,10 @@ Voronoi é mais útil quando o UAV precisa cobrir regiões geográficas sem alvo
 
 **Implementabilidade:**  Alta fácil fazer com uma lib de random() ou coisa do tipo.
 
-**Papel:** Limite inferior de desempenho. Demonstra que o MILP (e as demais heurísticas) superam uma estratégia sem inteligência.
+**Papel:** Limite inferior de desempenho. Demonstra que o PGC (e as demais heurísticas) superam uma estratégia sem inteligência.
 
 
-**Fluxo de execução idêntico ao MILP:**
+**Fluxo de execução idêntico ao PGC:**
 1. Carregar `sensors.csv` e `aoi_state.csv`
 2. Executar heurística → obter sequência de visitas
 3. Simular voo slot a slot: calcular energia, atualizar AoI
