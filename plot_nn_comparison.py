@@ -87,9 +87,10 @@ def plot_metric_facets(agg, metric, ylabel, filename, output_dir):
     for ax in axes[len(sensors):]:
         ax.set_visible(False)
 
+    titulo = " vs ".join(short for _k, _d, _l, _c, short in ALGOS)
     fig.supxlabel("Tamanho do mapa (L x L, metros)")
     fig.supylabel(ylabel)
-    fig.suptitle(f"{ylabel}: PGC vs NN vs AoI-Greedy")
+    fig.suptitle(f"{ylabel}: {titulo}")
     handles, labels = axes[0].get_legend_handles_labels()
     fig.legend(handles, labels, loc="upper right")
     fig.tight_layout()
@@ -120,10 +121,19 @@ def plot_overall_bars(agg, output_dir):
 
 
 def main():
+    global ALGOS
     parser = argparse.ArgumentParser()
     parser.add_argument("root_dir", help="Diretório raiz dos experimentos (anafi_usa)")
     parser.add_argument("--output-dir", default="plots/comparison")
+    parser.add_argument(
+        "--algos",
+        default=",".join(k for k, *_ in ALGOS),
+        help="Chaves separadas por vírgula (ex.: milp,nn). Default: todas.",
+    )
     args = parser.parse_args()
+
+    selected = [a.strip() for a in args.algos.split(",")]
+    ALGOS = [a for a in ALGOS if a[0] in selected]
 
     root_dir = Path(args.root_dir)
     output_dir = Path(args.output_dir)
