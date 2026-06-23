@@ -14,7 +14,7 @@ MAP_SIZES = [100, 200, 400, 600, 800, 1000]
 def load_results(root_dir, label):
     records = []
     for path in Path(root_dir).rglob("round_summary_*.csv"):
-        if "resultados_nn" in path.parts:
+        if path.parent.name != "resultados":
             continue
         m = MAP_PATTERN.search(path.name)
         if not m:

@@ -33,7 +33,7 @@ def load_all_results(root_dir):
 
     csv_files = [
         f for f in Path(root_dir).rglob("round_summary_*.csv")
-        if "resultados_nn" not in f.parts
+        if f.parent.name == "resultados"
     ]
 
     for file in csv_files:
