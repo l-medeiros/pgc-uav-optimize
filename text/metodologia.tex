@@ -1,19 +1,19 @@
-\section{Metodologia e Resultados Experimentais}
+\chapter{Metodologia e Resultados Experimentais}
 \label{sec:metodologia}
 
 A condução deste trabalho segue uma abordagem estruturada em três etapas principais: levantamento de dados, modelagem matemática do problema e experimentação por meio de resolvedores matemáticos. A seguir, descrevemos cada uma dessas fases em detalhes.
 
-\subsection{Levantamento de Dados e Cenários}
+\section{Levantamento de Dados e Cenários}
 
 Inicialmente, realizou-se o levantamento dos principais parâmetros e cenários utilizados nos modelos de coleta de dados assistida por VANTs, conforme apresentado em trabalhos como \cite{wei2022survey,messaoudi2023survey,liu2018uavWSN}. São coletadas informações sobre os modos de coleta (hovering, fly-by e híbrido), características dos sensores, limitações energéticas dos UAVs, padrões de cobertura, e tipos de topologia das redes de sensores sem fio.
 
 Além disso, definiu-se o cenário base da simulação, como a área de cobertura, número e distribuição dos sensores, tipo de UAV (asa fixa ou rotativo), tempo máximo de voo e parâmetros de consumo energético. Esses dados são utilizados como entrada para a etapa de modelagem matemática.
 
-\subsection{Modelagem Matemática}
+\section{Modelagem Matemática}
 
 Com os dados obtidos, foi formulado o modelo matemático para o problema de coleta de dados por UAVs. O problema é estruturado como uma variante de roteamento com restrições energéticas, inspirado em modelos de roteamento capacitado e problemas de cobertura com múltiplos alvos.
 
-A função objetivo pode ser definida como a minimização da energia total consumida ou da idade média da informação (Age of Information - AoI), sujeita a restrições de:
+A função objetivo pode ser definida como a minimização da energia total consumida ou da idade média da informação (Age of Information, AoI), sujeita a restrições de:
 
 \begin{itemize}
 \item capacidade energética dos UAVs;
@@ -24,7 +24,7 @@ A função objetivo pode ser definida como a minimização da energia total cons
 
 Com base em modelos da literatura, como em \cite{liu2018uavWSN} e \cite{zhang2018drlrvc}, variáveis contínuas e binárias são utilizadas para representar trajetórias, ativação de nós e consumo energético. O modelo é resolvido usando programação inteira mista (MILP).
 
-\subsection{Testes e Validação com Resolvedor}
+\section{Testes e Validação com Resolvedor}
 
 A fase final consiste na implementação da modelagem matemática em linguagem compatível com o resolvedor Gurobi, por meio de scripts em Python. Os testes computacionais visam avaliar o desempenho do modelo em diferentes cenários, variando parâmetros como o número de sensores, alcance de comunicação e número de UAVs.
 
@@ -37,7 +37,7 @@ São analisadas as seguintes métricas:
 \item quantidade de sensores visitados.
 \end{itemize}
 
-\subsubsection{Cenários}
+\subsection{Cenários}
 Os experimentos foram conduzidos sobre um conjunto de cenários sintéticos que variam dois parâmetros independentes: quantidade de sensores implantados na área de monitoramento e o tamanho da área coberta. Para a quantidade de sensores, foram considerados os valores $n_s \in \{5, 10, 15, 20, 25, 30\}$, e para a dimensão da área quadrada, foram adotados os seguintes tamanhos para o lado do quadrado: $L \in \{100, 200, 400, 600, 800, 1000\}$ metros. A combinação fatorial desses dois parâmetros resulta em 36 cenários distintos, denominados $P_{n_s\text{-}L}$ (ex.: $P_{10\text{-}400}$ para 10 sensores em área de 400×400 m).
 
 Para cada cenário, as coordenadas $(x, y)$ dos sensores são geradas aleatoriamente e distribuídas de forma uniforme dentro da área quadrada de lado $L$, sendo fixadas em arquivos CSV para garantir reprodutibilidade. O posicionamento é mantido constante ao longo de todas as rodadas de simulação, de modo a isolar os efeitos da variação de escala sobre as métricas de desempenho.
@@ -105,7 +105,7 @@ Após a execução de todos os cenários, os resultados são agregados calculand
 
 Os resultados obtidos são analisados quantitativamente, com referência aos padrões observados em trabalhos relacionados, com o objetivo de explorar a sensibilidade do modelo a diferentes configurações de cenário.
 
-\subsubsection{Configuração dos Drones}
+\subsection{Configuração dos Drones}
 
 Os experimentos foram conduzidos com dois modelos distintos de VANT, cujos parâmetros físicos alimentam o modelo de potência de asa rotativa (Equação~\eqref{eq:potencia}). Cada modelo dá origem a um conjunto de experimentos sobre os mesmos 36 cenários, descritos a seguir.
 
@@ -115,11 +115,11 @@ O primeiro conjunto de experimentos utiliza os parâmetros físicos do DJI Matri
 \paragraph{Parrot Anafi USA.}
 O segundo conjunto de experimentos foi realizado com os parâmetros do Parrot Anafi USA, um drone compacto voltado para aplicações de segurança e mapeamento. Para este modelo, a capacidade de bateria utilizada foi $E^{\max} = 141.372$\,J, correspondendo à capacidade real da bateria do equipamento.
 
-\subsubsection{Resultados: DJI Matrice 300 RTK}
+\subsection{Resultados: DJI Matrice 300 RTK}
 
 As Figuras~\ref{fig:aoi_vs_map}--\ref{fig:heatmap_energy}, apresentadas anteriormente, mostram os resultados obtidos com o DJI Matrice 300 RTK. Observa-se que a AoI média tende a crescer com o aumento do tamanho do mapa, reflexo da maior dificuldade do UAV em cobrir todos os sensores dentro do horizonte de missão de 200\,s. A distância total percorrida também aumenta com $L$, enquanto o consumo de energia acompanha esse crescimento devido ao maior tempo de deslocamento. Cenários com maior densidade de sensores (maior $n_s$ em área pequena) apresentam AoI mais baixa, pois o drone consegue visitar mais sensores por missão.
 
-\subsubsection{Resultados: Parrot Anafi USA}
+\subsection{Resultados: Parrot Anafi USA}
 
 As Figuras~\ref{fig:anafi_aoi_vs_map}--\ref{fig:anafi_heatmap_energy} apresentam os resultados experimentais obtidos com o Parrot Anafi USA ($E^{\max} = 141.372$\,J), para os mesmos 36 cenários.
 
@@ -171,7 +171,7 @@ Quanto ao consumo de energia (Figura~\ref{fig:anafi_energy_vs_map}), o crescimen
 
 A distância total percorrida (Figura~\ref{fig:anafi_distance_vs_map}) acompanha o crescimento de $L$ e apresenta comportamento inverso em relação a $n_s$ para mapas grandes: mais sensores na mesma área reduzem as distâncias médias entre vizinhos, resultando em rotas mais curtas. Em mapas pequenos ($L \leq 200$\,m), esse efeito é menos pronunciado, pois mesmo com poucos sensores as distâncias entre nós já são curtas.
 
-\subsubsection{Comparação com Heurísticas}
+\subsection{Comparação com Heurísticas}
 \label{sec:comparacao-heuristicas}
 
 Para situar o desempenho do modelo de otimização (doravante PGC, resolvido via MILP/Gurobi) frente a estratégias de baixo custo computacional, foram implementadas três heurísticas construtivas, todas avaliadas sobre os mesmos 36 cenários e as mesmas posições de sensores do Parrot Anafi USA, com 30 rodadas cada:
@@ -238,7 +238,7 @@ As heurísticas AoI-Greedy e Score-Greedy, por serem construídas em torno do me
 \paragraph{Score-Greedy frente à AoI-Greedy.}
 A ponderação por distância recupera eficiência sem perda de coleta: a Score-Greedy coleta essencialmente a mesma AoI da AoI-Greedy ($+0{,}7\%$), com $-10{,}6\%$ de energia (57.738\,J contra 64.571\,J) e $-12{,}6\%$ de distância (1.502\,m contra 1.719\,m), além de frescor ligeiramente melhor. Assim, a Score-Greedy domina a AoI-Greedy e é a melhor heurística do conjunto, sendo também a mais próxima do PGC. Ainda assim, permanece $28{,}5\%$ acima do PGC em consumo energético, o que evidencia o valor do modelo de otimização: nenhuma das heurísticas construtivas alcança simultaneamente a alta AoI coletada e o baixo consumo energético obtidos pela formulação MILP.
 
-\subsubsection{Variante com Revisitas}
+\subsection{Variante com Revisitas}
 
 Com base nos resultados do modelo base, investigou-se uma variante que relaxa a restrição de visita única por sensor: o modelo com revisitas (\textit{revisit}). Nessa configuração, o UAV pode visitar o mesmo sensor mais de uma vez durante uma missão, com o objetivo de coletar AoI adicional de sensores de alto valor nas rodadas em que a AoI acumulada é elevada.
 
@@ -288,14 +288,3 @@ Em contrapartida, o consumo energético aumentou substancialmente com as revisit
 Esse comportamento pode ser explicado pela natureza do modelo de otimização: ao permitir revisitas, o solver passa a incluir trajetórias em que o UAV retorna a sensores já visitados para coletar a AoI acumulada no mesmo \textit{slot} posterior, mas esse ganho marginal de AoI não compensa o custo energético do deslocamento adicional. Com $K=3$, o orçamento de hovers disponível é distribuído em menos sensores distintos, reduzindo a diversidade de coleta e, consequentemente, sem benefício líquido para a AoI média da rede.
 
 Conclui-se que, para a configuração estudada ($K=3$, 20 slots de 10\,s, Parrot Anafi USA), a restrição de visita única é uma escolha eficiente: ela força o otimizador a diversificar as visitas, obtendo qualidade de AoI equivalente a um custo energético significativamente menor.
-
-\section{Conclusões}
-\label{sec:conclusoes}
-
-Este trabalho formulou e avaliou um modelo de programação linear inteira mista (MILP) para o planejamento de plano de voo de VANTs na coleta de dados de redes de sensores IoT, com o objetivo de maximizar a \textit{Age of Information} (AoI) coletada e minimizar o consumo energético. O modelo foi estruturado como uma otimização multiobjetivo lexicográfica, em que a maximização da AoI tem prioridade sobre a minimização da energia, dispensando a calibração de um peso relativo entre as duas grandezas.
-
-A avaliação experimental cobriu 36 cenários (combinando seis quantidades de sensores e seis tamanhos de mapa), com 30 rodadas por cenário, para dois modelos de VANT (DJI Matrice 300 RTK e Parrot Anafi USA). Os resultados confirmaram a sensibilidade esperada do modelo à escala da área e à densidade de sensores: a AoI média e o consumo energético crescem com o tamanho do mapa, enquanto maior densidade de sensores reduz a AoI média por permitir mais visitas por missão.
-
-A comparação com três heurísticas construtivas (Nearest Neighbor, AoI-Greedy e Score-Greedy) evidenciou o valor da formulação exata. O PGC obteve a maior AoI coletada e a menor AoI média final entre todas as estratégias, com consumo energético competitivo ou inferior. As heurísticas gulosas alinhadas ao objetivo (AoI-Greedy e Score-Greedy) aproximaram-se da AoI coletada pelo PGC (diferença inferior a $4\%$), mas a um custo energético substancialmente maior ($+43{,}7\%$ e $+28{,}5\%$, respectivamente), enquanto o Nearest Neighbor apresentou o pior desempenho de qualidade. A variante com revisitas ($K=3$) não trouxe ganho de AoI e elevou consideravelmente o consumo de energia, indicando que a restrição de visita única é uma escolha eficiente para a configuração estudada.
-
-Como trabalhos futuros, destacam-se: (i) a execução das heurísticas em cenários de maior escala, nos quais o resolvedor exato se torna inviável em tempo ou memória, de modo a avaliar a degradação relativa das soluções; (ii) o refinamento do modelo de mobilidade, permitindo que transições entre nós distantes ocupem múltiplos \textit{slots}, eliminando as velocidades nominais irreais observadas em mapas grandes; e (iii) a incorporação de um modelo de comunicação mais detalhado, contemplando taxa de transmissão e qualidade de enlace dependentes da distância.

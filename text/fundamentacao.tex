@@ -1,7 +1,7 @@
-\section{Fundamentação Teórica}
+\chapter{Fundamentação Teórica}
 \label{sec:fundamentacao}
 
-\subsection{Programação Linear e Otimização Inteira}
+\section{Programação Linear e Otimização Inteira}
 \label{sec:prog-linear}
 
 A otimização matemática trata da escolha, dentre um conjunto de alternativas viáveis, daquela que minimiza (ou maximiza) uma medida de desempenho. Quando tanto a função objetivo quanto as restrições que delimitam as alternativas são expressas por relações lineares, o problema é dito de \emph{programação linear}. Esta seção introduz os conceitos de programação linear, sua extensão ao domínio inteiro e o caso misto, que constitui a base formal do modelo proposto neste trabalho.
@@ -25,15 +25,15 @@ Quando apenas parte das variáveis é restrita a valores inteiros, enquanto as d
 A principal técnica para resolver problemas de PLI e MILP de forma exata é o \emph{branch-and-bound} \cite{land1960branchbound, arenales2007pesquisa}. A ideia central é dividir o problema em subproblemas menores (\emph{branching}) e usar limitantes para descartar (\emph{bounding}) aqueles que comprovadamente não podem conter a solução ótima, evitando testar todas as combinações possíveis. Esse método, em conjunto com técnicas de planos de corte, está implementado em resolvedores de otimização como o Gurobi, adotado neste trabalho.
 
 \paragraph{Relação com este trabalho.}
-O problema de planejamento de voo abordado neste trabalho é formulado como um MILP: variáveis binárias descrevem a posição do UAV, os deslocamentos e as coletas, enquanto variáveis contínuas registram a energia acumulada e a \emph{Age of Information} dos sensores. Termos não lineares, como o produto entre a AoI e a decisão de coleta, são convertidos em restrições lineares por meio de técnicas de linearização (Seção~\ref{sec:modelagem}, Equações~\eqref{eq:lin-a}--\eqref{eq:lin-c}), preservando a estrutura linear necessária à resolução exata pelo Gurobi.
+O problema de planejamento de voo abordado neste trabalho é formulado como um MILP: variáveis binárias descrevem a posição do UAV, os deslocamentos e as coletas, enquanto variáveis contínuas registram a energia acumulada e a \emph{Age of Information} dos sensores. Termos não lineares, como o produto entre a AoI e a decisão de coleta, são convertidos em restrições lineares por meio de técnicas de linearização (Capítulo~\ref{sec:modelagem}, Equações~\eqref{eq:lin-a}--\eqref{eq:lin-c}), preservando a estrutura linear necessária à resolução exata pelo Gurobi.
 
-\subsection{IoT e WSN}
+\section{IoT e WSN}
 
 A Internet das Coisas (IoT, do inglês \textit{Internet of Things}) é um paradigma que integra objetos físicos (sensores, atuadores e dispositivos embarcados) à infraestrutura digital por meio de protocolos de comunicação sem fio, permitindo a coleta, transmissão e processamento autônomo de dados do ambiente \cite{yang2020surveyUAVIoT}. Dentro desse paradigma, as redes de sensores sem fio (WSNs, do inglês \textit{Wireless Sensor Networks}) constituem uma das tecnologias de suporte mais consolidadas: consistem em conjuntos de nós de baixo consumo energético, distribuídos em uma área de interesse, responsáveis por amostrar grandezas físicas (temperatura, umidade, vibração, entre outras) e encaminhá-las periodicamente a um ponto de coleta centralizado \cite{liu2018uavWSN}.
 
 Em aplicações de monitoramento ambiental, agricultura de precisão, vigilância urbana e resposta a desastres, os nós sensores frequentemente operam em áreas de difícil acesso ou sem cobertura de infraestrutura fixa. Nesse contexto, UAVs têm sido explorados como \emph{sinks} móveis, percorrendo a área de missão para coletar dados diretamente dos sensores \cite{wei2022survey,messaoudi2023survey}.
 
-\subsection{Age of Information (AoI)}
+\section{Age of Information (AoI)}
 
 Os modelos adotados neste trabalho utilizam uma representação de \emph{tempo discreto}: o horizonte de uma missão é particionado em $T_f$ intervalos de igual duração $\Delta t$, denominados \emph{slots}. Em cada slot, o estado do sistema (posição do UAV, energia acumulada e idade da informação dos sensores) é considerado constante, e as decisões de movimento e coleta são tomadas slot a slot. Essa discretização transforma a evolução contínua da missão em uma sequência finita de estados, viabilizando a formulação por programação linear inteira. O conceito de slot, introduzido aqui, é utilizado ao longo de toda a fundamentação e da modelagem.
 
@@ -57,7 +57,7 @@ onde $A_j^0$ é o valor inicial carregado do estado persistido entre missões e 
 
 Quando o UAV coleta o sensor $j$ no slot $t$, a AoI é zerada no slot seguinte, pois o destino passa a dispor de uma atualização recente. Caso contrário, a AoI cresce em uma unidade por slot, refletindo o envelhecimento da informação. Maximizar a soma $\sum_{j,t} A_{j,t}\, v_{j,t}$, isto é, priorizar sensores com AoI mais alta no momento da coleta, é equivalente a maximizar o \emph{ganho informacional} acumulado pela missão, incentivando visitas a nós cujos dados estejam mais desatualizados.
 
-\subsection{UAVs}
+\section{UAVs}
 
 Veículos aéreos não tripulados (UAVs, do inglês \textit{Unmanned Aerial Vehicles}), popularmente chamados de drones, são aeronaves controladas remotamente ou de forma autônoma, sem piloto a bordo \cite{messaoudi2023survey}. Originalmente desenvolvidos para fins militares, os UAVs passaram a ser amplamente utilizados em aplicações civis como mapeamento, agricultura de precisão, vigilância, entrega de cargas e, em particular, coleta de dados em redes IoT \cite{wei2022survey}.
 
@@ -70,7 +70,7 @@ Do ponto de vista da propulsão, os UAVs mais relevantes para coleta de dados em
 
 Neste trabalho, adota-se o modelo de asa rotativa, coerente com os UAVs utilizados nos experimentos (DJI Matrice 300 RTK e Parrot Anafi USA).
 
-\subsubsection{Modos de coleta}
+\subsection{Modos de coleta}
 \label{sec:modos-coleta}
 
 A estratégia de sobrevoo adotada pelo UAV determina como e quando a comunicação com os sensores ocorre. Três modos principais são identificados na literatura \cite{messaoudi2023survey,wei2022survey}:
@@ -81,20 +81,20 @@ A estratégia de sobrevoo adotada pelo UAV determina como e quando a comunicaç�
     \item \textbf{Híbrido}: combina os dois modos anteriores, selecionando a estratégia mais adequada para cada sensor conforme seus requisitos de enlace e localização.
 \end{itemize}
 
-No modelo adotado neste trabalho, a coleta ocorre exclusivamente em modo \textit{hovering}: o UAV deve permanecer parado sobre o sensor durante um slot inteiro para que a transmissão seja considerada bem-sucedida. A formalização desse pressuposto, que vincula a coleta à permanência do UAV sobre o sensor, é apresentada na modelagem matemática (Seção~\ref{sec:modelagem}).
+No modelo adotado neste trabalho, a coleta ocorre exclusivamente em modo \textit{hovering}: o UAV deve permanecer parado sobre o sensor durante um slot inteiro para que a transmissão seja considerada bem-sucedida. A formalização desse pressuposto, que vincula a coleta à permanência do UAV sobre o sensor, é apresentada na modelagem matemática (Capítulo~\ref{sec:modelagem}).
 
-\subsubsection{Restrições operacionais}
+\subsection{Restrições operacionais}
 
 A operação de um UAV de asa rotativa é condicionada por dois limites principais:
 
 \begin{itemize}
-    \item \textbf{Capacidade de bateria ($E^{\max}$)}: a energia armazenada na bateria limita o tempo total de missão. O consumo depende da velocidade de deslocamento e do tempo em hover, conforme o modelo de potência de Zeng et al.~\cite{zeng2019rotarywing} descrito na Seção~\ref{sec:modelagem}.
+    \item \textbf{Capacidade de bateria ($E^{\max}$)}: a energia armazenada na bateria limita o tempo total de missão. O consumo depende da velocidade de deslocamento e do tempo em hover, conforme o modelo de potência de Zeng et al.~\cite{zeng2019rotarywing} descrito no Capítulo~\ref{sec:modelagem}.
     \item \textbf{Horizonte temporal ($T_f$)}: o número máximo de slots disponíveis para a missão, que define o comprimento do plano de voo a ser otimizado.
 \end{itemize}
 
 A interação entre esses dois limites é central para o problema de otimização formulado neste trabalho: aumentar o número de sensores visitados exige mais deslocamentos e mais tempo em hover, elevando o consumo e eventualmente inviabilizando a missão dentro do orçamento energético disponível.
 
-\subsection{Modelo de energia de UAV de asa rotativa}
+\section{Modelo de energia de UAV de asa rotativa}
 
 O consumo energético de UAVs de asa rotativa é fortemente dependente do regime de voo: manter-se estacionário (\emph{hover}) exige potência elevada para sustentar o peso do veículo contra a gravidade, enquanto o deslocamento horizontal apresenta um ponto ótimo de eficiência situado entre o custo de sustentação e o arrasto aerodinâmico.
 
@@ -106,19 +106,19 @@ Para modelar esse comportamento com fidelidade física, este trabalho adota o mo
     \item \textbf{Potência de arrasto parasita}: captura o arrasto aerodinâmico da fuselagem e de componentes expostos ao fluxo; cresce proporcionalmente ao cubo da velocidade e é dominante apenas em altas velocidades.
 \end{enumerate}
 
-A expressão matemática da potência $P(V)$ em função da velocidade horizontal $V$ é apresentada na Seção~\ref{sec:modelagem} (Equação~\eqref{eq:potencia}). Em \emph{hover} ($V = 0$), o modelo simplifica-se para $P_{\mathrm{hov}} = P_0 + P_i$, onde $P_0$ é a potência de perfil e $P_i$ é a potência induzida, ambas avaliadas em velocidade nula. Com os parâmetros do DJI Matrice 300 RTK ($P_0 = 79{,}86$\,W, $P_i = 88{,}63$\,W), obtém-se $P_{\mathrm{hov}} \approx 168{,}5$\,W.
+A expressão matemática da potência $P(V)$ em função da velocidade horizontal $V$ é apresentada no Capítulo~\ref{sec:modelagem} (Equação~\eqref{eq:potencia}). Em \emph{hover} ($V = 0$), o modelo simplifica-se para $P_{\mathrm{hov}} = P_0 + P_i$, onde $P_0$ é a potência de perfil e $P_i$ é a potência induzida, ambas avaliadas em velocidade nula. Com os parâmetros do DJI Matrice 300 RTK ($P_0 = 79{,}86$\,W, $P_i = 88{,}63$\,W), obtém-se $P_{\mathrm{hov}} \approx 168{,}5$\,W.
 
 Os parâmetros físicos completos utilizados nos experimentos, obtidos de \cite{zeng2019rotarywing}, são: $P_0 = 79{,}86$\,W, $P_i = 88{,}63$\,W, $U_{\mathrm{tip}} = 120$\,m/s (velocidade da ponta da pá), $v_0 = 4{,}03$\,m/s (velocidade induzida em \emph{hover}), $\rho = 1{,}225$\,kg/m³ (densidade do ar) e $C_{DS} = 0{,}01509$\,m² (coeficiente de arrasto parasita efetivo, dado por $c_d \cdot s \cdot A$, com $c_d = 0{,}6$, $s = 0{,}05$ e $A = 0{,}503$\,m²). Esses parâmetros são adotados nos dois conjuntos de experimentos; a diferença entre os UAVs está na capacidade de bateria $E^{\max}$: $2$\,MJ para o DJI Matrice 300 RTK e $141{,}372$\,kJ para o Parrot Anafi USA (capacidade nominal real do equipamento).
 
-O custo energético de cada deslocamento do UAV é obtido multiplicando a potência calculada pela duração do slot $\Delta t = 10$\,s (Equação~\eqref{eq:custo-energia}, Seção~\ref{sec:modelagem}). As restrições de acumulação e capacidade de energia no modelo MILP são apresentadas na Seção~\ref{sec:modelagem} (Equações~\eqref{eq:energia-inicial}--\eqref{eq:energia-capacidade}).
+O custo energético de cada deslocamento do UAV é obtido multiplicando a potência calculada pela duração do slot $\Delta t = 10$\,s (Equação~\eqref{eq:custo-energia}, Capítulo~\ref{sec:modelagem}). As restrições de acumulação e capacidade de energia no modelo MILP são apresentadas no Capítulo~\ref{sec:modelagem} (Equações~\eqref{eq:energia-inicial}--\eqref{eq:energia-capacidade}).
 
-\subsection{Modelo de comunicação}
+\section{Modelo de comunicação}
 
 Em sistemas UAV-IoT, modelos de comunicação detalhados descrevem explicitamente o canal de rádio (perda de percurso, desvanecimento, relação sinal-ruído e protocolos de controle de acesso ao meio) condicionando a taxa de sucesso à qualidade do enlace~\cite{wei2022survey,messaoudi2023survey}. Esses modelos são relevantes quando a mobilidade do UAV provoca variações significativas de distância ou ângulo durante a coleta.
 
 Neste trabalho, adota-se um modelo de comunicação binário simplificado, coerente com o modo de coleta \emph{hovering} descrito na Seção~\ref{sec:modos-coleta}. O pressuposto central é que a transmissão de dados ocorre com sucesso garantido se, e somente se, o UAV permanecer estacionário diretamente acima do sensor durante um slot completo de duração $\Delta t$.
 
-Não são modelados aspectos de camada de enlace como taxa de dados, modulação, interferência entre sensores ou protocolo MAC. A coleta é representada pela variável binária $v_{j,t} \in \{0,1\}$, que indica se o UAV permanece estacionário sobre o sensor $j$ durante o slot $t$ (Equação~\eqref{eq:coleta}, Seção~\ref{sec:modelagem}).
+Não são modelados aspectos de camada de enlace como taxa de dados, modulação, interferência entre sensores ou protocolo MAC. A coleta é representada pela variável binária $v_{j,t} \in \{0,1\}$, que indica se o UAV permanece estacionário sobre o sensor $j$ durante o slot $t$ (Equação~\eqref{eq:coleta}, Capítulo~\ref{sec:modelagem}).
 
 Esta simplificação é adequada por três motivos:
 
