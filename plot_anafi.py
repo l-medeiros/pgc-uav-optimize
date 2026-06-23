@@ -31,7 +31,10 @@ def extract_metadata(path: Path):
 def load_all_results(root_dir):
     records = []
 
-    csv_files = list(Path(root_dir).rglob("round_summary_*.csv"))
+    csv_files = [
+        f for f in Path(root_dir).rglob("round_summary_*.csv")
+        if "resultados_nn" not in f.parts
+    ]
 
     for file in csv_files:
         meta = extract_metadata(file)

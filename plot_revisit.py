@@ -40,6 +40,8 @@ def load_results(root_dir: Path, max_rounds: int = 30):
     """Carrega todos os round_summary_*.csv de um diretório raiz."""
     records = []
     for file in root_dir.rglob("round_summary_*.csv"):
+        if "resultados_nn" in file.parts:
+            continue
         meta = extract_metadata(file, root_dir)
         if meta is None:
             continue
