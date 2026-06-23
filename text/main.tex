@@ -1,13 +1,21 @@
-\documentclass{article}
+\documentclass[
+    12pt,
+    oneside,
+    a4paper,
+    article,
+    brazil
+]{abntex2}
+
+\usepackage{lmodern}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{booktabs}
 \usepackage{array}
-\usepackage[portuguese]{babel}
 \usepackage{xcolor}
 \usepackage{pgfgantt}
 \usepackage{adjustbox}
-\usepackage{xcolor}
 \usepackage{soul}
 \usepackage{graphicx}
 
@@ -183,6 +191,8 @@ O modelo representa o voo do UAV como uma sequência de estados discretos no tem
         \label{eq:custo-energia}
     \end{align}
 
+    A velocidade $V_{ij} = d_{ij}/\Delta t$ corresponde à hipótese de que cada transição entre dois nós é concluída em um único \textit{slot} de duração $\Delta t = 10$\,s a velocidade constante. Essa simplificação mantém o modelo de energia linear por aresta, mas implica que, em mapas grandes, as velocidades nominais podem superar a faixa operacional dos veículos: por exemplo, uma transição correspondente à diagonal de um mapa de $1000\times1000$\,m ($\approx 1414$\,m) exigiria $V_{ij} \approx 141$\,m/s, valor acima da velocidade da ponta da hélice $U_{\text{tip}} = 120$\,m/s e da velocidade de cruzeiro real do DJI Matrice 300 RTK e do Parrot Anafi USA. Trata-se de uma limitação da discretização em uma única transição por \textit{slot}: para os cenários de maior escala, os valores de energia devem ser interpretados como uma aproximação conservadora do custo de deslocamento, e não como reflexo de um perfil de voo fisicamente realizável a essa velocidade.
+
     O caso especial de \emph{hover} corresponde à aresta $(i,i)$, onde $V_{ii}=0$ e portanto:
 
     \[
@@ -230,27 +240,30 @@ O modelo representa o voo do UAV como uma sequência de estados discretos no tem
     Minimizar esse valor corresponde a promover trajetórias mais econômicas, aumentando a autonomia do veículo e preservando os recursos energéticos disponíveis.
     
     \paragraph{Função Objetivo Multicritério.}
-    
-    Combinando as duas componentes anteriores, obtemos uma função objetivo global que, em termos matemáticos, reflete o compromisso entre qualidade informacional e eficiência energética:
-    
+
+    As duas componentes anteriores são combinadas por meio de uma otimização multiobjetivo \emph{lexicográfica} (hierárquica), e não de uma soma ponderada. Em vez de fixar um parâmetro de ponderação entre AoI e energia, atribui-se uma prioridade a cada objetivo: a maximização da AoI coletada recebe prioridade superior e a minimização da energia, prioridade inferior. Formalmente, resolve-se primeiro
+
     \begin{align}
-        \max\ 
-        F
+        f_{\text{AoI}}^{\star}
         \;=\;
-        \lambda 
+        \max\
         \sum_{j \in S}
         \sum_{t = 1}^{T_f - 1}
-            w_{j,t}
-        \;-\;
-        E_{T_f},
-        \label{eq:objetivo}
+            w_{j,t},
+        \label{eq:objetivo-aoi}
     \end{align}
-    
-    onde $\lambda > 0$ é um parâmetro de ponderação que controla a importância relativa entre os dois termos.
-    
-    A primeira parcela recompensa soluções que coletam grande quantidade de AoI, especialmente de sensores que acumulam atraso informacional. A segunda parcela penaliza soluções energeticamente dispendiosas, promovendo trajetórias mais curtas e econômicas.  
-    A função $F$ captura, assim, a essência do trade-off inerente ao problema: obter informação relevante com o menor gasto energético possível.
-    
+
+    e, em seguida, entre todas as soluções que atingem $f_{\text{AoI}}^{\star}$, minimiza-se o consumo energético:
+
+    \begin{align}
+        \min\ E_{T_f}
+        \qquad \text{sujeito a} \qquad
+        \sum_{j \in S}\sum_{t=1}^{T_f-1} w_{j,t} = f_{\text{AoI}}^{\star}.
+        \label{eq:objetivo-energia}
+    \end{align}
+
+    Dessa forma, o modelo primeiro garante a máxima informação coletada e, apenas como critério de desempate, escolhe entre as soluções ótimas aquela de menor gasto energético. Essa estrutura captura a essência do problema sem exigir a calibração de um peso relativo entre as grandezas: obter a maior quantidade de informação relevante possível e, dentre as alternativas igualmente boas nesse aspecto, a mais econômica em energia. Na implementação, essa hierarquia é definida diretamente pelo resolvedor (Gurobi) por meio de objetivos com prioridades distintas.
+
     \subsubsection{Restrições de Movimento}
 
     \begin{align}
@@ -317,11 +330,11 @@ O modelo representa o voo do UAV como uma sequência de estados discretos no tem
         E_{T_f} \le E^{\max}. \label{eq:energia-capacidade}
     \end{align}
     
-    As restrições acima refletem exatamente a dinâmica implementada no código, onde $E_t$ é a energia total acumulada e $c_{ij}$ segue a modelagem de potência do UAV.
+    As restrições acima refletem a dinâmica de energia implementada no código, onde $E_t$ é a energia total acumulada e $c_{ij}$ segue a modelagem de potência do UAV.
 
     \subsubsection{Restrições de Age of Information (AoI)}
 
-    Para o primeiro voo, $A_j^0 = 0$ para todos os sensores $j \in S$. Para voos subsequentes, $A_j^0$ representa o número de intervalos de tempo desde a última coleta de dados do sensor $j$.
+    O modelo é resolvido de forma independente a cada voo (rodada), e a sequência de voos é encadeada pelo estado de AoI: o valor final de AoI de cada sensor ao término de um voo é persistido e utilizado como condição inicial $A_j^0$ do voo seguinte. Para o primeiro voo, $A_j^0 = 0$ para todos os sensores $j \in S$. Para voos subsequentes, $A_j^0$ representa o número de intervalos de tempo desde a última coleta de dados do sensor $j$.
     \begin{align}
       A_{j,1} &= A_j^0, \forall j \in S \label{eq:aoi-inicial}
     \end{align}
@@ -391,7 +404,7 @@ O modelo representa o voo do UAV como uma sequência de estados discretos no tem
 
 
     \input{metodologia}
-    \input{cronograma}
+    % \input{cronograma} % removido: cronograma não integra a versão final
 
     \bibliographystyle{abbrv}
     \bibliography{refs}

@@ -35,6 +35,8 @@ Em aplicações de monitoramento ambiental, agricultura de precisão, vigilânci
 
 \subsection{Age of Information (AoI)}
 
+Os modelos adotados neste trabalho utilizam uma representação de \emph{tempo discreto}: o horizonte de uma missão é particionado em $T_f$ intervalos de igual duração $\Delta t$, denominados \emph{slots}. Em cada slot, o estado do sistema (posição do UAV, energia acumulada e idade da informação dos sensores) é considerado constante, e as decisões de movimento e coleta são tomadas slot a slot. Essa discretização transforma a evolução contínua da missão em uma sequência finita de estados, viabilizando a formulação por programação linear inteira. O conceito de slot, introduzido aqui, é utilizado ao longo de toda a fundamentação e da modelagem.
+
 Uma métrica central para avaliar a qualidade da informação coletada nessas redes é a \emph{Age of Information} (AoI), introduzida para quantificar a \emph{frescor} dos dados disponíveis em um ponto de destino \cite{messaoudi2023survey}. Intuitivamente, a AoI mede há quanto tempo a última atualização de um determinado sensor foi recebida. Quanto maior a AoI, mais desatualizada é a informação disponível.
 
 \paragraph{Definição formal.}
@@ -121,7 +123,7 @@ Não são modelados aspectos de camada de enlace como taxa de dados, modulação
 Esta simplificação é adequada por três motivos:
 
 \begin{enumerate}
-    \item \textbf{Distância mínima:} ao pairar sobre o sensor, o UAV minimiza a distância de enlace, garantindo SNR suficiente para tecnologias de curto alcance como IEEE 802.15.4, Zigbee ou LoRa.
+    \item \textbf{Distância mínima:} ao pairar sobre o sensor, o UAV minimiza a distância de enlace, garantindo SNR suficiente para tecnologias de curto alcance como IEEE 802.15.4, Zigbee ou LoRa, além de linha de visada.
     \item \textbf{Canal estacionário:} em \emph{hover}, a velocidade relativa entre drone e sensor é nula, eliminando o efeito Doppler e reduzindo as flutuações de desvanecimento.
     \item \textbf{Foco em roteamento:} o objetivo da formulação é otimizar a trajetória e o escalonamento de visitas; o desempenho do enlace de rádio, condicionalmente à presença de \emph{hover}, é tratado como garantido. Modelos de canal mais detalhados podem ser incorporados em extensões futuras.
 \end{enumerate}
