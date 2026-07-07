@@ -2,3 +2,17 @@ venv/
 __pycache__/
 *.pyc
 *.tmp.csv
+
+# LaTeX build artifacts
+*.aux
+*.bbl
+*.blg
+*.log
+*.out
+*.toc
+*.lof
+*.lot
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+text/main.pdf
