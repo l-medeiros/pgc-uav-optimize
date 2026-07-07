@@ -174,7 +174,7 @@ A distância total percorrida (Figura~\ref{fig:anafi_distance_vs_map}) acompanha
 \subsection{Comparação com Heurísticas}
 \label{sec:comparacao-heuristicas}
 
-Para situar o desempenho do modelo de otimização (doravante PGC, resolvido via MILP/Gurobi) frente a estratégias de baixo custo computacional, foram implementadas três heurísticas construtivas, todas avaliadas sobre os mesmos 36 cenários e as mesmas posições de sensores do Parrot Anafi USA, com 30 rodadas cada:
+Para avaliar o desempenho do modelo de otimização (aqui chamado de MILP, resolvido via Gurobi) em relação a estratégias de baixo custo computacional, foram implementadas três heurísticas construtivas, todas avaliadas sobre os mesmos 36 cenários e as mesmas posições de sensores do Parrot Anafi USA, com 30 rodadas cada:
 
 \begin{itemize}
 \item \textbf{Nearest Neighbor (NN)}: a cada passo, o UAV visita o sensor viável (dentro do orçamento de bateria e \textit{slots}) mais próximo da posição atual.
@@ -190,7 +190,7 @@ A Tabela~\ref{tab:cmp-heuristicas} apresenta as médias gerais das cinco métric
   \label{tab:cmp-heuristicas}
   \begin{tabular}{l r r r r}
     \toprule
-    \textbf{Métrica} & \textbf{PGC} & \textbf{NN} & \textbf{AoI-Greedy} & \textbf{Score-Greedy} \\
+    \textbf{Métrica} & \textbf{MILP} & \textbf{NN} & \textbf{AoI-Greedy} & \textbf{Score-Greedy} \\
     \midrule
     AoI coletada por rodada      & 309,7  & 145,4   & 298,5  & 300,5 \\
     AoI média final              & 17,8   & 127,2   & 29,5   & 28,5 \\
@@ -204,7 +204,7 @@ A Tabela~\ref{tab:cmp-heuristicas} apresenta as médias gerais das cinco métric
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=\textwidth]{figs/cmp_all_overall_bars.png}
-  \caption{Média geral das cinco métricas para as quatro estratégias (PGC, NN, AoI-Greedy e Score-Greedy) sobre os 36 cenários.}
+  \caption{Média geral das cinco métricas para as quatro estratégias (MILP, NN, AoI-Greedy e Score-Greedy) sobre os 36 cenários.}
   \label{fig:cmp_all_overall_bars}
 \end{figure}
 
@@ -229,14 +229,14 @@ A Tabela~\ref{tab:cmp-heuristicas} apresenta as médias gerais das cinco métric
   \label{fig:cmp_all_energy}
 \end{figure}
 
-\paragraph{PGC frente ao Nearest Neighbor.}
-O NN é a baseline mais simples e a que apresenta o pior desempenho nas métricas de qualidade. O PGC coleta $+113\%$ de AoI por rodada (309,7 contra 145,4; fator $2{,}13\times$) e mantém a AoI média final $86\%$ menor (17,8 contra 127,2), entregando dados muito mais frescos. O PGC ainda consome $7{,}7\%$ menos energia que o NN. A única métrica em que o NN apresenta valor inferior é a distância percorrida ($-34\%$), o que não configura vantagem: a estratégia gulosa por proximidade retorna cedo à base e fica pairando nos \textit{slots} restantes, percorrendo menos porém coletando menos. O número de sensores visitados é praticamente idêntico (8,33 contra 8,22): a diferença não está em \emph{quantos} sensores são visitados, e sim em \emph{quanta} AoI é extraída e em manter os dados atualizados. O NN degrada especialmente em mapas grandes com poucos sensores (1000×1000\,m com 5 ou 10 sensores), em que a escolha gulosa esgota bateria e \textit{slots} antes de cobrir bem o conjunto, enquanto o PGC se mantém estável (Figura~\ref{fig:cmp_all_collected_aoi}).
+\paragraph{MILP comparado ao Nearest Neighbor.}
+O NN é a baseline mais simples e a que apresenta o pior desempenho nas métricas de qualidade. O MILP coleta $+113\%$ de AoI por rodada (309,7 contra 145,4; fator $2{,}13\times$) e mantém a AoI média final $86\%$ menor (17,8 contra 127,2), entregando dados muito mais frescos. O MILP ainda consome $7{,}7\%$ menos energia que o NN. A única métrica em que o NN apresenta valor inferior é a distância percorrida ($-34\%$), o que não configura vantagem: a estratégia gulosa por proximidade retorna cedo à base e fica pairando nos \textit{slots} restantes, percorrendo menos porém coletando menos. O número de sensores visitados é praticamente idêntico (8,33 contra 8,22): a diferença não está em \emph{quantos} sensores são visitados, e sim em \emph{quanta} AoI é extraída e em manter os dados atualizados. O NN degrada especialmente em mapas grandes com poucos sensores (1000×1000\,m com 5 ou 10 sensores), em que a escolha gulosa esgota bateria e \textit{slots} antes de cobrir bem o conjunto, enquanto o MILP se mantém estável (Figura~\ref{fig:cmp_all_collected_aoi}).
 
-\paragraph{PGC frente às heurísticas gulosas por AoI.}
-As heurísticas AoI-Greedy e Score-Greedy, por serem construídas em torno do mesmo objetivo do PGC, aproximam-se muito da AoI coletada pelo modelo ótimo: a AoI-Greedy fica a apenas $-3{,}6\%$ (298,5 contra 309,7) e a Score-Greedy a $-3{,}0\%$ (300,5). Em frescor (AoI média final), o PGC ainda lidera, com valores $40\%$ e $38\%$ menores, respectivamente, mas ambas ficam muito mais próximas do PGC do que o NN. O ponto fraco dessas heurísticas é a \textbf{energia}: a AoI-Greedy gasta $+43{,}7\%$ (64.571\,J contra 44.943\,J) e a Score-Greedy $+28{,}5\%$ (57.738\,J), pois perseguem AoI/frescor sem ponderar adequadamente o custo energético do deslocamento. É exatamente nesse ponto que o PGC se destaca: por ser multiobjetivo lexicográfico (maximiza a AoI coletada e, em seguida, minimiza a energia entre as soluções de AoI ótima), entrega a maior AoI coletada com consumo energético significativamente menor.
+\paragraph{MILP comparado às heurísticas gulosas por AoI.}
+As heurísticas AoI-Greedy e Score-Greedy, por serem construídas em torno do mesmo objetivo do MILP, aproximam-se muito da AoI coletada pelo modelo ótimo: a AoI-Greedy fica a apenas $-3{,}6\%$ (298,5 contra 309,7) e a Score-Greedy a $-3{,}0\%$ (300,5). Em frescor (AoI média final), o MILP ainda lidera, com valores $40\%$ e $38\%$ menores, respectivamente, mas ambas ficam muito mais próximas do MILP do que o NN. O ponto fraco dessas heurísticas é a \textbf{energia}: a AoI-Greedy gasta $+43{,}7\%$ (64.571\,J contra 44.943\,J) e a Score-Greedy $+28{,}5\%$ (57.738\,J), pois buscam AoI/frescor sem considerar adequadamente o custo energético do deslocamento. É exatamente nesse ponto que o MILP se destaca: por ser multiobjetivo lexicográfico (maximiza a AoI coletada e, em seguida, minimiza a energia entre as soluções de AoI ótima), entrega a maior AoI coletada com consumo energético significativamente menor.
 
-\paragraph{Score-Greedy frente à AoI-Greedy.}
-A ponderação por distância recupera eficiência sem perda de coleta: a Score-Greedy coleta essencialmente a mesma AoI da AoI-Greedy ($+0{,}7\%$), com $-10{,}6\%$ de energia (57.738\,J contra 64.571\,J) e $-12{,}6\%$ de distância (1.502\,m contra 1.719\,m), além de frescor ligeiramente melhor. Assim, a Score-Greedy domina a AoI-Greedy e é a melhor heurística do conjunto, sendo também a mais próxima do PGC. Ainda assim, permanece $28{,}5\%$ acima do PGC em consumo energético, o que evidencia o valor do modelo de otimização: nenhuma das heurísticas construtivas alcança simultaneamente a alta AoI coletada e o baixo consumo energético obtidos pela formulação MILP.
+\paragraph{Score-Greedy comparada à AoI-Greedy.}
+A ponderação por distância melhora a eficiência sem perder coleta: a Score-Greedy coleta essencialmente a mesma AoI da AoI-Greedy ($+0{,}7\%$), com $-10{,}6\%$ de energia (57.738\,J contra 64.571\,J) e $-12{,}6\%$ de distância (1.502\,m contra 1.719\,m), além de frescor ligeiramente melhor. Assim, a Score-Greedy domina a AoI-Greedy e é a melhor heurística do conjunto, sendo também a mais próxima do MILP. Ainda assim, permanece $28{,}5\%$ acima do MILP em consumo energético, o que evidencia o valor do modelo de otimização: nenhuma das heurísticas construtivas alcança simultaneamente a alta AoI coletada e o baixo consumo energético obtidos pela formulação MILP.
 
 \subsection{Variante com Revisitas}
 

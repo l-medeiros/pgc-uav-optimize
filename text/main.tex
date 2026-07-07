@@ -24,6 +24,13 @@
     \pretextual
     \include{pretextual/capa}
 
+    \begin{resumo}
+        A coleta de dados em redes de sensores IoT por meio de veículos aéreos não tripulados (UAVs) exige o planejamento cuidadoso da trajetória de voo, de modo a equilibrar a qualidade da informação coletada e o consumo energético do veículo. Este trabalho propõe uma formulação de Programação Linear Inteira Mista (PLIM) para o problema de otimização do plano de voo de um UAV dedicado à coleta de dados de sensores distribuídos em uma área geográfica. O modelo discretiza o horizonte da missão em intervalos de tempo (\textit{slots}) e representa a movimentação do veículo sobre um grafo completo de nós (sensores e base), incorporando um modelo de potência de asa rotativa para estimar o custo energético de cada deslocamento e dos períodos de pairar (\textit{hovering}). A \textit{Age of Information} (AoI) é utilizada como medida da relevância temporal dos dados, e a missão é otimizada de forma multiobjetivo lexicográfica: maximiza-se primeiro a AoI efetivamente coletada e, em seguida, minimiza-se a energia consumida. A formulação foi implementada no resolvedor Gurobi e avaliada em 36 cenários, variando a quantidade de sensores e o tamanho do mapa, com parâmetros físicos do DJI Matrice 300 RTK e do Parrot Anafi USA, e comparada a heurísticas construtivas de referência (\textit{Nearest Neighbor}, AoI-Greedy e Score-Greedy). Os resultados indicam que o modelo exato encontra soluções de boa qualidade nas escalas avaliadas e que a restrição de visita única a cada sensor constitui uma escolha eficiente, obtendo qualidade de AoI equivalente à de uma variante com revisitas, porém com consumo energético significativamente menor.
+
+        \vspace{\onelineskip}
+        \noindent\textbf{Palavras-chave}: UAV; Internet das Coisas; \textit{Age of Information}; otimização; programação linear inteira mista; eficiência energética.
+    \end{resumo}
+
     \textual
 
     \input{introdução}
@@ -406,6 +413,8 @@ O modelo representa o voo do UAV como uma sequência de estados discretos no tem
 
     \input{metodologia}
     % \input{cronograma} % removido: cronograma não integra a versão final
+
+    \input{conclusao}
 
     \bibliographystyle{abbrv}
     \bibliography{refs}
