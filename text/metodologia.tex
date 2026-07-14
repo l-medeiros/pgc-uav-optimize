@@ -5,28 +5,28 @@ A condução deste trabalho segue uma abordagem estruturada em três etapas prin
 
 \section{Levantamento de Dados e Cenários}
 
-Inicialmente, realizou-se o levantamento dos principais parâmetros e cenários utilizados nos modelos de coleta de dados assistida por VANTs, conforme apresentado em trabalhos como \cite{wei2022survey,messaoudi2023survey,liu2018uavWSN}. São coletadas informações sobre os modos de coleta (hovering, fly-by e híbrido), características dos sensores, limitações energéticas dos UAVs, padrões de cobertura, e tipos de topologia das redes de sensores sem fio.
+Inicialmente, realizou-se o levantamento dos principais parâmetros e cenários utilizados nos modelos de coleta de dados assistida por VANTs, conforme apresentado em trabalhos como \cite{wei2022survey,messaoudi2023survey,liu2018uavWSN}. São coletadas informações sobre os modos de coleta (hovering, fly-by e híbrido), características dos sensores, limitações energéticas dos VANTs, padrões de cobertura, e tipos de topologia das redes de sensores sem fio.
 
-Além disso, definiu-se o cenário base da simulação, como a área de cobertura, número e distribuição dos sensores, tipo de UAV (asa fixa ou rotativo), tempo máximo de voo e parâmetros de consumo energético. Esses dados são utilizados como entrada para a etapa de modelagem matemática.
+Além disso, definiu-se o cenário base da simulação, como a área de cobertura, número e distribuição dos sensores, tipo de VANT (asa fixa ou rotativo), tempo máximo de voo e parâmetros de consumo energético. Esses dados são utilizados como entrada para a etapa de modelagem matemática.
 
 \section{Modelagem Matemática}
 
-Com os dados obtidos, foi formulado o modelo matemático para o problema de coleta de dados por UAVs. O problema é estruturado como uma variante de roteamento com restrições energéticas, inspirado em modelos de roteamento capacitado e problemas de cobertura com múltiplos alvos.
+Com os dados obtidos, foi formulado o modelo matemático para o problema de coleta de dados por VANTs. O problema é estruturado como uma variante de roteamento com restrições energéticas, inspirado em modelos de roteamento capacitado e problemas de cobertura com múltiplos alvos.
 
 A função objetivo pode ser definida como a minimização da energia total consumida ou da idade média da informação (Age of Information, AoI), sujeita a restrições de:
 
 \begin{itemize}
-\item capacidade energética dos UAVs;
-\item cobertura total ou parcial dos sensores;
-\item tempo máximo de missão;
-\item conectividade entre pontos de coleta e retorno à base.
+\item capacidade energética dos VANTs (Equação~\eqref{eq:energia-capacidade});
+\item cobertura total ou parcial dos sensores (Equação~\eqref{eq:y-visita});
+\item tempo máximo de missão (Equação~\eqref{eq:mov-base});
+\item conectividade entre pontos de coleta e retorno à base (Equação~\eqref{eq:mov-fluxo}).
 \end{itemize}
 
-Com base em modelos da literatura, como em \cite{liu2018uavWSN} e \cite{zhang2018drlrvc}, variáveis contínuas e binárias são utilizadas para representar trajetórias, ativação de nós e consumo energético. O modelo é resolvido usando programação inteira mista (MILP).
+Com base em modelos da literatura, como em \cite{liu2018uavWSN} e \cite{zhang2018drlrvc}, variáveis contínuas e binárias são utilizadas para representar trajetórias, coleta de dados e consumo energético. O modelo é resolvido usando programação inteira mista (MILP).
 
 \section{Testes e Validação com Resolvedor}
 
-A fase final consiste na implementação da modelagem matemática em linguagem compatível com o resolvedor Gurobi, por meio de scripts em Python. Os testes computacionais visam avaliar o desempenho do modelo em diferentes cenários, variando parâmetros como o número de sensores, alcance de comunicação e número de UAVs.
+A fase final consiste na implementação da modelagem matemática em linguagem compatível com o resolvedor Gurobi, por meio de scripts em Python. Os testes computacionais visam avaliar o desempenho do modelo em diferentes cenários, variando parâmetros como o número de sensores, alcance de comunicação e número de VANTs.
 
 São analisadas as seguintes métricas:
 
@@ -103,21 +103,21 @@ Após a execução de todos os cenários, os resultados são agregados calculand
   \label{fig:heatmap_energy}
 \end{figure}
 
-Os resultados obtidos são analisados quantitativamente, com referência aos padrões observados em trabalhos relacionados, com o objetivo de explorar a sensibilidade do modelo a diferentes configurações de cenário.
+Os resultados obtidos são analisados quantitativamente, com referência aos padrões observados em trabalhos relacionados~\cite{wei2022survey,messaoudi2023survey}, com o objetivo de explorar a sensibilidade do modelo a diferentes configurações de cenário.
 
 \subsection{Configuração dos Drones}
 
 Os experimentos foram conduzidos com dois modelos distintos de VANT, cujos parâmetros físicos alimentam o modelo de potência de asa rotativa (Equação~\eqref{eq:potencia}). Cada modelo dá origem a um conjunto de experimentos sobre os mesmos 36 cenários, descritos a seguir.
 
-\paragraph{DJI Matrice 300 RTK.}
+\subsubsection{DJI Matrice 300 RTK}
 O primeiro conjunto de experimentos utiliza os parâmetros físicos do DJI Matrice 300 RTK, um drone de uso profissional amplamente empregado em aplicações industriais e de monitoramento. Para estes experimentos, a capacidade de bateria foi fixada em $E^{\max} = 2$\,MJ, representando um subconjunto da autonomia total do veículo com o objetivo de avaliar o comportamento do otimizador em condições mais restritivas de energia.
 
-\paragraph{Parrot Anafi USA.}
+\subsubsection{Parrot Anafi USA}
 O segundo conjunto de experimentos foi realizado com os parâmetros do Parrot Anafi USA, um drone compacto voltado para aplicações de segurança e mapeamento. Para este modelo, a capacidade de bateria utilizada foi $E^{\max} = 141.372$\,J, correspondendo à capacidade real da bateria do equipamento.
 
 \subsection{Resultados: DJI Matrice 300 RTK}
 
-As Figuras~\ref{fig:aoi_vs_map}--\ref{fig:heatmap_energy}, apresentadas anteriormente, mostram os resultados obtidos com o DJI Matrice 300 RTK. Observa-se que a AoI média tende a crescer com o aumento do tamanho do mapa, reflexo da maior dificuldade do UAV em cobrir todos os sensores dentro do horizonte de missão de 200\,s. A distância total percorrida também aumenta com $L$, enquanto o consumo de energia acompanha esse crescimento devido ao maior tempo de deslocamento. Cenários com maior densidade de sensores (maior $n_s$ em área pequena) apresentam AoI mais baixa, pois o drone consegue visitar mais sensores por missão.
+As Figuras~\ref{fig:aoi_vs_map}--\ref{fig:heatmap_energy} mostram os resultados obtidos com o DJI Matrice 300 RTK. Observa-se que a AoI média tende a crescer com o aumento do tamanho do mapa, reflexo da maior dificuldade do VANT em cobrir todos os sensores dentro do horizonte de missão de 200\,s. A distância total percorrida também aumenta com o aumento da área (parâmetro $L$), enquanto o consumo de energia acompanha esse crescimento devido ao maior tempo de deslocamento. Cenários com maior densidade de sensores (maior $n_s$ em área pequena) apresentam AoI mais baixa, pois o drone consegue visitar mais sensores por missão.
 
 \subsection{Resultados: Parrot Anafi USA}
 
@@ -165,7 +165,7 @@ As Figuras~\ref{fig:anafi_aoi_vs_map}--\ref{fig:anafi_heatmap_energy} apresentam
   \label{fig:anafi_heatmap_energy}
 \end{figure}
 
-A análise dos resultados do Parrot Anafi USA revela padrões consistentes com o comportamento esperado do modelo. Em relação à AoI média final (Figura~\ref{fig:anafi_aoi_vs_map}), observa-se que o valor cresce aproximadamente de forma linear com a quantidade de sensores $n_s$, mantendo-se próximo a $n_s$ independentemente do tamanho do mapa. Esse comportamento indica que o otimizador distribui as visitas de maneira estável entre as rodadas: para qualquer configuração de área, o modelo consegue visitar um número semelhante de sensores por missão, resultando em AoI proporcional à densidade da rede. O caso $n_s = 5$ é um resultado degenerado favorável: o UAV consegue visitar todos os cinco sensores em todas as missões para qualquer tamanho de mapa, resultando em AoI média exatamente igual a 5 em todos os cenários.
+A análise dos resultados do Parrot Anafi USA revela padrões consistentes com o comportamento esperado do modelo. Em relação à AoI média final (Figura~\ref{fig:anafi_aoi_vs_map}), observa-se que o valor cresce aproximadamente de forma linear com a quantidade de sensores $n_s$, mantendo-se próximo a $n_s$ independentemente do tamanho do mapa. Esse comportamento indica que o otimizador distribui as visitas de maneira estável entre as rodadas: para qualquer configuração de área, o modelo consegue visitar um número semelhante de sensores por missão, resultando em AoI proporcional à densidade da rede. O caso $n_s = 5$ é um resultado degenerado favorável: o VANT consegue visitar todos os cinco sensores em todas as missões para qualquer tamanho de mapa, resultando em AoI média exatamente igual a 5 em todos os cenários.
 
 Quanto ao consumo de energia (Figura~\ref{fig:anafi_energy_vs_map}), o crescimento com $L$ é pronunciado e apresenta dois saltos distintos: entre $L=400$ e $L=600$\,m e entre $L=600$ e $L=800$\,m. Isso reflete o aumento das distâncias de deslocamento entre nós do grafo, que elevam o custo energético de cada aresta. Um comportamento não-monotônico é observado em $L=1000$\,m: a energia consumida pelo cenário com $n_s=5$ ($\approx$118\,kJ) é superior à dos cenários com $n_s=10$ ($\approx$100\,kJ) e $n_s=15$ ($\approx$76\,kJ). Isso ocorre porque, com apenas 5 sensores distribuídos em uma área de 1000×1000\,m, as distâncias entre os nós são maiores do que em cenários com maior densidade de sensores na mesma área, tornando o roteamento mais custoso.
 
@@ -177,7 +177,7 @@ A distância total percorrida (Figura~\ref{fig:anafi_distance_vs_map}) acompanha
 Para avaliar o desempenho do modelo de otimização (aqui chamado de MILP, resolvido via Gurobi) em relação a estratégias de baixo custo computacional, foram implementadas três heurísticas construtivas, todas avaliadas sobre os mesmos 36 cenários e as mesmas posições de sensores do Parrot Anafi USA, com 30 rodadas cada:
 
 \begin{itemize}
-\item \textbf{Nearest Neighbor (NN)}: a cada passo, o UAV visita o sensor viável (dentro do orçamento de bateria e \textit{slots}) mais próximo da posição atual.
+\item \textbf{Nearest Neighbor (NN)}: a cada passo, o VANT visita o sensor viável (dentro do orçamento de bateria e \textit{slots}) mais próximo da posição atual.
 \item \textbf{AoI-Greedy}: a cada passo, visita o sensor de maior AoI ainda viável, com desempate por proximidade. É a heurística mais alinhada ao objetivo de maximizar a AoI coletada.
 \item \textbf{Score-Greedy}: a cada passo, visita o sensor de maior razão AoI/distância ainda viável, com desempate por proximidade. Pondera urgência e custo de deslocamento.
 \end{itemize}
@@ -229,28 +229,28 @@ A Tabela~\ref{tab:cmp-heuristicas} apresenta as médias gerais das cinco métric
   \label{fig:cmp_all_energy}
 \end{figure}
 
-\paragraph{MILP comparado ao Nearest Neighbor.}
-O NN é a baseline mais simples e a que apresenta o pior desempenho nas métricas de qualidade. O MILP coleta $+113\%$ de AoI por rodada (309,7 contra 145,4; fator $2{,}13\times$) e mantém a AoI média final $86\%$ menor (17,8 contra 127,2), entregando dados muito mais frescos. O MILP ainda consome $7{,}7\%$ menos energia que o NN. A única métrica em que o NN apresenta valor inferior é a distância percorrida ($-34\%$), o que não configura vantagem: a estratégia gulosa por proximidade retorna cedo à base e fica pairando nos \textit{slots} restantes, percorrendo menos porém coletando menos. O número de sensores visitados é praticamente idêntico (8,33 contra 8,22): a diferença não está em \emph{quantos} sensores são visitados, e sim em \emph{quanta} AoI é extraída e em manter os dados atualizados. O NN degrada especialmente em mapas grandes com poucos sensores (1000×1000\,m com 5 ou 10 sensores), em que a escolha gulosa esgota bateria e \textit{slots} antes de cobrir bem o conjunto, enquanto o MILP se mantém estável (Figura~\ref{fig:cmp_all_collected_aoi}).
+\subsubsection{MILP comparado ao Nearest Neighbor}
+O NN é a baseline mais simples e a que apresenta o pior desempenho nas métricas de qualidade. O MILP coleta $+113\%$ de AoI por rodada (309,7 contra 145,4; fator $2{,}13\times$) e mantém a AoI média final $86\%$ menor (17,8 contra 127,2), entregando dados muito mais recentes. O MILP ainda consome $7{,}7\%$ menos energia que o NN. A única métrica em que o NN apresenta valor inferior é a distância percorrida ($-34\%$), o que não configura vantagem: a estratégia gulosa por proximidade retorna cedo à base e fica pairando nos \textit{slots} restantes, percorrendo menos porém coletando menos. O número de sensores visitados é praticamente idêntico (8,33 contra 8,22): a diferença não está em \emph{quantos} sensores são visitados, e sim em \emph{quanta} AoI é extraída e em manter os dados atualizados. O NN degrada especialmente em mapas grandes com poucos sensores (1000×1000\,m com 5 ou 10 sensores), em que a escolha gulosa esgota bateria e \textit{slots} antes de cobrir bem o conjunto, enquanto o MILP se mantém estável (Figura~\ref{fig:cmp_all_collected_aoi}).
 
-\paragraph{MILP comparado às heurísticas gulosas por AoI.}
-As heurísticas AoI-Greedy e Score-Greedy, por serem construídas em torno do mesmo objetivo do MILP, aproximam-se muito da AoI coletada pelo modelo ótimo: a AoI-Greedy fica a apenas $-3{,}6\%$ (298,5 contra 309,7) e a Score-Greedy a $-3{,}0\%$ (300,5). Em frescor (AoI média final), o MILP ainda lidera, com valores $40\%$ e $38\%$ menores, respectivamente, mas ambas ficam muito mais próximas do MILP do que o NN. O ponto fraco dessas heurísticas é a \textbf{energia}: a AoI-Greedy gasta $+43{,}7\%$ (64.571\,J contra 44.943\,J) e a Score-Greedy $+28{,}5\%$ (57.738\,J), pois buscam AoI/frescor sem considerar adequadamente o custo energético do deslocamento. É exatamente nesse ponto que o MILP se destaca: por ser multiobjetivo lexicográfico (maximiza a AoI coletada e, em seguida, minimiza a energia entre as soluções de AoI ótima), entrega a maior AoI coletada com consumo energético significativamente menor.
+\subsubsection{MILP comparado às heurísticas gulosas por AoI}
+As heurísticas AoI-Greedy e Score-Greedy, por serem construídas em torno do mesmo objetivo do MILP, aproximam-se muito da AoI coletada pelo modelo ótimo: a AoI-Greedy fica a apenas $-3{,}6\%$ (298,5 contra 309,7) e a Score-Greedy a $-3{,}0\%$ (300,5). Em atualidade dos dados (AoI média final), o MILP ainda lidera, com valores $40\%$ e $38\%$ menores, respectivamente, mas ambas ficam muito mais próximas do MILP do que o NN. O ponto fraco dessas heurísticas é a energia: a AoI-Greedy gasta $+43{,}7\%$ (64.571\,J contra 44.943\,J) e a Score-Greedy $+28{,}5\%$ (57.738\,J), pois buscam maximizar a AoI e a atualidade dos dados sem considerar adequadamente o custo energético do deslocamento. É exatamente nesse ponto que o MILP se destaca: por ser multiobjetivo lexicográfico (maximiza a AoI coletada e, em seguida, minimiza a energia entre as soluções de AoI ótima), entrega a maior AoI coletada com consumo energético significativamente menor.
 
-\paragraph{Score-Greedy comparada à AoI-Greedy.}
-A ponderação por distância melhora a eficiência sem perder coleta: a Score-Greedy coleta essencialmente a mesma AoI da AoI-Greedy ($+0{,}7\%$), com $-10{,}6\%$ de energia (57.738\,J contra 64.571\,J) e $-12{,}6\%$ de distância (1.502\,m contra 1.719\,m), além de frescor ligeiramente melhor. Assim, a Score-Greedy domina a AoI-Greedy e é a melhor heurística do conjunto, sendo também a mais próxima do MILP. Ainda assim, permanece $28{,}5\%$ acima do MILP em consumo energético, o que evidencia o valor do modelo de otimização: nenhuma das heurísticas construtivas alcança simultaneamente a alta AoI coletada e o baixo consumo energético obtidos pela formulação MILP.
+\subsubsection{Score-Greedy comparada à AoI-Greedy}
+A ponderação por distância melhora a eficiência sem perder coleta: a Score-Greedy coleta essencialmente a mesma AoI da AoI-Greedy ($+0{,}7\%$), com $-10{,}6\%$ de energia (57.738\,J contra 64.571\,J) e $-12{,}6\%$ de distância (1.502\,m contra 1.719\,m), além de dados ligeiramente mais recentes. Assim, a Score-Greedy domina a AoI-Greedy e é a melhor heurística do conjunto, sendo também a mais próxima do MILP. Ainda assim, permanece $28{,}5\%$ acima do MILP em consumo energético, o que evidencia o valor do modelo de otimização: nenhuma das heurísticas construtivas alcança simultaneamente a alta AoI coletada e o baixo consumo energético obtidos pela formulação MILP.
 
 \subsection{Variante com Revisitas}
 
-Com base nos resultados do modelo base, investigou-se uma variante que relaxa a restrição de visita única por sensor: o modelo com revisitas (\textit{revisit}). Nessa configuração, o UAV pode visitar o mesmo sensor mais de uma vez durante uma missão, com o objetivo de coletar AoI adicional de sensores de alto valor nas rodadas em que a AoI acumulada é elevada.
+Com base nos resultados do modelo base, investigou-se uma variante que relaxa a restrição de visita única por sensor: o modelo com revisitas (\textit{revisit}). Nessa configuração, o VANT pode visitar o mesmo sensor mais de uma vez durante uma missão, com o objetivo de coletar AoI adicional de sensores de alto valor nas rodadas em que a AoI acumulada é elevada.
 
-\paragraph{Implementação.}
+\subsubsection{Implementação}
 A modificação consiste na substituição da restrição de visita única (Equação~\eqref{eq:visita-unica}), $\sum_t v_{j,t} \leq 1$, por $\sum_t v_{j,t} \leq K$, onde $K$ é o número máximo de revisitas permitido por sensor por missão. O parâmetro $K$ é configurável via argumento de linha de comando (\texttt{--max-revisits}). Nos experimentos desta seção, adotou-se $K = 3$.
 
-\paragraph{Desafios computacionais.}
+\subsubsection{Desafios computacionais}
 A adoção de revisitas amplia consideravelmente o espaço de soluções viáveis do modelo MILP. Com $K = 3$, o número de combinações possíveis de padrões de visita cresce exponencialmente, tornando a exploração da árvore de \textit{branch-and-bound} pelo Gurobi significativamente mais custosa em memória. Em cenários com $n_s \geq 20$ e $L \geq 600$\,m, o processo de otimização chegou a consumir vários gigabytes de RAM, causando instabilidades no ambiente de execução.
 
 Para contornar esses problemas, foram adotadas três medidas: (i) limitação do número de \textit{threads} do Gurobi a 2, reduzindo o paralelismo da exploração da árvore; (ii) ativação do parâmetro \texttt{NodefileStart = 0.5\,GB}, que instrui o solver a descarregar nós da árvore para disco ao atingir esse limite de memória RAM; e (iii) definição de \texttt{SoftMemLimit = 4\,GB}, que encerra a otimização graciosamente e retorna a melhor solução encontrada até o momento quando o uso de memória ultrapassa esse valor. Adicionalmente, rodadas em que o solver não encontrou solução viável dentro do limite de tempo ou memória são registradas com métricas zeradas e AoI envelhecida normalmente, garantindo a consistência da cadeia de estado entre rodadas.
 
-\paragraph{Resultados e comparativo.}
+\subsubsection{Resultados e comparativo}
 Os resultados do modelo com revisitas foram comparados com o modelo base para os mesmos 36 cenários, utilizando as mesmas posições de sensores e os mesmos parâmetros do Parrot Anafi USA.
 
 \begin{figure}[htbp]
@@ -285,6 +285,6 @@ A análise dos resultados revela que a variante com revisitas \textbf{não troux
 
 Em contrapartida, o consumo energético aumentou substancialmente com as revisitas (Figuras~\ref{fig:cmp_energy_vs_map} e~\ref{fig:delta_energy_heatmap}). Para mapas pequenos ($L \leq 200$\,m), o acréscimo foi modesto ($+3$ a $+6\%$). Porém, para mapas maiores, o custo energético cresceu de forma expressiva: entre $+33\%$ e $+45\%$ para $L=400$\,m, e entre $+108\%$ e $+189\%$ para $L \geq 600$\,m. Em vários cenários com $L \geq 600$\,m, a energia consumida pelo modelo com revisitas chegou a ser superior a $100$\,kJ, próxima ao limite de bateria de $141$\,kJ.
 
-Esse comportamento pode ser explicado pela natureza do modelo de otimização: ao permitir revisitas, o solver passa a incluir trajetórias em que o UAV retorna a sensores já visitados para coletar a AoI acumulada no mesmo \textit{slot} posterior, mas esse ganho marginal de AoI não compensa o custo energético do deslocamento adicional. Com $K=3$, o orçamento de hovers disponível é distribuído em menos sensores distintos, reduzindo a diversidade de coleta e, consequentemente, sem benefício líquido para a AoI média da rede.
+Esse comportamento pode ser explicado pela natureza do modelo de otimização: ao permitir revisitas, o solver passa a incluir trajetórias em que o VANT retorna a sensores já visitados para coletar a AoI acumulada no mesmo \textit{slot} posterior, mas esse ganho marginal de AoI não compensa o custo energético do deslocamento adicional. Com $K=3$, o orçamento de hovers disponível é distribuído em menos sensores distintos, reduzindo a diversidade de coleta e, consequentemente, sem benefício líquido para a AoI média da rede.
 
 Conclui-se que, para a configuração estudada ($K=3$, 20 slots de 10\,s, Parrot Anafi USA), a restrição de visita única é uma escolha eficiente: ela força o otimizador a diversificar as visitas, obtendo qualidade de AoI equivalente a um custo energético significativamente menor.
