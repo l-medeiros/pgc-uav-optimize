@@ -297,16 +297,44 @@ Os resultados do modelo com revisitas foram comparados com o modelo base para os
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=\textwidth]{figs/cmp_aoi_vs_map.png}
-  \caption{AoI média final -- comparativo entre modelo base e modelo com revisitas ($K=3$).}
-  \label{fig:cmp_aoi_vs_map}
+  \includegraphics[width=\textwidth]{figs/cmp_aoi_vs_map_p1.png}
+  \caption{AoI média final: comparativo base vs revisitas ($K=3$), para 5 e 10 sensores.}
+  \label{fig:cmp_aoi_vs_map_p1}
 \end{figure}
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=\textwidth]{figs/cmp_energy_vs_map.png}
-  \caption{Energia média consumida -- comparativo entre modelo base e modelo com revisitas ($K=3$).}
-  \label{fig:cmp_energy_vs_map}
+  \includegraphics[width=\textwidth]{figs/cmp_aoi_vs_map_p2.png}
+  \caption{AoI média final: comparativo base vs revisitas ($K=3$), para 15 e 20 sensores.}
+  \label{fig:cmp_aoi_vs_map_p2}
+\end{figure}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth]{figs/cmp_aoi_vs_map_p3.png}
+  \caption{AoI média final: comparativo base vs revisitas ($K=3$), para 25 e 30 sensores.}
+  \label{fig:cmp_aoi_vs_map_p3}
+\end{figure}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth]{figs/cmp_energy_vs_map_p1.png}
+  \caption{Energia média consumida: comparativo base vs revisitas ($K=3$), para 5 e 10 sensores.}
+  \label{fig:cmp_energy_vs_map_p1}
+\end{figure}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth]{figs/cmp_energy_vs_map_p2.png}
+  \caption{Energia média consumida: comparativo base vs revisitas ($K=3$), para 15 e 20 sensores.}
+  \label{fig:cmp_energy_vs_map_p2}
+\end{figure}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth]{figs/cmp_energy_vs_map_p3.png}
+  \caption{Energia média consumida: comparativo base vs revisitas ($K=3$), para 25 e 30 sensores.}
+  \label{fig:cmp_energy_vs_map_p3}
 \end{figure}
 
 \begin{figure}[htbp]
@@ -323,9 +351,9 @@ Os resultados do modelo com revisitas foram comparados com o modelo base para os
   \label{fig:delta_energy_heatmap}
 \end{figure}
 
-A análise dos resultados revela que a variante com revisitas \textbf{não trouxe melhora na qualidade da solução} em termos de AoI. Conforme ilustrado nas Figuras~\ref{fig:cmp_aoi_vs_map} e~\ref{fig:delta_aoi_heatmap}, a AoI média final permaneceu estatisticamente equivalente ao modelo base em praticamente todos os cenários, com variações menores que $\pm 3\%$, dentro da margem de ruído experimental das 30 rodadas.
+A análise dos resultados revela que a variante com revisitas \textbf{não trouxe melhora na qualidade da solução} em termos de AoI. Conforme ilustrado nas Figuras~\ref{fig:cmp_aoi_vs_map_p1}--\ref{fig:cmp_aoi_vs_map_p3} e~\ref{fig:delta_aoi_heatmap}, a AoI média final permaneceu estatisticamente equivalente ao modelo base em praticamente todos os cenários, com variações menores que $\pm 3\%$, dentro da margem de ruído experimental das 30 rodadas.
 
-Em contrapartida, o consumo energético aumentou substancialmente com as revisitas (Figuras~\ref{fig:cmp_energy_vs_map} e~\ref{fig:delta_energy_heatmap}). Para mapas pequenos ($L \leq 200$\,m), o acréscimo foi modesto ($+3$ a $+6\%$). Porém, para mapas maiores, o custo energético cresceu de forma expressiva: entre $+33\%$ e $+45\%$ para $L=400$\,m, e entre $+108\%$ e $+189\%$ para $L \geq 600$\,m. Em vários cenários com $L \geq 600$\,m, a energia consumida pelo modelo com revisitas chegou a ser superior a $100$\,kJ, próxima ao limite de bateria de $141$\,kJ.
+Em contrapartida, o consumo energético aumentou substancialmente com as revisitas (Figuras~\ref{fig:cmp_energy_vs_map_p1}--\ref{fig:cmp_energy_vs_map_p3} e~\ref{fig:delta_energy_heatmap}). Para mapas pequenos ($L \leq 200$\,m), o acréscimo foi modesto ($+3$ a $+6\%$). Porém, para mapas maiores, o custo energético cresceu de forma expressiva: entre $+33\%$ e $+45\%$ para $L=400$\,m, e entre $+108\%$ e $+189\%$ para $L \geq 600$\,m. Em vários cenários com $L \geq 600$\,m, a energia consumida pelo modelo com revisitas chegou a ser superior a $100$\,kJ, próxima ao limite de bateria de $141$\,kJ.
 
 Esse comportamento pode ser explicado pela natureza do modelo de otimização: ao permitir revisitas, o solver passa a incluir trajetórias em que o VANT retorna a sensores já visitados para coletar a AoI acumulada no mesmo \textit{slot} posterior, mas esse ganho marginal de AoI não compensa o custo energético do deslocamento adicional. Com $K=3$, o orçamento de hovers disponível é distribuído em menos sensores distintos, reduzindo a diversidade de coleta e, consequentemente, sem benefício líquido para a AoI média da rede.
 

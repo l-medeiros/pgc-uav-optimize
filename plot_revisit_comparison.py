@@ -83,6 +83,28 @@ def plot_comparison_lines(agg, metric, ylabel, filename, output_dir):
     plt.close()
 
 
+SENSOR_PAIRS = [(5, 10), (15, 20), (25, 30)]
+
+
+def plot_comparison_pairs(agg, metric, ylabel, base_name, output_dir):
+    for idx, pair in enumerate(SENSOR_PAIRS, start=1):
+        fig, axes = plt.subplots(1, 2, figsize=(12, 4.5), sharey=False)
+        for ax, n in zip(axes, pair):
+            for variant, style in [("base", dict(linestyle="-", marker="o")),
+                                    ("revisit", dict(linestyle="--", marker="s"))]:
+                sub = agg[(agg.sensor_count == n) & (agg.variant == variant)].sort_values("map_n")
+                ax.plot(sub.map_n, sub[metric], label=variant, **style)
+            ax.set_title(f"{n} sensores")
+            ax.set_xlabel("Tamanho do mapa (m)")
+            ax.legend(fontsize=9)
+            ax.grid(True)
+            ax.xaxis.set_major_formatter(mticker.FuncFormatter(lambda x, _: f"{int(x)}"))
+        axes[0].set_ylabel(ylabel)
+        fig.tight_layout()
+        fig.savefig(output_dir / f"{base_name}_p{idx}.png", dpi=150, bbox_inches="tight")
+        plt.close(fig)
+
+
 def plot_delta_heatmap(agg, metric, title, filename, output_dir):
     base_df = agg[agg.variant == "base"].set_index(["sensor_count", "map_n"])[metric]
     rev_df  = agg[agg.variant == "revisit"].set_index(["sensor_count", "map_n"])[metric]
@@ -140,6 +162,10 @@ def main():
     plot_comparison_lines(agg, "aoi_mean",       "AoI média final (slots)", "cmp_aoi_vs_map.png",       output_dir)
     plot_comparison_lines(agg, "distance_mean",  "Distância total (m)",    "cmp_distance_vs_map.png",  output_dir)
     plot_comparison_lines(agg, "visited_mean",   "Sensores visitados",     "cmp_visited_vs_map.png",   output_dir)
+
+    print("Gerando gráficos em pares (2 painéis)...")
+    plot_comparison_pairs(agg, "aoi_mean",    "AoI média final (slots)", "cmp_aoi_vs_map",    output_dir)
+    plot_comparison_pairs(agg, "energy_mean", "Energia final (J)",       "cmp_energy_vs_map", output_dir)
 
     print("Gerando mapas de calor de variação percentual...")
     plot_delta_heatmap(agg, "energy_mean",   "Δ% Energia (revisit vs base)",   "delta_energy_heatmap.png",   output_dir)
