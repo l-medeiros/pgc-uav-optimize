@@ -16,3 +16,5 @@ __pycache__/
 *.fdb_latexmk
 *.synctex.gz
 text/main.pdf
+
+.DS_Store

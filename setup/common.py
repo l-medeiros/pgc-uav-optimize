@@ -9,7 +9,7 @@ import math
 # -------------------------------------------------
 
 # Duração de cada slot de tempo (em segundos)
-SLOT_DURATION = 10.0
+SLOT_DURATION = float(os.environ.get("SLOT_DURATION", "10.0"))
 
 # Parâmetros do modelo de potência de asa rotativa
 #  P0 = 79.86 W (blade profile power)
