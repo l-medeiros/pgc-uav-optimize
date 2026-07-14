@@ -17,6 +17,8 @@
 \usepackage{adjustbox}
 \usepackage{soul}
 \usepackage{graphicx}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta}
 
 
 \begin{document}
@@ -139,7 +141,32 @@ O modelo representa o voo do VANT como uma sequência de estados discretos no te
         \item a dinâmica de movimento é totalmente determinada pelas variáveis $x_{ijt}$. 
     \end{itemize}
     
-    O uso de um grafo completo fornece maior generalidade, permitindo representar tanto deslocamentos quanto posicionamento estático.
+    O uso de um grafo completo fornece maior generalidade, permitindo representar tanto deslocamentos quanto posicionamento estático. A Figura~\ref{fig:grafo-movimento} ilustra esse grafo para um exemplo pequeno, com a base e três sensores.
+
+    \begin{figure}[htbp]
+      \centering
+      \begin{tikzpicture}[
+        >={Stealth[length=2.2mm]},
+        every node/.style={font=\small},
+        place/.style={circle, draw, thick, minimum size=10mm, inner sep=1pt},
+        sensor/.style={place, fill=blue!8},
+        base/.style={place, fill=orange!25},
+      ]
+        \node[base] (b) at (0,0) {$b$};
+        \node[sensor] (s1) at (3,1.6) {$s_1$};
+        \node[sensor] (s2) at (3,-1.6) {$s_2$};
+        \node[sensor] (s3) at (6,0) {$s_3$};
+
+        \foreach \i/\j in {b/s1, b/s2, b/s3, s1/s2, s1/s3, s2/s3}{
+          \draw[<->, gray!70] (\i) -- (\j);
+        }
+
+        \draw[->, thick] (s3) to[out=-40, in=40, looseness=9]
+          node[right=1pt]{\footnotesize \textit{hover}/coleta ($x_{jjt}$)} (s3);
+      \end{tikzpicture}
+      \caption{Exemplo do grafo de movimento $N = S \cup \{b\}$ com a base $b$ e três sensores. As arestas dirigidas conectam todos os pares de nós (transições $i \to j$ realizadas em um \textit{slot}); o \textit{self-loop} $(j,j)$ representa o \textit{hover} do VANT sobre o nó, associado à coleta quando $v_{j,t} = x_{jjt} = 1$.}
+      \label{fig:grafo-movimento}
+    \end{figure}
 
     \subsubsection{Interpretação de $x_{ijt}$}
 
