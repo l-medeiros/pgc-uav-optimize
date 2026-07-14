@@ -182,7 +182,7 @@ Para avaliar o desempenho do modelo de otimização (aqui chamado de MILP, resol
 \item \textbf{Score-Greedy}: a cada passo, visita o sensor de maior razão AoI/distância ainda viável, com desempate por proximidade. Pondera urgência e custo de deslocamento.
 \end{itemize}
 
-A Tabela~\ref{tab:cmp-heuristicas} apresenta as médias gerais das cinco métricas sobre todos os cenários, e as Figuras~\ref{fig:cmp_all_overall_bars}--\ref{fig:cmp_all_energy} consolidam, em um único gráfico por métrica, o desempenho das quatro estratégias.
+A Tabela~\ref{tab:cmp-heuristicas} apresenta as médias gerais das cinco métricas sobre todos os cenários, e as Figuras~\ref{fig:cmp_all_overall_bars}--\ref{fig:cmp_all_energy_p3} consolidam, por métrica, o desempenho das quatro estratégias.
 
 \begin{table}[htbp]
   \centering
@@ -210,27 +210,69 @@ A Tabela~\ref{tab:cmp-heuristicas} apresenta as médias gerais das cinco métric
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=\textwidth]{figs/cmp_all_collected_aoi.png}
-  \caption{AoI coletada por rodada em função do tamanho do mapa, por quantidade de sensores, para as quatro estratégias.}
-  \label{fig:cmp_all_collected_aoi}
+  \includegraphics[width=\textwidth]{figs/cmp_all_collected_aoi_p1.png}
+  \caption{AoI coletada por rodada em função do tamanho do mapa, para 5 e 10 sensores (quatro estratégias).}
+  \label{fig:cmp_all_collected_aoi_p1}
 \end{figure}
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=\textwidth]{figs/cmp_all_avg_final_aoi.png}
-  \caption{AoI média final dos sensores em função do tamanho do mapa, por quantidade de sensores, para as quatro estratégias.}
-  \label{fig:cmp_all_avg_final_aoi}
+  \includegraphics[width=\textwidth]{figs/cmp_all_collected_aoi_p2.png}
+  \caption{AoI coletada por rodada em função do tamanho do mapa, para 15 e 20 sensores (quatro estratégias).}
+  \label{fig:cmp_all_collected_aoi_p2}
 \end{figure}
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=\textwidth]{figs/cmp_all_energy.png}
-  \caption{Energia final consumida em função do tamanho do mapa, por quantidade de sensores, para as quatro estratégias.}
-  \label{fig:cmp_all_energy}
+  \includegraphics[width=\textwidth]{figs/cmp_all_collected_aoi_p3.png}
+  \caption{AoI coletada por rodada em função do tamanho do mapa, para 25 e 30 sensores (quatro estratégias).}
+  \label{fig:cmp_all_collected_aoi_p3}
+\end{figure}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth]{figs/cmp_all_avg_final_aoi_p1.png}
+  \caption{AoI média final dos sensores em função do tamanho do mapa, para 5 e 10 sensores (quatro estratégias).}
+  \label{fig:cmp_all_avg_final_aoi_p1}
+\end{figure}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth]{figs/cmp_all_avg_final_aoi_p2.png}
+  \caption{AoI média final dos sensores em função do tamanho do mapa, para 15 e 20 sensores (quatro estratégias).}
+  \label{fig:cmp_all_avg_final_aoi_p2}
+\end{figure}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth]{figs/cmp_all_avg_final_aoi_p3.png}
+  \caption{AoI média final dos sensores em função do tamanho do mapa, para 25 e 30 sensores (quatro estratégias).}
+  \label{fig:cmp_all_avg_final_aoi_p3}
+\end{figure}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth]{figs/cmp_all_energy_p1.png}
+  \caption{Energia final consumida em função do tamanho do mapa, para 5 e 10 sensores (quatro estratégias).}
+  \label{fig:cmp_all_energy_p1}
+\end{figure}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth]{figs/cmp_all_energy_p2.png}
+  \caption{Energia final consumida em função do tamanho do mapa, para 15 e 20 sensores (quatro estratégias).}
+  \label{fig:cmp_all_energy_p2}
+\end{figure}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth]{figs/cmp_all_energy_p3.png}
+  \caption{Energia final consumida em função do tamanho do mapa, para 25 e 30 sensores (quatro estratégias).}
+  \label{fig:cmp_all_energy_p3}
 \end{figure}
 
 \subsubsection{MILP comparado ao Nearest Neighbor}
-O NN é a baseline mais simples e a que apresenta o pior desempenho nas métricas de qualidade. O MILP coleta $+113\%$ de AoI por rodada (309,7 contra 145,4; fator $2{,}13\times$) e mantém a AoI média final $86\%$ menor (17,8 contra 127,2), entregando dados muito mais recentes. O MILP ainda consome $7{,}7\%$ menos energia que o NN. A única métrica em que o NN apresenta valor inferior é a distância percorrida ($-34\%$), o que não configura vantagem: a estratégia gulosa por proximidade retorna cedo à base e fica pairando nos \textit{slots} restantes, percorrendo menos porém coletando menos. O número de sensores visitados é praticamente idêntico (8,33 contra 8,22): a diferença não está em \emph{quantos} sensores são visitados, e sim em \emph{quanta} AoI é extraída e em manter os dados atualizados. O NN degrada especialmente em mapas grandes com poucos sensores (1000×1000\,m com 5 ou 10 sensores), em que a escolha gulosa esgota bateria e \textit{slots} antes de cobrir bem o conjunto, enquanto o MILP se mantém estável (Figura~\ref{fig:cmp_all_collected_aoi}).
+O NN é a baseline mais simples e a que apresenta o pior desempenho nas métricas de qualidade. O MILP coleta $+113\%$ de AoI por rodada (309,7 contra 145,4; fator $2{,}13\times$) e mantém a AoI média final $86\%$ menor (17,8 contra 127,2), entregando dados muito mais recentes. O MILP ainda consome $7{,}7\%$ menos energia que o NN. A única métrica em que o NN apresenta valor inferior é a distância percorrida ($-34\%$), o que não configura vantagem: a estratégia gulosa por proximidade retorna cedo à base e fica pairando nos \textit{slots} restantes, percorrendo menos porém coletando menos. O número de sensores visitados é praticamente idêntico (8,33 contra 8,22): a diferença não está em \emph{quantos} sensores são visitados, e sim em \emph{quanta} AoI é extraída e em manter os dados atualizados. O NN degrada especialmente em mapas grandes com poucos sensores (1000×1000\,m com 5 ou 10 sensores), em que a escolha gulosa esgota bateria e \textit{slots} antes de cobrir bem o conjunto, enquanto o MILP se mantém estável (Figuras~\ref{fig:cmp_all_collected_aoi_p1}--\ref{fig:cmp_all_collected_aoi_p3}).
 
 \subsubsection{MILP comparado às heurísticas gulosas por AoI}
 As heurísticas AoI-Greedy e Score-Greedy, por serem construídas em torno do mesmo objetivo do MILP, aproximam-se muito da AoI coletada pelo modelo ótimo: a AoI-Greedy fica a apenas $-3{,}6\%$ (298,5 contra 309,7) e a Score-Greedy a $-3{,}0\%$ (300,5). Em atualidade dos dados (AoI média final), o MILP ainda lidera, com valores $40\%$ e $38\%$ menores, respectivamente, mas ambas ficam muito mais próximas do MILP do que o NN. O ponto fraco dessas heurísticas é a energia: a AoI-Greedy gasta $+43{,}7\%$ (64.571\,J contra 44.943\,J) e a Score-Greedy $+28{,}5\%$ (57.738\,J), pois buscam maximizar a AoI e a atualidade dos dados sem considerar adequadamente o custo energético do deslocamento. É exatamente nesse ponto que o MILP se destaca: por ser multiobjetivo lexicográfico (maximiza a AoI coletada e, em seguida, minimiza a energia entre as soluções de AoI ótima), entrega a maior AoI coletada com consumo energético significativamente menor.

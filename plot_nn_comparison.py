@@ -8,7 +8,7 @@ MAP_PATTERN = re.compile(r"round_summary_(\d+)x(\d+)\.csv")
 
 # (chave, pasta de resultados, rótulo, cor, rótulo curto p/ barras)
 ALGOS = [
-    ("milp", "resultados", "PGC (MILP/Gurobi)", "tab:blue", "PGC"),
+    ("milp", "resultados", "MILP (Gurobi)", "tab:blue", "MILP"),
     ("nn", "resultados_nn", "Nearest Neighbor", "tab:orange", "NN"),
     ("aoi_greedy", "resultados_aoi_greedy", "AoI-Greedy", "tab:green", "AoI-G"),
     ("score_greedy", "resultados_score_greedy", "Score-Greedy (AoI/dist)", "tab:red", "Score-G"),
@@ -99,6 +99,33 @@ def plot_metric_facets(agg, metric, ylabel, filename, output_dir):
     plt.close(fig)
 
 
+SENSOR_PAIRS = [(5, 10), (15, 20), (25, 30)]
+
+PAIR_METRICS = [
+    ("collected_aoi", "AoI coletada por rodada", "cmp_all_collected_aoi"),
+    ("avg_final_aoi", "AoI média final dos sensores", "cmp_all_avg_final_aoi"),
+    ("energy_final", "Energia final (J)", "cmp_all_energy"),
+]
+
+
+def plot_metric_pairs(agg, metric, ylabel, base_name, output_dir):
+    for idx, pair in enumerate(SENSOR_PAIRS, start=1):
+        fig, axes = plt.subplots(1, 2, figsize=(12, 4.5), sharex=True)
+        for ax, s in zip(axes, pair):
+            for key, _, label, color, _short in ALGOS:
+                sub = agg[(agg.algo == key) & (agg.sensor_count == s)].sort_values("map_n")
+                ax.plot(sub.map_n, sub[metric], marker="o", color=color, label=label)
+            ax.set_title(f"{s} sensores")
+            ax.set_xlabel("Tamanho do mapa (L x L, metros)")
+            ax.grid(True, alpha=0.3)
+        axes[0].set_ylabel(ylabel)
+        handles, labels = axes[0].get_legend_handles_labels()
+        fig.tight_layout(rect=[0, 0, 1, 0.90])
+        fig.legend(handles, labels, loc="upper center", ncol=len(ALGOS), bbox_to_anchor=(0.5, 1.00))
+        fig.savefig(output_dir / f"{base_name}_p{idx}.png", dpi=140, bbox_inches="tight")
+        plt.close(fig)
+
+
 def plot_overall_bars(agg, output_dir):
     overall = agg.groupby("algo")[
         ["collected_aoi", "avg_final_aoi", "energy_final", "total_distance", "visited_count"]
@@ -151,6 +178,8 @@ def main():
     print("Gerando gráficos...")
     for metric, ylabel, filename in METRICS:
         plot_metric_facets(agg, metric, ylabel, filename, output_dir)
+    for metric, ylabel, base in PAIR_METRICS:
+        plot_metric_pairs(agg, metric, ylabel, base, output_dir)
     overall = plot_overall_bars(agg, output_dir)
 
     print("\n=== Média geral (todos os cenários) ===")
