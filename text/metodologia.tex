@@ -16,9 +16,9 @@ Com os dados obtidos, foi formulado o modelo matemático para o problema de cole
 A função objetivo pode ser definida como a minimização da energia total consumida ou da idade média da informação (Age of Information, AoI), sujeita a restrições de:
 
 \begin{itemize}
-\item capacidade energética dos VANTs (Equação~\eqref{eq:energia-capacidade});
-\item cobertura total ou parcial dos sensores (Equação~\eqref{eq:y-visita});
-\item tempo máximo de missão (Equação~\eqref{eq:mov-base});
+\item capacidade energética dos VANTs (Equação~\eqref{eq:energia-capacidade}),
+\item cobertura total ou parcial dos sensores (Equação~\eqref{eq:y-visita}),
+\item tempo máximo de missão (Equação~\eqref{eq:mov-base}),
 \item conectividade entre pontos de coleta e retorno à base (Equação~\eqref{eq:mov-fluxo}).
 \end{itemize}
 
@@ -31,9 +31,9 @@ A fase final consiste na implementação da modelagem matemática em linguagem c
 São analisadas as seguintes métricas:
 
 \begin{itemize}
-\item energia total consumida por missão;
-\item tempo de cobertura dos sensores;
-\item distância percorrida;
+\item energia total consumida por missão,
+\item tempo de cobertura dos sensores,
+\item distância percorrida,
 \item quantidade de sensores visitados.
 \end{itemize}
 
@@ -48,7 +48,7 @@ Cada cenário é executado por 30 rodadas consecutivas, simulando missões peri�
 \item O estado de \textit{Age of Information} (AoI) de todos os sensores é carregado do estado persistido pela rodada anterior, iniciando em zero na primeira rodada
 \item O modelo de otimização é resolvido com horizonte temporal de 20 \textit{slots} de 10\,s (missão de 200\,s), com limite de tempo de 60\,s e tolerância de otimalidade de 1\% (\textit{MIPGap}). 
 \item O VANT parte da base, realiza \textit{hover} sobre os sensores selecionados para coleta e retorna à base. 
-\item O estado de AoI é atualizado: sensores visitados têm AoI zerada; os demais acumulam $+1$ por \textit{slot} sem visita.
+\item O estado de AoI é atualizado: sensores visitados têm AoI zerada, e os demais acumulam $+1$ por \textit{slot} sem visita.
 \end{enumerate}
  
 
@@ -186,7 +186,7 @@ A Tabela~\ref{tab:cmp-heuristicas} apresenta as médias gerais das cinco métric
 
 \begin{table}[htbp]
   \centering
-  \caption{Médias gerais das quatro estratégias sobre os 36 cenários (30 rodadas cada) -- Parrot Anafi USA. Para AoI coletada e sensores visitados, maior é melhor; para AoI média final, energia e distância, menor é melhor.}
+  \caption{Médias gerais das quatro estratégias sobre os 36 cenários (30 rodadas cada) -- Parrot Anafi USA. Para AoI coletada e sensores visitados, maior é melhor. Para AoI média final, energia e distância, menor é melhor.}
   \label{tab:cmp-heuristicas}
   \begin{tabular}{l r r r r}
     \toprule
@@ -272,7 +272,7 @@ A Tabela~\ref{tab:cmp-heuristicas} apresenta as médias gerais das cinco métric
 \end{figure}
 
 \subsubsection{MILP comparado ao Nearest Neighbor}
-O NN é a baseline mais simples e a que apresenta o pior desempenho nas métricas de qualidade. O MILP coleta $+113\%$ de AoI por rodada (309,7 contra 145,4; fator $2{,}13\times$) e mantém a AoI média final $86\%$ menor (17,8 contra 127,2), entregando dados muito mais recentes. O MILP ainda consome $7{,}7\%$ menos energia que o NN. A única métrica em que o NN apresenta valor inferior é a distância percorrida ($-34\%$), o que não configura vantagem: a estratégia gulosa por proximidade retorna cedo à base e fica pairando nos \textit{slots} restantes, percorrendo menos porém coletando menos. O número de sensores visitados é praticamente idêntico (8,33 contra 8,22): a diferença não está em \emph{quantos} sensores são visitados, e sim em \emph{quanta} AoI é extraída e em manter os dados atualizados. O NN degrada especialmente em mapas grandes com poucos sensores (1000×1000\,m com 5 ou 10 sensores), em que a escolha gulosa esgota bateria e \textit{slots} antes de cobrir bem o conjunto, enquanto o MILP se mantém estável (Figuras~\ref{fig:cmp_all_collected_aoi_p1}--\ref{fig:cmp_all_collected_aoi_p3}).
+O NN é a baseline mais simples e a que apresenta o pior desempenho nas métricas de qualidade. O MILP coleta $+113\%$ de AoI por rodada (309,7 contra 145,4, fator $2{,}13\times$) e mantém a AoI média final $86\%$ menor (17,8 contra 127,2), entregando dados muito mais recentes. O MILP ainda consome $7{,}7\%$ menos energia que o NN. A única métrica em que o NN apresenta valor inferior é a distância percorrida ($-34\%$), o que não configura vantagem: a estratégia gulosa por proximidade retorna cedo à base e fica pairando nos \textit{slots} restantes, percorrendo menos porém coletando menos. O número de sensores visitados é praticamente idêntico (8,33 contra 8,22): a diferença não está em \emph{quantos} sensores são visitados, e sim em \emph{quanta} AoI é extraída e em manter os dados atualizados. O NN degrada especialmente em mapas grandes com poucos sensores (1000×1000\,m com 5 ou 10 sensores), em que a escolha gulosa esgota bateria e \textit{slots} antes de cobrir bem o conjunto, enquanto o MILP se mantém estável (Figuras~\ref{fig:cmp_all_collected_aoi_p1}--\ref{fig:cmp_all_collected_aoi_p3}).
 
 \subsubsection{MILP comparado às heurísticas gulosas por AoI}
 As heurísticas AoI-Greedy e Score-Greedy, por serem construídas em torno do mesmo objetivo do MILP, aproximam-se muito da AoI coletada pelo modelo ótimo: a AoI-Greedy fica a apenas $-3{,}6\%$ (298,5 contra 309,7) e a Score-Greedy a $-3{,}0\%$ (300,5). Em atualidade dos dados (AoI média final), o MILP ainda lidera, com valores $40\%$ e $38\%$ menores, respectivamente, mas ambas ficam muito mais próximas do MILP do que o NN. O ponto fraco dessas heurísticas é a energia: a AoI-Greedy gasta $+43{,}7\%$ (64.571\,J contra 44.943\,J) e a Score-Greedy $+28{,}5\%$ (57.738\,J), pois buscam maximizar a AoI e a atualidade dos dados sem considerar adequadamente o custo energético do deslocamento. É exatamente nesse ponto que o MILP se destaca: por ser multiobjetivo lexicográfico (maximiza a AoI coletada e, em seguida, minimiza a energia entre as soluções de AoI ótima), entrega a maior AoI coletada com consumo energético significativamente menor.
@@ -290,7 +290,7 @@ A modificação consiste na substituição da restrição de visita única (Equa
 \subsubsection{Desafios computacionais}
 A adoção de revisitas amplia consideravelmente o espaço de soluções viáveis do modelo MILP. Com $K = 3$, o número de combinações possíveis de padrões de visita cresce exponencialmente, tornando a exploração da árvore de \textit{branch-and-bound} pelo Gurobi significativamente mais custosa em memória. Em cenários com $n_s \geq 20$ e $L \geq 600$\,m, o processo de otimização chegou a consumir vários gigabytes de RAM, causando instabilidades no ambiente de execução.
 
-Para contornar esses problemas, foram adotadas três medidas: (i) limitação do número de \textit{threads} do Gurobi a 2, reduzindo o paralelismo da exploração da árvore; (ii) ativação do parâmetro \texttt{NodefileStart = 0.5\,GB}, que instrui o solver a descarregar nós da árvore para disco ao atingir esse limite de memória RAM; e (iii) definição de \texttt{SoftMemLimit = 4\,GB}, que encerra a otimização graciosamente e retorna a melhor solução encontrada até o momento quando o uso de memória ultrapassa esse valor. Adicionalmente, rodadas em que o solver não encontrou solução viável dentro do limite de tempo ou memória são registradas com métricas zeradas e AoI envelhecida normalmente, garantindo a consistência da cadeia de estado entre rodadas.
+Para contornar esses problemas, foram adotadas três medidas: (i) limitação do número de \textit{threads} do Gurobi a 2, reduzindo o paralelismo da exploração da árvore, (ii) ativação do parâmetro \texttt{NodefileStart = 0.5\,GB}, que instrui o solver a descarregar nós da árvore para disco ao atingir esse limite de memória RAM, e (iii) definição de \texttt{SoftMemLimit = 4\,GB}, que encerra a otimização graciosamente e retorna a melhor solução encontrada até o momento quando o uso de memória ultrapassa esse valor. Adicionalmente, rodadas em que o solver não encontrou solução viável dentro do limite de tempo ou memória são registradas com métricas zeradas e AoI envelhecida normalmente, garantindo a consistência da cadeia de estado entre rodadas.
 
 \subsubsection{Resultados e comparativo}
 Os resultados do modelo com revisitas foram comparados com o modelo base para os mesmos 36 cenários, utilizando as mesmas posições de sensores e os mesmos parâmetros do Parrot Anafi USA.
@@ -366,6 +366,6 @@ Os experimentos apresentados restringiram-se a áreas de até $1000\times1000$\,
 
 As heurísticas construtivas, por si só, não são o fator limitante: elas podem ser executadas em áreas maiores sem dificuldade. Para tornar tais áreas energeticamente viáveis, entretanto, seria necessário aumentar a duração do \textit{slot} $\Delta t$, permitindo velocidades menores e um custo de deslocamento compatível com a bateria. Esse ajuste, porém, altera a base temporal do experimento e inviabiliza a comparação direta com os cenários menores, que adotam $\Delta t = 10$\,s. Além disso, um $\Delta t$ maior é contraproducente no cenário menor: como o custo de \textit{hover} cresce linearmente com $\Delta t$, o consumo mínimo da missão, mesmo sem deslocamentos, pode se aproximar ou exceder a capacidade da bateria, dificultando a obtenção de soluções viáveis. Não havendo uma parametrização única de $\Delta t$ que permita comparar de forma justa cenários de escalas muito distintas, optou-se por não apresentar resultados de heurísticas em áreas maiores.
 
-Cabe destacar, ainda, o custo computacional do modelo exato. A demanda de memória do resolvedor cresce rapidamente com o tamanho da instância; na prática, os cenários de $1000\times1000$\,m com $20$ ou mais sensores exigiram consumo de memória próximo aos limites do ambiente de teste, chegando a comprometer a estabilidade da máquina durante a otimização. Esse comportamento reforça que, à medida que a instância cresce, a resolução exata torna-se progressivamente mais custosa não apenas em tempo, mas também em recursos de hardware.
+Cabe destacar, ainda, o custo computacional do modelo exato. A demanda de memória do resolvedor cresce rapidamente com o tamanho da instância. Na prática, os cenários de $1000\times1000$\,m com $20$ ou mais sensores exigiram consumo de memória próximo aos limites do ambiente de teste, chegando a comprometer a estabilidade da máquina durante a otimização. Esse comportamento reforça que, à medida que a instância cresce, a resolução exata torna-se progressivamente mais custosa não apenas em tempo, mas também em recursos de hardware.
 
-Ainda assim, mesmo nos cenários avaliados, as heurísticas constituem uma alternativa prática ao modelo exato: enquanto o MILP requer o resolvedor Gurobi e pode esgotar o limite de tempo e a memória disponível, as heurísticas produzem uma solução em uma fração do tempo e com uso de recursos muito menor, atingindo qualidade de coleta próxima à do modelo ótimo (Seção~\ref{sec:comparacao-heuristicas}). Uma solução mais adequada para abranger áreas maiores sem comprometer a comparabilidade seria reformular o modelo com restrições explícitas de velocidade, desacoplando a velocidade de voo da duração do \textit{slot}; essa direção é retomada como trabalho futuro (Capítulo~\ref{cap:conclusao}).
+Ainda assim, mesmo nos cenários avaliados, as heurísticas constituem uma alternativa prática ao modelo exato: enquanto o MILP requer o resolvedor Gurobi e pode esgotar o limite de tempo e a memória disponível, as heurísticas produzem uma solução em uma fração do tempo e com uso de recursos muito menor, atingindo qualidade de coleta próxima à do modelo ótimo (Seção~\ref{sec:comparacao-heuristicas}). Uma solução mais adequada para abranger áreas maiores sem comprometer a comparabilidade seria reformular o modelo com restrições explícitas de velocidade, desacoplando a velocidade de voo da duração do \textit{slot}. Essa direção é retomada como trabalho futuro (Capítulo~\ref{cap:conclusao}).
