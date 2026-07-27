@@ -41,16 +41,25 @@
 \maketitle
 
 \begin{frame}{Motivação: aplicações no mundo real}
-  \small
-  VANTs já são usados para coletar dados de sensores onde a infraestrutura fixa é limitada ou inexistente:
-  \begin{itemize}
-    \item \textbf{Agricultura de precisão:} coleta de dados de sensores de solo e monitoramento de lavouras (DJI Agras, American Robotics).
-    \item \textbf{Monitoramento ambiental remoto:} sensores e boias em áreas sem cobertura de rede, evitando visitas manuais custosas.
-    \item \textbf{Resposta a desastres:} coleta de dados contornando a infraestrutura danificada (ex.: sistema CLARKE, da Texas A\&M).
-    \item \textbf{Redes IoT/LoRaWAN:} o drone atua como \emph{data mule}, coletando dados de sensores distribuídos.
-  \end{itemize}
-  \vspace{0.4em}
-  A seguir, dois casos em destaque.
+  \begin{columns}[c]
+    \begin{column}{0.64\textwidth}
+      \small
+      VANTs já coletam dados de sensores onde a infraestrutura fixa é limitada ou inexistente:
+      \begin{itemize}
+        \item \textbf{Agricultura de precisão:} dados de sensores de solo e monitoramento de lavouras (DJI Agras).
+        \item \textbf{Monitoramento ambiental remoto:} sensores e boias em áreas sem cobertura de rede.
+        \item \textbf{Resposta a desastres:} coleta contornando a infraestrutura danificada (ex.: CLARKE, Texas A\&M).
+        \item \textbf{Redes IoT/LoRaWAN:} o drone atua como \emph{data mule}.
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.36\textwidth}
+      \centering
+      \includegraphics[width=\linewidth]{drone_generico.jpg}\\[2pt]
+      {\tiny Foto: Josh Sorenson, CC0 (Wikimedia Commons).}
+    \end{column}
+  \end{columns}
+  \vspace{0.3em}
+  {\small A seguir, dois casos em destaque.}
 \end{frame}
 
 \begin{frame}{Destaque: agricultura de precisão}
@@ -99,12 +108,22 @@
 \end{frame}
 
 \begin{frame}{Do cenário real ao problema}
-  \begin{itemize}
-    \item Fio comum dos casos: sensores distribuídos, sem infraestrutura fixa, e um VANT como coletor móvel (\emph{sink}).
-    \item A qualidade da coleta é medida pela \emph{Age of Information} (AoI): há quanto tempo o dado mais recente de um sensor foi recebido. Dados desatualizados perdem valor.
-    \item O VANT opera sob energia (bateria) limitada.
-    \item \textbf{Tensão central:} maximizar a informação coletada e, ao mesmo tempo, minimizar o consumo de energia.
-  \end{itemize}
+  \begin{columns}[c]
+    \begin{column}{0.6\textwidth}
+      \small
+      \begin{itemize}
+        \item Fio comum dos casos: sensores distribuídos, sem infraestrutura fixa, e um VANT como coletor móvel (\emph{sink}).
+        \item A qualidade da coleta é medida pela \emph{Age of Information} (AoI): há quanto tempo o dado mais recente de um sensor foi recebido. Dados desatualizados perdem valor.
+        \item O VANT opera sob energia (bateria) limitada.
+        \item \textbf{Tensão central:} maximizar a informação coletada e, ao mesmo tempo, minimizar o consumo de energia.
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.4\textwidth}
+      \centering
+      \includegraphics[width=\linewidth]{monitoramento_ambiental.jpg}\\[2pt]
+      {\tiny Área alagada, monitoramento ambiental remoto. Foto: U.S. Fish and Wildlife Service, domínio público.}
+    \end{column}
+  \end{columns}
 \end{frame}
 
 \begin{frame}{O problema}
