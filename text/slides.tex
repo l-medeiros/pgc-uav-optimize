@@ -55,25 +55,12 @@
 
 \begin{frame}{Destaque: agricultura de precisão}
   \begin{columns}[c]
-    \begin{column}{0.5\textwidth}
+    \begin{column}{0.54\textwidth}
       \centering
-      \begin{tikzpicture}
-        \fill[green!10] (-0.2,-0.15) rectangle (6.9,0);
-        \draw[gray!45,line width=0.4pt] (-0.2,0)--(6.9,0);
-        \foreach \x in {0.4,1.1,...,6.7}{
-          \draw[green!55!black,line width=0.5pt] (\x,0)--(\x,0.26);
-          \draw[green!55!black,line width=0.5pt] (\x,0.26)--(\x-0.08,0.16);
-          \draw[green!55!black,line width=0.5pt] (\x,0.26)--(\x+0.08,0.16);
-        }
-        \sensorsym{2.0}
-        \sensorsym{4.6}
-        \begin{scope}[shift={(3.3,1.9)}]\dronesym\end{scope}
-        \node[font=\scriptsize] at (3.3,2.25) {VANT};
-        \draw[->,blue!55,line width=0.4pt] (2.0,0.5) .. controls (2.6,1.4) .. (3.0,1.75);
-        \draw[->,blue!55,line width=0.4pt] (4.6,0.5) .. controls (4.0,1.4) .. (3.6,1.75);
-      \end{tikzpicture}
+      \includegraphics[width=\linewidth]{drone_agricola.jpg}\\[2pt]
+      {\tiny Drone agrícola em arrozal (Aomori, Japão). Foto: Benlisquare, Wikimedia Commons, CC BY-SA 4.0.}
     \end{column}
-    \begin{column}{0.5\textwidth}
+    \begin{column}{0.46\textwidth}
       \small
       \begin{itemize}
         \item Sensores de solo medem umidade, pH e temperatura ao longo da lavoura.
