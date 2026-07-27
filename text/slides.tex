@@ -38,7 +38,23 @@
 
 \begin{document}
 
-\maketitle
+{
+\begin{frame}[plain, noframenumbering]
+  \centering
+  \vspace*{0.1cm}
+  \includegraphics[height=1.55cm]{logo.png}\\[0.4cm]
+  {\usebeamerfont{title}\usebeamercolor[fg]{title}\inserttitle\par}
+  \vspace{0.2cm}
+  {\usebeamerfont{subtitle}\usebeamercolor[fg]{subtitle}\insertsubtitle\par}
+  \vspace{0.35cm}
+  {\color{gray!60}\rule{0.9\textwidth}{0.4pt}}\\[0.35cm]
+  {\usebeamerfont{author}\insertauthor\par}
+  \vspace{0.1cm}
+  {\usebeamerfont{date}\insertdate\par}
+  \vspace{0.25cm}
+  {\footnotesize\insertinstitute\par}
+\end{frame}
+}
 
 \begin{frame}{Motivação: aplicações no mundo real}
   \begin{columns}[c]
