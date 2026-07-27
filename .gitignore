@@ -18,3 +18,7 @@ __pycache__/
 text/main.pdf
 
 .DS_Store
+text/slides.pdf
+*.nav
+*.snm
+*.vrb

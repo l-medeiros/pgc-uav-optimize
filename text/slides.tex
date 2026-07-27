@@ -1,0 +1,349 @@
+\documentclass[aspectratio=169,11pt]{beamer}
+
+\usetheme{metropolis}
+\metroset{block=fill}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[brazil]{babel}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta}
+
+\graphicspath{{figs/}}
+
+% Símbolo esquemático de VANT (quadricóptero, vista lateral) para uso em cenas TikZ
+\newcommand{\dronesym}{%
+  \draw[line width=0.5pt] (-0.5,0)--(0.5,0);
+  \fill[gray!55] (-0.13,-0.09) rectangle (0.13,0.09);
+  \draw[line width=0.5pt,fill=gray!25] (-0.5,0) ellipse (0.19 and 0.05);
+  \draw[line width=0.5pt,fill=gray!25] (0.5,0) ellipse (0.19 and 0.05);
+}
+% Sensor no solo com antena
+\newcommand{\sensorsym}[1]{%
+  \fill[blue!20] (#1-0.08,0) rectangle (#1+0.08,0.3);
+  \draw[line width=0.4pt] (#1-0.08,0) rectangle (#1+0.08,0.3);
+  \draw[line width=0.4pt] (#1,0.3)--(#1,0.46);
+  \fill (#1,0.46) circle (0.03);
+}
+
+\title{Otimização do plano de voo de VANTs para coleta de dados de sensores IoT}
+\subtitle{Projeto de Graduação em Computação}
+\author{Lucas de Medeiros Santos}
+\institute{Universidade Federal do ABC \\ Orientador: Prof. Dr.~Rodrigo Augusto Cardoso da Silva}
+\date{Santo André, 2026}
+
+\begin{document}
+
+\maketitle
+
+\begin{frame}{Motivação: aplicações no mundo real}
+  \small
+  VANTs já são usados para coletar dados de sensores onde a infraestrutura fixa é limitada ou inexistente:
+  \begin{itemize}
+    \item \textbf{Agricultura de precisão:} coleta de dados de sensores de solo e monitoramento de lavouras (DJI Agras, American Robotics).
+    \item \textbf{Monitoramento ambiental remoto:} sensores e boias em áreas sem cobertura de rede, evitando visitas manuais custosas.
+    \item \textbf{Resposta a desastres:} coleta de dados contornando a infraestrutura danificada (ex.: sistema CLARKE, da Texas A\&M).
+    \item \textbf{Redes IoT/LoRaWAN:} o drone atua como \emph{data mule}, coletando dados de sensores distribuídos.
+  \end{itemize}
+  \vspace{0.4em}
+  A seguir, dois casos em destaque.
+\end{frame}
+
+\begin{frame}{Destaque: agricultura de precisão}
+  \begin{columns}[c]
+    \begin{column}{0.5\textwidth}
+      \centering
+      \begin{tikzpicture}
+        \fill[green!10] (-0.2,-0.15) rectangle (6.9,0);
+        \draw[gray!45,line width=0.4pt] (-0.2,0)--(6.9,0);
+        \foreach \x in {0.4,1.1,...,6.7}{
+          \draw[green!55!black,line width=0.5pt] (\x,0)--(\x,0.26);
+          \draw[green!55!black,line width=0.5pt] (\x,0.26)--(\x-0.08,0.16);
+          \draw[green!55!black,line width=0.5pt] (\x,0.26)--(\x+0.08,0.16);
+        }
+        \sensorsym{2.0}
+        \sensorsym{4.6}
+        \begin{scope}[shift={(3.3,1.9)}]\dronesym\end{scope}
+        \node[font=\scriptsize] at (3.3,2.25) {VANT};
+        \draw[->,blue!55,line width=0.4pt] (2.0,0.5) .. controls (2.6,1.4) .. (3.0,1.75);
+        \draw[->,blue!55,line width=0.4pt] (4.6,0.5) .. controls (4.0,1.4) .. (3.6,1.75);
+      \end{tikzpicture}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \small
+      \begin{itemize}
+        \item Sensores de solo medem umidade, pH e temperatura ao longo da lavoura.
+        \item O VANT coleta esses dados e complementa com sensoriamento aéreo.
+        \item Plataformas autônomas (ex.: DJI Agras) já operam em campo.
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Destaque: redes IoT / LoRaWAN (\emph{data mule})}
+  \begin{columns}[c]
+    \begin{column}{0.5\textwidth}
+      \centering
+      \begin{tikzpicture}
+        \draw[gray!45,line width=0.4pt] (-0.2,0)--(6.9,0);
+        \node[draw,fill=orange!25,minimum size=6mm,font=\scriptsize] (base) at (0.3,0.3) {$b$};
+        \foreach \x in {1.7,3.0,4.3,5.6,6.6}{ \sensorsym{\x} }
+        \begin{scope}[shift={(4.3,2.0)}]\dronesym\end{scope}
+        \node[font=\scriptsize] at (4.3,2.35) {VANT};
+        \draw[dashed,gray,line width=0.4pt] (0.5,1.6) .. controls (2.2,2.4) and (5.8,2.4) .. (6.7,1.6);
+        \draw[blue!60,line width=0.4pt] (4.05,0.6) arc (160:20:0.18);
+        \draw[blue!60,line width=0.4pt] (3.95,0.78) arc (160:20:0.28);
+        \node[font=\scriptsize,anchor=west] at (0.6,0.3) {base};
+      \end{tikzpicture}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \small
+      \begin{itemize}
+        \item Sensores LoRaWAN espalhados em áreas remotas, sem \emph{gateway} fixo.
+        \item O VANT sobrevoa a rede como \emph{data mule}, coletando os dados nó a nó.
+        \item Um único drone cobre uma área de mais de $1500\times1500$\,m com 80 nós.
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Do cenário real ao problema}
+  \begin{itemize}
+    \item Fio comum dos casos: sensores distribuídos, sem infraestrutura fixa, e um VANT como coletor móvel (\emph{sink}).
+    \item A qualidade da coleta é medida pela \emph{Age of Information} (AoI): há quanto tempo o dado mais recente de um sensor foi recebido. Dados desatualizados perdem valor.
+    \item O VANT opera sob energia (bateria) limitada.
+    \item \textbf{Tensão central:} maximizar a informação coletada e, ao mesmo tempo, minimizar o consumo de energia.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{O problema}
+  \begin{itemize}
+    \item Planejar a trajetória de um VANT que parte da base, coleta dados de sensores e retorna à base.
+    \item Dois objetivos conflitantes:
+      \begin{itemize}
+        \item maximizar a AoI coletada (priorizar dados mais antigos),
+        \item minimizar a energia consumida.
+      \end{itemize}
+    \item A coleta ocorre por \emph{hovering}: o VANT paira sobre o sensor durante um intervalo de tempo (\emph{slot}).
+    \item Foco em um único VANT, permitindo uma formulação exata tratável.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Objetivos}
+  \textbf{Objetivo geral:} avaliar o problema de otimização do plano de voo de VANTs para coleta de dados de sensores IoT por meio de uma abordagem matemática.
+
+  \vspace{1em}
+  \textbf{Objetivos específicos:}
+  \begin{itemize}
+    \item Formular o problema com tempo discretizado e variáveis de decisão adequadas.
+    \item Modelar múltiplos objetivos (eficiência energética e AoI dos sensores).
+    \item Implementar em um resolvedor de otimização (Gurobi) e comparar o modelo exato com heurísticas construtivas de referência.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Trabalhos relacionados}
+  \begin{center}
+  \small
+  \begin{tabular}{lccc}
+    \toprule
+    \textbf{Trabalho} & \textbf{N\textsuperscript{o} VANTs} & \textbf{Método} & \textbf{AoI} \\
+    \midrule
+    Wei et al.\ (2022)        & Múltiplos & Revisão            & Sim \\
+    Messaoudi et al.\ (2023)  & Múltiplos & Revisão            & Sim \\
+    Liu et al.\ (2018)        & Múltiplos & Analítico          & Não \\
+    Zhang et al.\ (2018)      & Múltiplos & Aprendizado (DRL)  & Não \\
+    Yang et al.\ (2020)       & Múltiplos & Revisão            & Não \\
+    \midrule
+    \textbf{Este trabalho}    & \textbf{Único} & \textbf{MILP (exato)} & \textbf{Sim} \\
+    \bottomrule
+  \end{tabular}
+  \end{center}
+  \vspace{0.5em}
+  Lacuna: formulação \emph{exata} multiobjetivo (AoI + energia), com parâmetros físicos reais de VANTs.
+\end{frame}
+
+\begin{frame}{Fundamentação}
+  \begin{columns}[T]
+    \begin{column}{0.5\textwidth}
+      \textbf{Age of Information (AoI)}
+      \begin{itemize}
+        \item Idade do dado desde a última coleta.
+        \item Zera quando o sensor é coletado.
+        \item Cresce $+1$ a cada \emph{slot} sem coleta.
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \textbf{Energia (asa rotativa)}
+      \begin{itemize}
+        \item Modelo de potência de Zeng et al.
+        \item Três componentes: perfil das pás, induzida e arrasto parasita.
+        \item \emph{Hover} ($V=0$) tem custo elevado e constante.
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Modelagem: grafo de movimento}
+  \begin{columns}[c]
+    \begin{column}{0.55\textwidth}
+      \centering
+      \begin{tikzpicture}[
+        >={Stealth[length=2mm]},
+        every node/.style={font=\scriptsize},
+        place/.style={circle, draw, thick, minimum size=8mm, inner sep=1pt},
+        sensor/.style={place, fill=blue!8},
+        base/.style={place, fill=orange!25},
+      ]
+        \node[base] (b) at (0,0) {$b$};
+        \node[sensor] (s1) at (2.2,1.1) {$s_1$};
+        \node[sensor] (s2) at (2.2,-1.1) {$s_2$};
+        \node[sensor] (s3) at (4.4,0) {$s_3$};
+        \foreach \i/\j in {b/s1, b/s2, b/s3, s1/s2, s1/s3, s2/s3}{
+          \draw[<->, gray!70] (\i) -- (\j);
+        }
+        \draw[->, thick] (s3) to[out=-40, in=40, looseness=9]
+          node[right=1pt]{\emph{hover}} (s3);
+      \end{tikzpicture}
+    \end{column}
+    \begin{column}{0.45\textwidth}
+      \begin{itemize}
+        \item Nós $N = S \cup \{b\}$ (sensores e base).
+        \item Grafo completo dirigido com \emph{self-loops}.
+        \item $x_{ijt}$: transição de $i$ para $j$ no \emph{slot} $t$.
+        \item \emph{Self-loop} $(j,j)$ = \emph{hover}, associado à coleta.
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Modelagem: variáveis e função objetivo}
+  \textbf{Variáveis:} posição $p_{n,t}$, movimento $x_{ijt}$, coleta $v_{j,t}$, energia $E_t$, AoI $A_{j,t}$ e AoI coletada $w_{j,t}$.
+
+  \vspace{0.8em}
+  \textbf{Otimização multiobjetivo lexicográfica} (sem peso arbitrário):
+
+  \begin{enumerate}
+    \item Maximizar a AoI coletada:
+      \[
+        f_{\text{AoI}}^{\star} = \max \sum_{j \in S} \sum_{t=1}^{T_f-1} w_{j,t}
+      \]
+    \item Entre as soluções ótimas, minimizar a energia:
+      \[
+        \min\ E_{T_f} \quad \text{sujeito a} \quad \sum_{j,t} w_{j,t} = f_{\text{AoI}}^{\star}
+      \]
+  \end{enumerate}
+\end{frame}
+
+\begin{frame}{Modelagem: restrições principais}
+  \begin{itemize}
+    \item \textbf{Coleta por \emph{hover}} (\emph{self-loop}):
+      \[ v_{j,t} = x_{jjt} \]
+    \item \textbf{Dinâmica de AoI:}
+      \[ A_{j,t+1} = (1 - v_{j,t})\,(A_{j,t} + 1) \]
+    \item \textbf{Capacidade de bateria:}
+      \[ E_{T_f} \le E^{\max} \]
+    \item Movimento: início e fim na base e conservação de fluxo entre \emph{slots}.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Metodologia experimental}
+  \begin{itemize}
+    \item \textbf{36 cenários:} 6 quantidades de sensores $\{5,\dots,30\}$ $\times$ 6 tamanhos de mapa $\{100,\dots,1000\}$ m.
+    \item \textbf{Dois VANTs:} DJI Matrice 300 RTK e Parrot Anafi USA (parâmetros físicos reais).
+    \item \textbf{30 rodadas} por cenário, com AoI encadeada entre rodadas.
+    \item \textbf{Resolvedor Gurobi:} horizonte de 20 \emph{slots} de 10\,s, limite de 60\,s e tolerância de 1\%.
+    \item Comparação com heurísticas: Nearest Neighbor, AoI-Greedy e Score-Greedy.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Resultados: modelo exato}
+  \begin{columns}[c]
+    \begin{column}{0.62\textwidth}
+      \centering
+      \includegraphics[width=\linewidth]{anafi_energy_vs_map.png}
+    \end{column}
+    \begin{column}{0.38\textwidth}
+      \begin{itemize}
+        \item A energia cresce com o tamanho do mapa.
+        \item Maior densidade de sensores reduz distâncias e AoI.
+        \item O modelo distribui as visitas de forma estável entre as rodadas.
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Comparação com heurísticas}
+  \begin{center}
+  \small
+  \begin{tabular}{lrrrr}
+    \toprule
+    \textbf{Métrica} & \textbf{MILP} & \textbf{NN} & \textbf{AoI-G} & \textbf{Score-G} \\
+    \midrule
+    AoI coletada/rodada & \textbf{309,7} & 145,4 & 298,5 & 300,5 \\
+    AoI média final     & \textbf{17,8}  & 127,2 & 29,5  & 28,5 \\
+    Energia final (J)   & \textbf{44.943} & 48.711 & 64.571 & 57.738 \\
+    Distância total (m) & 1.933 & 1.272 & 1.719 & 1.502 \\
+    \bottomrule
+  \end{tabular}
+  \end{center}
+  \vspace{0.4em}
+  \begin{itemize}
+    \item O MILP entrega a maior AoI coletada com o menor consumo de energia.
+    \item As heurísticas por AoI ficam a $\approx 3\%$ da AoI coletada do ótimo.
+    \item Score-Greedy é a melhor heurística (equilíbrio entre coleta e energia).
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Variante com revisitas ($K=3$)}
+  \begin{columns}[c]
+    \begin{column}{0.58\textwidth}
+      \centering
+      \includegraphics[width=\linewidth]{delta_energy_heatmap.png}
+    \end{column}
+    \begin{column}{0.42\textwidth}
+      \begin{itemize}
+        \item Permitir revisitar sensores \textbf{não melhora} a AoI ($\pm 3\%$).
+        \item Aumenta muito a energia em mapas maiores.
+        \item A restrição de \textbf{visita única} é uma escolha eficiente.
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Escala espacial e o papel das heurísticas}
+  \begin{itemize}
+    \item Cenários limitados a $1000\times1000$\,m: a discretização (uma transição por \emph{slot} a $\Delta t = 10$\,s) torna áreas maiores fisicamente inviáveis.
+    \item Viabilizar áreas maiores exigiria aumentar $\Delta t$, o que inviabiliza a comparação com os cenários menores e é contraproducente neles.
+    \item O modelo exato também é custoso em tempo e memória em instâncias grandes.
+    \item As heurísticas são uma alternativa prática: executam muito mais rápido, com menos recursos e qualidade próxima ao ótimo.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Conclusões e trabalhos futuros}
+  \textbf{Conclusões}
+  \begin{itemize}
+    \item Formulação MILP multiobjetivo lexicográfica (AoI + energia) validada em 36 cenários e dois VANTs.
+    \item A restrição de visita única mostrou-se eficiente.
+    \item Heurísticas (em especial Score-Greedy) aproximam o ótimo com custo muito menor.
+  \end{itemize}
+  \vspace{0.6em}
+  \textbf{Trabalhos futuros}
+  \begin{itemize}
+    \item Reformulação com restrições explícitas de velocidade (desacoplar a velocidade da duração do \emph{slot}).
+    \item Múltiplos VANTs cooperativos e instâncias de maior porte.
+    \item Modelos de comunicação e de geração de dados mais realistas.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[standout]
+  Obrigado!
+
+  \vspace{1em}
+  \small Perguntas?
+\end{frame}
+
+\end{document}
