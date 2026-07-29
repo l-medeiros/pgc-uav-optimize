@@ -80,9 +80,9 @@
 
 \begin{frame}{O que é IoT?}
   \begin{itemize}
-    \item \textbf{Internet das Coisas (IoT):} objetos físicos (sensores, atuadores, dispositivos embarcados) conectados, que coletam e transmitem dados do ambiente.
-    \item \textbf{Redes de sensores sem fio (WSN):} muitos nós de baixo consumo, distribuídos em uma área, que medem grandezas físicas (temperatura, umidade, vibração) e as enviam a um ponto de coleta.
-    \item Em áreas sem infraestrutura de rede fixa, levar esses dados até o ponto de coleta é um desafio.
+    \item \textbf{Internet das Coisas (IoT):} objetos físicos conectados que coletam e transmitem dados do ambiente.
+    \item \textbf{Redes de sensores sem fio (WSN):} nós de baixo consumo, distribuídos em uma área, que medem grandezas físicas e as enviam a um ponto de coleta.
+    \item Sem infraestrutura de rede fixa, levar esses dados ao ponto de coleta é um desafio.
   \end{itemize}
   \vspace{0.5em}
   \centering
@@ -96,15 +96,14 @@
 \end{frame}
 
 \begin{frame}{Aplicações no mundo real}
-  VANTs já coletam dados de sensores onde a infraestrutura fixa é limitada ou inexistente:
+  VANTs coletam dados de sensores onde a infraestrutura fixa é limitada ou inexistente:
   \begin{itemize}
-    \item \textbf{Agricultura de precisão:} dados de sensores de solo e monitoramento de lavouras (DJI Agras, American Robotics).
-    \item \textbf{Monitoramento ambiental remoto:} sensores e boias em áreas sem cobertura de rede, evitando visitas manuais custosas.
-    \item \textbf{Resposta a desastres:} coleta contornando a infraestrutura danificada (ex.: sistema CLARKE, Texas A\&M).
-    \item \textbf{Redes IoT/LoRaWAN:} o drone atua como \emph{data mule}, coletando dados de sensores distribuídos.
+    \item \textbf{Agricultura de precisão:} sensores de solo e monitoramento de lavouras.
+    \item \textbf{Monitoramento ambiental remoto:} sensores e boias em áreas sem cobertura de rede.
+    \item \textbf{Resposta a desastres:} coleta contornando a infraestrutura danificada.
   \end{itemize}
   \vspace{0.4em}
-  A seguir, dois casos em destaque.
+  A seguir, um caso em destaque.
 \end{frame}
 
 \begin{frame}{Destaque: agricultura de precisão}
@@ -117,36 +116,9 @@
     \begin{column}{0.46\textwidth}
       \small
       \begin{itemize}
-        \item Sensores de solo medem umidade, pH e temperatura ao longo da lavoura.
+        \item Sensores de solo medem umidade, pH e temperatura.
         \item O VANT coleta esses dados e complementa com sensoriamento aéreo.
-        \item Plataformas autônomas (ex.: DJI Agras) já operam em campo.
-      \end{itemize}
-    \end{column}
-  \end{columns}
-\end{frame}
-
-\begin{frame}{Destaque: redes IoT / LoRaWAN (\emph{data mule})}
-  \begin{columns}[c]
-    \begin{column}{0.5\textwidth}
-      \centering
-      \begin{tikzpicture}
-        \draw[gray!45,line width=0.4pt] (-0.2,0)--(6.9,0);
-        \node[draw,fill=orange!25,minimum size=6mm,font=\scriptsize] (base) at (0.3,0.3) {$b$};
-        \foreach \x in {1.7,3.0,4.3,5.6,6.6}{ \sensorsym{\x} }
-        \begin{scope}[shift={(4.3,2.0)}]\dronesym\end{scope}
-        \node[font=\scriptsize] at (4.3,2.35) {VANT};
-        \draw[dashed,gray,line width=0.4pt] (0.5,1.6) .. controls (2.2,2.4) and (5.8,2.4) .. (6.7,1.6);
-        \draw[blue!60,line width=0.4pt] (4.05,0.6) arc (160:20:0.18);
-        \draw[blue!60,line width=0.4pt] (3.95,0.78) arc (160:20:0.28);
-        \node[font=\scriptsize,anchor=west] at (0.6,0.3) {base};
-      \end{tikzpicture}
-    \end{column}
-    \begin{column}{0.5\textwidth}
-      \small
-      \begin{itemize}
-        \item Sensores LoRaWAN espalhados em áreas remotas, sem \emph{gateway} fixo.
-        \item O VANT sobrevoa a rede como \emph{data mule}, coletando os dados nó a nó.
-        \item Um único drone cobre uma área de mais de $1500\times1500$\,m com 80 nós.
+        \item Plataformas autônomas já operam em campo.
       \end{itemize}
     \end{column}
   \end{columns}
@@ -157,10 +129,10 @@
     \begin{column}{0.6\textwidth}
       \small
       \begin{itemize}
-        \item Fio comum dos casos: sensores distribuídos, sem infraestrutura fixa, e um VANT como coletor móvel (\emph{sink}).
-        \item A qualidade da coleta é medida pela \emph{Age of Information} (AoI): há quanto tempo o dado mais recente de um sensor foi recebido. Dados desatualizados perdem valor.
-        \item O VANT opera sob energia (bateria) limitada.
-        \item \textbf{Tensão central:} maximizar a informação coletada e, ao mesmo tempo, minimizar o consumo de energia.
+        \item Fio comum: sensores distribuídos, sem infraestrutura fixa, e um VANT como coletor móvel.
+        \item Qualidade medida pela \emph{Age of Information} (AoI): idade do dado mais recente. Dados desatualizados perdem valor.
+        \item O VANT tem energia (bateria) limitada.
+        \item \textbf{Tensão central:} coletar mais informação {\itshape versus} gastar menos energia.
       \end{itemize}
     \end{column}
     \begin{column}{0.4\textwidth}
@@ -173,26 +145,26 @@
 
 \begin{frame}{O problema}
   \begin{itemize}
-    \item Planejar a trajetória de um VANT que parte da base, coleta dados de sensores e retorna à base.
+    \item Planejar a trajetória de um VANT: sair da base, coletar dados dos sensores e retornar.
     \item Dois objetivos conflitantes:
       \begin{itemize}
         \item maximizar a AoI coletada (priorizar dados mais antigos),
         \item minimizar a energia consumida.
       \end{itemize}
-    \item A coleta ocorre por \emph{hovering}: o VANT paira sobre o sensor durante um intervalo de tempo (\emph{slot}).
-    \item Foco em um único VANT, permitindo uma formulação exata tratável.
+    \item Coleta por \emph{hovering}: pairar sobre o sensor durante um \emph{slot}.
+    \item Um único VANT, permitindo uma formulação exata tratável.
   \end{itemize}
 \end{frame}
 
 \begin{frame}{Objetivos}
-  \textbf{Objetivo geral:} avaliar o problema de otimização do plano de voo de VANTs para coleta de dados de sensores IoT por meio de uma abordagem matemática.
+  \textbf{Objetivo geral:} avaliar, por uma abordagem matemática, o plano de voo de VANTs para coleta de dados de sensores IoT.
 
   \vspace{1em}
   \textbf{Objetivos específicos:}
   \begin{itemize}
     \item Formular o problema com tempo discretizado e variáveis de decisão adequadas.
     \item Modelar múltiplos objetivos (eficiência energética e AoI dos sensores).
-    \item Implementar em um resolvedor de otimização (Gurobi) e comparar o modelo exato com heurísticas construtivas de referência.
+    \item Implementar no resolvedor Gurobi e comparar o modelo exato com heurísticas de referência.
   \end{itemize}
 \end{frame}
 
@@ -367,10 +339,10 @@
 
 \begin{frame}{Escala espacial e o papel das heurísticas}
   \begin{itemize}
-    \item Cenários limitados a $1000\times1000$\,m: a discretização (uma transição por \emph{slot} a $\Delta t = 10$\,s) torna áreas maiores fisicamente inviáveis.
-    \item Viabilizar áreas maiores exigiria aumentar $\Delta t$, o que inviabiliza a comparação com os cenários menores e é contraproducente neles.
+    \item Cenários até $1000\times1000$\,m: a discretização (1 transição por \emph{slot} a $\Delta t = 10$\,s) torna áreas maiores inviáveis.
+    \item Aumentar $\Delta t$ viabilizaria áreas maiores, mas quebra a comparação com os cenários menores.
     \item O modelo exato também é custoso em tempo e memória em instâncias grandes.
-    \item As heurísticas são uma alternativa prática: executam muito mais rápido, com menos recursos e qualidade próxima ao ótimo.
+    \item Heurísticas: alternativa rápida, leve e com qualidade próxima ao ótimo.
   \end{itemize}
 \end{frame}
 
