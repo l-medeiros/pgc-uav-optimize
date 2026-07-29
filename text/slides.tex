@@ -56,26 +56,56 @@
 \end{frame}
 }
 
-\begin{frame}{Motivação: aplicações no mundo real}
+\begin{frame}{O que são VANTs?}
   \begin{columns}[c]
-    \begin{column}{0.64\textwidth}
+    \begin{column}{0.58\textwidth}
       \small
-      VANTs já coletam dados de sensores onde a infraestrutura fixa é limitada ou inexistente:
       \begin{itemize}
-        \item \textbf{Agricultura de precisão:} dados de sensores de solo e monitoramento de lavouras (DJI Agras).
-        \item \textbf{Monitoramento ambiental remoto:} sensores e boias em áreas sem cobertura de rede.
-        \item \textbf{Resposta a desastres:} coleta contornando a infraestrutura danificada (ex.: CLARKE, Texas A\&M).
-        \item \textbf{Redes IoT/LoRaWAN:} o drone atua como \emph{data mule}.
+        \item Veículos aéreos não tripulados (VANTs), ou drones: aeronaves sem piloto a bordo, controladas remotamente ou de forma autônoma.
+        \item Dois tipos principais de propulsão:
+          \begin{itemize}
+            \item \textbf{Asa fixa:} maior autonomia e velocidade, mas não param no ar.
+            \item \textbf{Asa rotativa} (multirrotor): conseguem \emph{pairar} (\emph{hover}) sobre um ponto.
+          \end{itemize}
+        \item O \emph{hover} é essencial para coletar dados parado sobre um sensor.
+        \item Neste trabalho: asa rotativa (DJI Matrice 300 RTK e Parrot Anafi USA).
       \end{itemize}
     \end{column}
-    \begin{column}{0.36\textwidth}
+    \begin{column}{0.42\textwidth}
       \centering
       \includegraphics[width=\linewidth]{drone_generico.jpg}\\[2pt]
       {\tiny Foto: Josh Sorenson, CC0 (Wikimedia Commons).}
     \end{column}
   \end{columns}
-  \vspace{0.3em}
-  {\small A seguir, dois casos em destaque.}
+\end{frame}
+
+\begin{frame}{O que é IoT?}
+  \begin{itemize}
+    \item \textbf{Internet das Coisas (IoT):} objetos físicos (sensores, atuadores, dispositivos embarcados) conectados, que coletam e transmitem dados do ambiente.
+    \item \textbf{Redes de sensores sem fio (WSN):} muitos nós de baixo consumo, distribuídos em uma área, que medem grandezas físicas (temperatura, umidade, vibração) e as enviam a um ponto de coleta.
+    \item Em áreas sem infraestrutura de rede fixa, levar esses dados até o ponto de coleta é um desafio.
+  \end{itemize}
+  \vspace{0.5em}
+  \centering
+  \begin{tikzpicture}
+    \draw[gray!45,line width=0.4pt] (0,0)--(8,0);
+    \node[draw,fill=orange!25,minimum size=6mm,font=\scriptsize] at (0.4,0.32) {};
+    \node[font=\scriptsize,anchor=west] at (0.8,0.32) {ponto de coleta};
+    \foreach \x in {4.2,5.2,6.2,7.2,7.9}{ \sensorsym{\x} }
+    \node[font=\scriptsize] at (6.0,-0.4) {sensores distribuídos};
+  \end{tikzpicture}
+\end{frame}
+
+\begin{frame}{Aplicações no mundo real}
+  VANTs já coletam dados de sensores onde a infraestrutura fixa é limitada ou inexistente:
+  \begin{itemize}
+    \item \textbf{Agricultura de precisão:} dados de sensores de solo e monitoramento de lavouras (DJI Agras, American Robotics).
+    \item \textbf{Monitoramento ambiental remoto:} sensores e boias em áreas sem cobertura de rede, evitando visitas manuais custosas.
+    \item \textbf{Resposta a desastres:} coleta contornando a infraestrutura danificada (ex.: sistema CLARKE, Texas A\&M).
+    \item \textbf{Redes IoT/LoRaWAN:} o drone atua como \emph{data mule}, coletando dados de sensores distribuídos.
+  \end{itemize}
+  \vspace{0.4em}
+  A seguir, dois casos em destaque.
 \end{frame}
 
 \begin{frame}{Destaque: agricultura de precisão}
