@@ -143,7 +143,7 @@
   \end{columns}
 \end{frame}
 
-\begin{frame}{O problema}
+\begin{frame}{O cenário considerado}
   \begin{itemize}
     \item Planejar a trajetória de um VANT: sair da base, coletar dados dos sensores e retornar.
     \item Dois objetivos conflitantes:
@@ -163,25 +163,25 @@
   \textbf{Objetivos específicos:}
   \begin{itemize}
     \item Formular o problema com tempo discretizado e variáveis de decisão adequadas.
-    \item Modelar múltiplos objetivos (eficiência energética e AoI dos sensores).
+    \item Modelar com múltiplos objetivos (eficiência energética e AoI dos sensores).
     \item Implementar no resolvedor Gurobi e comparar o modelo exato com heurísticas de referência.
   \end{itemize}
 \end{frame}
 
 \begin{frame}{Trabalhos relacionados}
   \begin{center}
-  \small
-  \begin{tabular}{lccc}
+  \footnotesize
+  \begin{tabular}{p{6.2cm} c c c c}
     \toprule
-    \textbf{Trabalho} & \textbf{N\textsuperscript{o} VANTs} & \textbf{Método} & \textbf{AoI} \\
+    \textbf{Trabalho} & \textbf{Ano} & \textbf{VANTs} & \textbf{Método} & \textbf{AoI} \\
     \midrule
-    Wei et al.\ (2022)        & Múltiplos & Revisão            & Sim \\
-    Messaoudi et al.\ (2023)  & Múltiplos & Revisão            & Sim \\
-    Liu et al.\ (2018)        & Múltiplos & Analítico          & Não \\
-    Zhang et al.\ (2018)      & Múltiplos & Aprendizado (DRL)  & Não \\
-    Yang et al.\ (2020)       & Múltiplos & Revisão            & Não \\
+    UAV-Assisted Data Collection for IoT           & 2022 & Múltiplos & Revisão   & Sim \\
+    A Survey of UAV-based Data Collection          & 2023 & Múltiplos & Revisão   & Sim \\
+    UAVs Assisted Data Collection in WSN           & 2018 & Múltiplos & Analítico & Não \\
+    Learning-Based Data Collection by Vehicles     & 2018 & Múltiplos & DRL       & Não \\
+    Key Issues in UAV Data Collection in IoT       & 2020 & Múltiplos & Revisão   & Não \\
     \midrule
-    \textbf{Este trabalho}    & \textbf{Único} & \textbf{MILP (exato)} & \textbf{Sim} \\
+    \textbf{Este trabalho} & \textbf{2026} & \textbf{Único} & \textbf{MILP} & \textbf{Sim} \\
     \bottomrule
   \end{tabular}
   \end{center}
