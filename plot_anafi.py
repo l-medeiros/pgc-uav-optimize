@@ -61,6 +61,7 @@ def aggregate_results(df):
         .agg(
             energy_mean=("energy_final", "mean"),
             aoi_mean=("avg_final_aoi", "mean"),
+            collected_mean=("collected_aoi", "mean"),
             distance_mean=("total_distance", "mean"),
         )
         .reset_index()
@@ -122,6 +123,7 @@ def main():
 
     plot_metric(agg, "energy_mean", "Energia final", "anafi_energy_vs_map.png", output_dir)
     plot_metric(agg, "aoi_mean", "AoI média final", "anafi_aoi_vs_map.png", output_dir)
+    plot_metric(agg, "collected_mean", "AoI coletada por rodada", "anafi_collected_aoi_vs_map.png", output_dir)
     plot_metric(agg, "distance_mean", "Distância total", "anafi_distance_vs_map.png", output_dir)
 
     plot_heatmap(agg, "energy_mean", "Energia média (Anafi)", "anafi_heatmap_energy.png", output_dir)

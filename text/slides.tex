@@ -152,6 +152,7 @@
         \item minimizar a energia consumida.
       \end{itemize}
     \item Coleta por \emph{hovering}: pairar sobre o sensor durante um \emph{slot}.
+    \item Cada sensor é visitado no máximo uma vez por missão.
     \item Um único VANT, permitindo uma formulação exata tratável.
   \end{itemize}
 \end{frame}
@@ -283,7 +284,23 @@
   \end{itemize}
 \end{frame}
 
-\begin{frame}{Resultados: modelo exato}
+\begin{frame}{Resultados: AoI coletada}
+  \begin{columns}[c]
+    \begin{column}{0.62\textwidth}
+      \centering
+      \includegraphics[width=\linewidth]{anafi_collected_aoi_vs_map.png}
+    \end{column}
+    \begin{column}{0.38\textwidth}
+      \begin{itemize}
+        \item Objetivo principal: maximizar a AoI coletada.
+        \item Cresce de forma aproximadamente linear com o número de sensores.
+        \item Estável em relação ao tamanho do mapa.
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Resultados: energia}
   \begin{columns}[c]
     \begin{column}{0.62\textwidth}
       \centering
