@@ -277,6 +277,7 @@
 \begin{frame}{Metodologia experimental}
   \begin{itemize}
     \item \textbf{36 cenários:} 6 quantidades de sensores $\{5,\dots,30\}$ $\times$ 6 tamanhos de mapa $\{100,\dots,1000\}$ m.
+    \item O limite de $1000$\,m decorre da discretização (1 transição por \emph{slot} a $\Delta t = 10$\,s): áreas maiores implicariam velocidades irreais.
     \item \textbf{Dois VANTs:} DJI Matrice 300 RTK e Parrot Anafi USA (parâmetros físicos reais).
     \item \textbf{30 rodadas} por cenário, com AoI encadeada entre rodadas.
     \item \textbf{Resolvedor Gurobi:} horizonte de 20 \emph{slots} de 10\,s, limite de 60\,s e tolerância de 1\%.
@@ -354,12 +355,12 @@
   \end{columns}
 \end{frame}
 
-\begin{frame}{Escala espacial e o papel das heurísticas}
+\begin{frame}{Heurísticas como alternativa ao MILP}
   \begin{itemize}
-    \item Cenários até $1000\times1000$\,m: a discretização (1 transição por \emph{slot} a $\Delta t = 10$\,s) torna áreas maiores inviáveis.
-    \item Aumentar $\Delta t$ viabilizaria áreas maiores, mas quebra a comparação com os cenários menores.
-    \item O modelo exato também é custoso em tempo e memória em instâncias grandes.
-    \item Heurísticas: alternativa rápida, leve e com qualidade próxima ao ótimo.
+    \item O modelo exato (MILP) é custoso em tempo e memória em instâncias grandes.
+    \item As heurísticas executam muito mais rápido e com menos recursos.
+    \item Entregam qualidade de coleta próxima à do ótimo (em especial a Score-Greedy).
+    \item Alternativa prática quando o MILP se torna inviável.
   \end{itemize}
 \end{frame}
 
