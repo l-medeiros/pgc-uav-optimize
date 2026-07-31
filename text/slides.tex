@@ -56,6 +56,8 @@
 \end{frame}
 }
 
+\section{Motivação}
+
 \begin{frame}{O que são VANTs?}
   \begin{columns}[c]
     \begin{column}{0.58\textwidth}
@@ -72,8 +74,7 @@
     \end{column}
     \begin{column}{0.42\textwidth}
       \centering
-      \includegraphics[width=\linewidth]{drone_generico.jpg}\\[2pt]
-      {\tiny Foto: Josh Sorenson, CC0 (Wikimedia Commons).}
+      \includegraphics[width=\linewidth]{drone_generico.jpg}
     \end{column}
   \end{columns}
 \end{frame}
@@ -81,7 +82,7 @@
 \begin{frame}{O que é IoT?}
   \begin{itemize}
     \item \textbf{Internet das Coisas (IoT):} objetos físicos conectados que coletam e transmitem dados do ambiente.
-    \item \textbf{Redes de sensores sem fio (WSN):} nós de baixo consumo, distribuídos em uma área, que medem grandezas físicas e as enviam a um ponto de coleta.
+    \item \textbf{Redes de sensores sem fio (WSN):} nós de baixo consumo, distribuídos em uma área, que medem grandezas físicas (temperatura, umidade, pH, precipitação) e as enviam a um ponto de coleta.
     \item Sem infraestrutura de rede fixa, levar esses dados ao ponto de coleta é um desafio.
   \end{itemize}
   \vspace{0.5em}
@@ -108,12 +109,12 @@
 
 \begin{frame}{Destaque: agricultura de precisão}
   \begin{columns}[c]
-    \begin{column}{0.54\textwidth}
+    \begin{column}{0.56\textwidth}
       \centering
-      \includegraphics[width=\linewidth]{drone_agricola.jpg}\\[2pt]
-      {\tiny Drone agrícola em arrozal (Aomori, Japão). Foto: Benlisquare, Wikimedia Commons, CC BY-SA 4.0.}
+      \includegraphics[width=\linewidth]{agricultura_precisao.jpg}\\[2pt]
+      {\tiny Fonte: \emph{Integration of Artificial Intelligence and IoT with UAVs for Precision Agriculture}, 2025 (artigo open access).}
     \end{column}
-    \begin{column}{0.46\textwidth}
+    \begin{column}{0.44\textwidth}
       \small
       \begin{itemize}
         \item Sensores de solo medem umidade, pH e temperatura.
@@ -137,11 +138,12 @@
     \end{column}
     \begin{column}{0.4\textwidth}
       \centering
-      \includegraphics[width=\linewidth]{monitoramento_ambiental.jpg}\\[2pt]
-      {\tiny Área alagada, monitoramento ambiental remoto. Foto: U.S. Fish and Wildlife Service, domínio público.}
+      \includegraphics[width=\linewidth]{monitoramento_ambiental.jpg}
     \end{column}
   \end{columns}
 \end{frame}
+
+\section{O problema}
 
 \begin{frame}{O cenário considerado}
   \begin{itemize}
@@ -171,24 +173,26 @@
 
 \begin{frame}{Trabalhos relacionados}
   \begin{center}
-  \footnotesize
-  \begin{tabular}{p{6.2cm} c c c c}
+  \scriptsize
+  \begin{tabular}{p{5.3cm} c c c c c}
     \toprule
-    \textbf{Trabalho} & \textbf{Ano} & \textbf{VANTs} & \textbf{Método} & \textbf{AoI} \\
+    \textbf{Trabalho} & \textbf{Ano} & \textbf{VANTs} & \textbf{Método} & \textbf{Energia} & \textbf{AoI} \\
     \midrule
-    UAV-Assisted Data Collection for IoT           & 2022 & Múltiplos & Revisão   & Sim \\
-    A Survey of UAV-based Data Collection          & 2023 & Múltiplos & Revisão   & Sim \\
-    UAVs Assisted Data Collection in WSN           & 2018 & Múltiplos & Analítico & Não \\
-    Learning-Based Data Collection by Vehicles     & 2018 & Múltiplos & DRL       & Não \\
-    Key Issues in UAV Data Collection in IoT       & 2020 & Múltiplos & Revisão   & Não \\
+    UAV-Assisted Data Collection for IoT           & 2022 & Múltiplos & Revisão   & Sim & Sim \\
+    A Survey of UAV-based Data Collection          & 2023 & Múltiplos & Revisão   & Sim & Sim \\
+    UAVs Assisted Data Collection in WSN           & 2018 & Múltiplos & Analítico & Sim & Não \\
+    Learning-Based Data Collection by Vehicles     & 2018 & Múltiplos & DRL       & Sim & Não \\
+    Key Issues in UAV Data Collection in IoT       & 2020 & Múltiplos & Revisão   & Sim & Não \\
     \midrule
-    \textbf{Este trabalho} & \textbf{2026} & \textbf{Único} & \textbf{MILP} & \textbf{Sim} \\
+    \textbf{Este trabalho} & \textbf{2026} & \textbf{Único} & \textbf{MILP} & \textbf{Sim} & \textbf{Sim} \\
     \bottomrule
   \end{tabular}
   \end{center}
   \vspace{0.5em}
   Lacuna: formulação \emph{exata} multiobjetivo (AoI + energia), com parâmetros físicos reais de VANTs.
 \end{frame}
+
+\section{Formulação}
 
 \begin{frame}{Fundamentação}
   \begin{columns}[T]
@@ -235,18 +239,18 @@
         \node[sensor] (s2) at (2.2,-1.1) {$s_2$};
         \node[sensor] (s3) at (4.4,0) {$s_3$};
         \foreach \i/\j in {b/s1, b/s2, b/s3, s1/s2, s1/s3, s2/s3}{
-          \draw[<->, gray!70] (\i) -- (\j);
+          \draw[gray!70] (\i) -- (\j);
         }
-        \draw[->, thick] (s3) to[out=-40, in=40, looseness=9]
+        \draw[thick] (s3) to[out=-40, in=40, looseness=9]
           node[right=1pt]{\emph{hover}} (s3);
       \end{tikzpicture}
     \end{column}
     \begin{column}{0.45\textwidth}
       \begin{itemize}
-        \item Nós $N = S \cup \{b\}$ (sensores e base).
-        \item Grafo completo dirigido com \emph{self-loops}.
-        \item $x_{ijt}$: transição de $i$ para $j$ no \emph{slot} $t$.
-        \item \emph{Self-loop} $(j,j)$ = \emph{hover}, associado à coleta.
+        \item Nós $N = S \cup \{b\}$ (sensores e base), cada um com coordenadas geográficas.
+        \item As arestas são as viagens possíveis do VANT: o grafo representa a sua movimentação.
+        \item Ir de um nó a outro percorre uma distância, que define o plano de voo.
+        \item \emph{Self-loop} $(j,j)$: o VANT permanece no nó (\emph{hover}, coleta).
       \end{itemize}
     \end{column}
   \end{columns}
@@ -259,13 +263,13 @@
   \textbf{Otimização multiobjetivo lexicográfica} (sem peso arbitrário):
 
   \begin{enumerate}
-    \item Maximizar a AoI coletada:
+    \item Primeiro, maximizar a AoI coletada:
       \[
-        f_{\text{AoI}}^{\star} = \max \sum_{j \in S} \sum_{t=1}^{T_f-1} w_{j,t}
+        \max \sum_{j \in S} \sum_{t} w_{j,t}
       \]
-    \item Entre as soluções ótimas, minimizar a energia:
+    \item Depois, minimizar a energia:
       \[
-        \min\ E_{T_f} \quad \text{sujeito a} \quad \sum_{j,t} w_{j,t} = f_{\text{AoI}}^{\star}
+        \min\ E_{T_f}
       \]
   \end{enumerate}
 \end{frame}
@@ -282,14 +286,26 @@
   \end{itemize}
 \end{frame}
 
+\section{Experimentos e resultados}
+
 \begin{frame}{Metodologia experimental}
   \begin{itemize}
     \item \textbf{36 cenários:} 6 quantidades de sensores $\{5,\dots,30\}$ $\times$ 6 tamanhos de mapa $\{100,\dots,1000\}$ m.
     \item O limite de $1000$\,m decorre da discretização (1 transição por \emph{slot} a $\Delta t = 10$\,s): áreas maiores implicariam velocidades irreais.
     \item \textbf{Dois VANTs:} DJI Matrice 300 RTK e Parrot Anafi USA (parâmetros físicos reais).
     \item \textbf{30 rodadas} por cenário, com AoI encadeada entre rodadas.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Metodologia: solver e heurísticas}
+  \begin{itemize}
     \item \textbf{Resolvedor Gurobi:} horizonte de 20 \emph{slots} de 10\,s, limite de 60\,s e tolerância de 1\%.
-    \item Comparação com heurísticas: Nearest Neighbor, AoI-Greedy e Score-Greedy.
+    \item Comparada a três heurísticas construtivas:
+      \begin{itemize}
+        \item \textbf{Nearest Neighbor (NN):} a cada passo, visita o sensor viável mais próximo.
+        \item \textbf{AoI-Greedy:} visita o sensor de maior AoI (prioriza os dados mais antigos).
+        \item \textbf{Score-Greedy:} visita o de maior razão AoI/distância (pondera urgência e custo de deslocamento).
+      \end{itemize}
   \end{itemize}
 \end{frame}
 
@@ -341,9 +357,9 @@
   \end{center}
   \vspace{0.4em}
   \begin{itemize}
-    \item O MILP entrega a maior AoI coletada com o menor consumo de energia.
-    \item As heurísticas por AoI ficam a $\approx 3\%$ da AoI coletada do ótimo.
-    \item Score-Greedy é a melhor heurística (equilíbrio entre coleta e energia).
+    \item Cada heurística tende a priorizar um objetivo: o NN gasta pouca energia mas coleta pouco, enquanto a AoI-Greedy coleta bem, porém gasta mais.
+    \item O MILP é o único \textbf{melhor nos dois objetivos ao mesmo tempo}: maior AoI coletada \emph{e} menor consumo de energia.
+    \item A Score-Greedy é a heurística mais equilibrada, mas ainda fica abaixo do ótimo.
   \end{itemize}
 \end{frame}
 
@@ -363,14 +379,19 @@
       \includegraphics[width=\linewidth]{delta_energy_heatmap.png}
     \end{column}
     \begin{column}{0.42\textwidth}
+      \small
       \begin{itemize}
         \item Permitir revisitar sensores \textbf{não melhora} a AoI ($\pm 3\%$).
         \item Aumenta muito a energia em mapas maiores.
+        \item A base concentra a conectividade externa: após coletar de todos, compensa voltar à base para entregar os dados, em vez de revisitar.
         \item A restrição de \textbf{visita única} é uma escolha eficiente.
       \end{itemize}
     \end{column}
   \end{columns}
 \end{frame}
+
+\section{Conclusão}
+
 \begin{frame}{Conclusões e trabalhos futuros}
   \small
   \textbf{Contribuições}
