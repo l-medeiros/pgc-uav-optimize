@@ -202,7 +202,7 @@
   \end{tabular}
   \end{center}
   \vspace{0.5em}
-  Lacuna: nenhum trabalho anterior \textbf{otimiza AoI e energia conjuntamente}. Este é o único, via formulação exata (MILP) com parâmetros físicos reais de VANTs.
+  Lacuna: nenhum trabalho anterior \textbf{otimiza AoI e energia conjuntamente}. Este é o único, via formulação exata (MILP, Programa Linear Inteiro Misto) com parâmetros físicos reais de VANTs.
 \end{frame}
 
 \section{Formulação}
@@ -234,6 +234,17 @@
     + \frac{1}{2}\rho\,C_{DS}\,V^3
   \]}
   {\tiny\centering Zeng, Xu e Zhang. \emph{Energy Minimization for Wireless Communication with Rotary-Wing UAV}, IEEE TWC, 2019.\par}
+\end{frame}
+
+\begin{frame}{O modelo: Programa Linear Inteiro Misto (MILP)}
+  Formulamos o plano de voo como um \textbf{MILP} (\emph{Mixed-Integer Linear Programming}):
+  \begin{itemize}
+    \item Função objetivo e restrições \textbf{lineares}.
+    \item Variáveis \textbf{binárias} (decisões: mover, visitar) e \textbf{contínuas} (energia, AoI).
+    \item Resolvido de forma \textbf{exata} (solução ótima garantida) pelo Gurobi, via \emph{branch-and-bound}.
+  \end{itemize}
+  \vspace{0.4em}
+  Serve de \textbf{referência ótima} para avaliar as heurísticas, ao custo de crescer rapidamente com o tamanho da instância.
 \end{frame}
 
 \begin{frame}{Modelagem: grafo de movimento}
