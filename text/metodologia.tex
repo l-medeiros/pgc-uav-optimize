@@ -5,7 +5,7 @@ A condução deste trabalho segue uma abordagem estruturada em três etapas prin
 
 \section{Levantamento de Dados e Cenários}
 
-Inicialmente, realizou-se o levantamento dos principais parâmetros e cenários utilizados nos modelos de coleta de dados assistida por VANTs, conforme apresentado em trabalhos como \cite{wei2022survey,messaoudi2023survey,liu2018uavWSN}. São coletadas informações sobre os modos de coleta (hovering, fly-by e híbrido), características dos sensores, limitações energéticas dos VANTs, padrões de cobertura, e tipos de topologia das redes de sensores sem fio.
+Inicialmente, realizou-se o levantamento dos principais parâmetros e cenários utilizados nos modelos de coleta de dados assistida por VANTs, conforme apresentado em trabalhos como \cite{wei2022survey,messaoudi2023survey,liu2018uavWSN}. São coletadas informações sobre os modos de coleta (voo pairado, sobrevoo e híbrido), características dos sensores, limitações energéticas dos VANTs, padrões de cobertura, e tipos de topologia das redes de sensores sem fio.
 
 Além disso, definiu-se o cenário base da simulação, como a área de cobertura, número e distribuição dos sensores, tipo de VANT (asa fixa ou rotativo), tempo máximo de voo e parâmetros de consumo energético. Esses dados são utilizados como entrada para a etapa de modelagem matemática.
 
@@ -13,7 +13,7 @@ Além disso, definiu-se o cenário base da simulação, como a área de cobertur
 
 Com os dados obtidos, foi formulado o modelo matemático para o problema de coleta de dados por VANTs. O problema é estruturado como uma variante de roteamento com restrições energéticas, inspirado em modelos de roteamento capacitado e problemas de cobertura com múltiplos alvos.
 
-A função objetivo pode ser definida como a minimização da energia total consumida ou da idade média da informação (Age of Information, AoI), sujeita a restrições de:
+A função objetivo pode ser definida como a minimização da energia total consumida ou da idade média da informação (AoI), sujeita a restrições de:
 
 \begin{itemize}
 \item capacidade energética dos VANTs (Equação~\eqref{eq:energia-capacidade}),
@@ -45,9 +45,9 @@ Para cada cenário, as coordenadas $(x, y)$ dos sensores são geradas aleatoriam
 Cada cenário é executado por 30 rodadas consecutivas, simulando missões periódicas do VANT. Em cada rodada:
 
 \begin{enumerate}
-\item O estado de \textit{Age of Information} (AoI) de todos os sensores é carregado do estado persistido pela rodada anterior, iniciando em zero na primeira rodada
+\item O estado de idade da informação (AoI) de todos os sensores é carregado do estado persistido pela rodada anterior, iniciando em zero na primeira rodada
 \item O modelo de otimização é resolvido com horizonte temporal de 20 \textit{slots} de 10\,s (missão de 200\,s), com limite de tempo de 60\,s e tolerância de otimalidade de 1\% (\textit{MIPGap}). 
-\item O VANT parte da base, realiza \textit{hover} sobre os sensores selecionados para coleta e retorna à base. 
+\item O VANT parte da base, paira sobre os sensores selecionados para coleta e retorna à base.
 \item O estado de AoI é atualizado: sensores visitados têm AoI zerada, e os demais acumulam $+1$ por \textit{slot} sem visita.
 \end{enumerate}
  
@@ -61,47 +61,9 @@ Após a execução de todos os cenários, os resultados são agregados calculand
 \item \textbf{Mapas de calor}: visualização bidimensional da métrica em função do par $(n_s, L)$, permitindo identificar regiões de maior e menor custo operacional.
 \end{itemize}
 
-\begin{figure}[htbp]                                                                                                 
-  \centering                                                                                                       
-  \includegraphics[width=0.8\textwidth]{figs/aoi_vs_map.png}                                                       
-  \caption{AoI média final em função do tamanho do mapa -- DJI Matrice 300 RTK.}
-  \label{fig:aoi_vs_map}                                                                                           
-\end{figure}                                                                                                         
-                                                                                                                       
-\begin{figure}[htbp]                                                                                                 
-  \centering
-  \includegraphics[width=0.8\textwidth]{figs/distance_vs_map.png}                                                  
-  \caption{Distância total média em função do tamanho do mapa -- DJI Matrice 300 RTK.}
-  \label{fig:distance_vs_map}                                                                                      
-\end{figure}                                                                                                         
-                                                                                                                      
-\begin{figure}[htbp]                                                                                                 
-  \centering
-  \includegraphics[width=0.8\textwidth]{figs/energy_vs_map.png}
-  \caption{Energia média consumida em função do tamanho do mapa -- DJI Matrice 300 RTK.}
-  \label{fig:energy_vs_map}
-\end{figure}
+Duas métricas de AoI são acompanhadas e não devem ser confundidas. A \emph{AoI coletada} é a soma das idades zeradas nas coletas ao longo da missão, ou seja, mede quanta informação desatualizada o VANT efetivamente recolheu (quanto maior, melhor). Já a \emph{AoI média final} é a idade que \emph{resta} nos sensores ao término da missão, calculada como a média, sobre todos os sensores, do número de slots decorridos desde a última coleta de cada um. Ela mede quão desatualizado ficou o conjunto de dados da rede ao final do plano de voo: quanto menor, mais recentes são as informações disponíveis. Enquanto a AoI coletada premia recolher muita informação, a AoI média final penaliza deixar sensores sem visita.
 
-\begin{figure}[htbp]
-  \centering
-  \includegraphics[width=0.8\textwidth]{figs/heatmap_aoi.png}
-  \caption{Mapa de calor da AoI média final por quantidade de sensores e tamanho do mapa -- DJI Matrice 300 RTK.}
-  \label{fig:heatmap_aoi}
-\end{figure}
 
-\begin{figure}[htbp]
-  \centering
-  \includegraphics[width=0.8\textwidth]{figs/heatmap_distance.png}
-  \caption{Mapa de calor da distância total média por quantidade de sensores e tamanho do mapa -- DJI Matrice 300 RTK.}
-  \label{fig:heatmap_distance}
-\end{figure}
-
-\begin{figure}[htbp]
-  \centering
-  \includegraphics[width=0.8\textwidth]{figs/heatmap_energy.png}
-  \caption{Mapa de calor da energia média consumida por quantidade de sensores e tamanho do mapa -- DJI Matrice 300 RTK.}
-  \label{fig:heatmap_energy}
-\end{figure}
 
 Os resultados obtidos são analisados quantitativamente, com referência aos padrões observados em trabalhos relacionados~\cite{wei2022survey,messaoudi2023survey}, com o objetivo de explorar a sensibilidade do modelo a diferentes configurações de cenário.
 
@@ -115,61 +77,66 @@ O primeiro conjunto de experimentos utiliza os parâmetros físicos do DJI Matri
 \subsubsection{Parrot Anafi USA}
 O segundo conjunto de experimentos foi realizado com os parâmetros do Parrot Anafi USA, um drone compacto voltado para aplicações de segurança e mapeamento. Para este modelo, a capacidade de bateria utilizada foi $E^{\max} = 141.372$\,J, correspondendo à capacidade real da bateria do equipamento.
 
-\subsection{Resultados: DJI Matrice 300 RTK}
+\subsection{Resultados dos modelos de VANT}
 
-As Figuras~\ref{fig:aoi_vs_map}--\ref{fig:heatmap_energy} mostram os resultados obtidos com o DJI Matrice 300 RTK. Observa-se que a AoI média tende a crescer com o aumento do tamanho do mapa, reflexo da maior dificuldade do VANT em cobrir todos os sensores dentro do horizonte de missão de 200\,s. A distância total percorrida também aumenta com o aumento da área (parâmetro $L$), enquanto o consumo de energia acompanha esse crescimento devido ao maior tempo de deslocamento. Cenários com maior densidade de sensores (maior $n_s$ em área pequena) apresentam AoI mais baixa, pois o drone consegue visitar mais sensores por missão.
+Os dois conjuntos de experimentos, com o DJI Matrice 300 RTK e o Parrot Anafi USA, são analisados a seguir por métrica, comparando lado a lado o comportamento dos dois veículos sobre os mesmos 36 cenários.
 
-\subsection{Resultados: Parrot Anafi USA}
-
-As Figuras~\ref{fig:anafi_aoi_vs_map}--\ref{fig:anafi_heatmap_energy} apresentam os resultados experimentais obtidos com o Parrot Anafi USA ($E^{\max} = 141.372$\,J), para os mesmos 36 cenários.
+A AoI média final (Figura~\ref{fig:aoi_vs_map}) reflete a densidade da rede. No Anafi, o valor cresce aproximadamente de forma linear com a quantidade de sensores $n_s$ e mantém-se próximo de $n_s$ independentemente do tamanho do mapa: para qualquer área, o otimizador visita um número semelhante de sensores por missão, resultando em AoI proporcional à densidade da rede. O caso $n_s = 5$ é um resultado degenerado favorável, em que o VANT visita todos os cinco sensores em todas as missões, para qualquer tamanho de mapa, resultando em AoI média final exatamente igual a cinco. No DJI, observa-se, além disso, uma tendência de leve crescimento da AoI com o aumento da área, reflexo da maior dificuldade de cobrir todos os sensores dentro do horizonte de missão de 200\,s em mapas maiores.
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.8\textwidth]{figs/anafi_aoi_vs_map.png}
-  \caption{AoI média final em função do tamanho do mapa -- Parrot Anafi USA.}
-  \label{fig:anafi_aoi_vs_map}
+  \begin{subfigure}[t]{0.49\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figs/aoi_vs_map.png}
+    \caption{DJI Matrice 300 RTK}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[t]{0.49\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figs/anafi_aoi_vs_map.png}
+    \caption{Parrot Anafi USA}
+  \end{subfigure}
+  \caption{AoI média final em função do tamanho do mapa.}
+  \label{fig:aoi_vs_map}
 \end{figure}
+
+A distância total percorrida (Figura~\ref{fig:distance_vs_map}) acompanha o crescimento de $L$ em ambos os modelos e apresenta comportamento inverso em relação a $n_s$ em mapas grandes: mais sensores na mesma área reduzem as distâncias médias entre vizinhos, resultando em rotas mais curtas. Em mapas pequenos ($L \leq 200$\,m), esse efeito é menos pronunciado, pois mesmo com poucos sensores as distâncias entre nós já são curtas.
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.8\textwidth]{figs/anafi_distance_vs_map.png}
-  \caption{Distância total média em função do tamanho do mapa -- Parrot Anafi USA.}
-  \label{fig:anafi_distance_vs_map}
+  \begin{subfigure}[t]{0.49\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figs/distance_vs_map.png}
+    \caption{DJI Matrice 300 RTK}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[t]{0.49\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figs/anafi_distance_vs_map.png}
+    \caption{Parrot Anafi USA}
+  \end{subfigure}
+  \caption{Distância total média em função do tamanho do mapa.}
+  \label{fig:distance_vs_map}
 \end{figure}
+
+O consumo de energia (Figura~\ref{fig:energy_vs_map}) acompanha o aumento da área: quanto maior $L$, maiores as distâncias entre nós e, portanto, o custo energético de cada aresta. No DJI, o crescimento com $L$ é acentuado, com aparência aproximadamente exponencial na faixa avaliada, consequência de o custo por deslocamento crescer de forma super-linear com a distância percorrida em um único \textit{slot}. No Anafi, o crescimento também é pronunciado e apresenta dois saltos distintos, entre $L=400$ e $600$\,m e entre $L=600$ e $800$\,m. Observa-se ainda um comportamento não-monotônico em $L=1000$\,m: a energia do cenário com $n_s=5$ ($\approx$118\,kJ) supera a dos cenários com $n_s=10$ ($\approx$100\,kJ) e $n_s=15$ ($\approx$76\,kJ), pois, com apenas cinco sensores espalhados em 1000×1000\,m, as distâncias entre nós são maiores do que em cenários mais densos, tornando o roteamento mais custoso.
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.8\textwidth]{figs/anafi_energy_vs_map.png}
-  \caption{Energia média consumida em função do tamanho do mapa -- Parrot Anafi USA.}
-  \label{fig:anafi_energy_vs_map}
+  \begin{subfigure}[t]{0.49\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figs/energy_vs_map.png}
+    \caption{DJI Matrice 300 RTK}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[t]{0.49\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figs/anafi_energy_vs_map.png}
+    \caption{Parrot Anafi USA}
+  \end{subfigure}
+  \caption{Energia média consumida em função do tamanho do mapa.}
+  \label{fig:energy_vs_map}
 \end{figure}
-
-\begin{figure}[htbp]
-  \centering
-  \includegraphics[width=0.8\textwidth]{figs/anafi_heatmap_aoi.png}
-  \caption{Mapa de calor da AoI média final por quantidade de sensores e tamanho do mapa -- Parrot Anafi USA.}
-  \label{fig:anafi_heatmap_aoi}
-\end{figure}
-
-\begin{figure}[htbp]
-  \centering
-  \includegraphics[width=0.8\textwidth]{figs/anafi_heatmap_distance.png}
-  \caption{Mapa de calor da distância total média por quantidade de sensores e tamanho do mapa -- Parrot Anafi USA.}
-  \label{fig:anafi_heatmap_distance}
-\end{figure}
-
-\begin{figure}[htbp]
-  \centering
-  \includegraphics[width=0.8\textwidth]{figs/anafi_heatmap_energy.png}
-  \caption{Mapa de calor da energia média consumida por quantidade de sensores e tamanho do mapa -- Parrot Anafi USA.}
-  \label{fig:anafi_heatmap_energy}
-\end{figure}
-
-A análise dos resultados do Parrot Anafi USA revela padrões consistentes com o comportamento esperado do modelo. Em relação à AoI média final (Figura~\ref{fig:anafi_aoi_vs_map}), observa-se que o valor cresce aproximadamente de forma linear com a quantidade de sensores $n_s$, mantendo-se próximo a $n_s$ independentemente do tamanho do mapa. Esse comportamento indica que o otimizador distribui as visitas de maneira estável entre as rodadas: para qualquer configuração de área, o modelo consegue visitar um número semelhante de sensores por missão, resultando em AoI proporcional à densidade da rede. O caso $n_s = 5$ é um resultado degenerado favorável: o VANT consegue visitar todos os cinco sensores em todas as missões para qualquer tamanho de mapa, resultando em AoI média exatamente igual a 5 em todos os cenários.
-
-Quanto ao consumo de energia (Figura~\ref{fig:anafi_energy_vs_map}), o crescimento com $L$ é pronunciado e apresenta dois saltos distintos: entre $L=400$ e $L=600$\,m e entre $L=600$ e $L=800$\,m. Isso reflete o aumento das distâncias de deslocamento entre nós do grafo, que elevam o custo energético de cada aresta. Um comportamento não-monotônico é observado em $L=1000$\,m: a energia consumida pelo cenário com $n_s=5$ ($\approx$118\,kJ) é superior à dos cenários com $n_s=10$ ($\approx$100\,kJ) e $n_s=15$ ($\approx$76\,kJ). Isso ocorre porque, com apenas 5 sensores distribuídos em uma área de 1000×1000\,m, as distâncias entre os nós são maiores do que em cenários com maior densidade de sensores na mesma área, tornando o roteamento mais custoso.
-
-A distância total percorrida (Figura~\ref{fig:anafi_distance_vs_map}) acompanha o crescimento de $L$ e apresenta comportamento inverso em relação a $n_s$ para mapas grandes: mais sensores na mesma área reduzem as distâncias médias entre vizinhos, resultando em rotas mais curtas. Em mapas pequenos ($L \leq 200$\,m), esse efeito é menos pronunciado, pois mesmo com poucos sensores as distâncias entre nós já são curtas.
 
 \subsection{Comparação com Heurísticas}
 \label{sec:comparacao-heuristicas}
@@ -182,7 +149,7 @@ Para avaliar o desempenho do modelo de otimização (aqui chamado de MILP, resol
 \item \textbf{Score-Greedy}: a cada passo, visita o sensor de maior razão AoI/distância ainda viável, com desempate por proximidade. Pondera urgência e custo de deslocamento.
 \end{itemize}
 
-A Tabela~\ref{tab:cmp-heuristicas} apresenta as médias gerais das cinco métricas sobre todos os cenários, e as Figuras~\ref{fig:cmp_all_overall_bars}--\ref{fig:cmp_all_energy_p3} consolidam, por métrica, o desempenho das quatro estratégias.
+A Tabela~\ref{tab:cmp-heuristicas} apresenta as médias gerais das cinco métricas sobre todos os cenários. As Figuras~\ref{fig:cmp_all_collected_aoi} a~\ref{fig:cmp_all_energy} detalham, por métrica, o comportamento das quatro estratégias em função do tamanho do mapa, com os cenários separados por faixa de densidade em cada subfigura (a: 5 e 10 sensores; b: 15 e 20; c: 25 e 30).
 
 \begin{table}[htbp]
   \centering
@@ -201,84 +168,91 @@ A Tabela~\ref{tab:cmp-heuristicas} apresenta as médias gerais das cinco métric
   \end{tabular}
 \end{table}
 
-\begin{figure}[htbp]
-  \centering
-  \includegraphics[width=\textwidth]{figs/cmp_all_overall_bars.png}
-  \caption{Média geral das cinco métricas para as quatro estratégias (MILP, NN, AoI-Greedy e Score-Greedy) sobre os 36 cenários.}
-  \label{fig:cmp_all_overall_bars}
-\end{figure}
+A AoI coletada por rodada (Figura~\ref{fig:cmp_all_collected_aoi}) mede quanta informação desatualizada cada estratégia recolhe ao longo da missão. As heurísticas AoI-Greedy e Score-Greedy, construídas em torno do mesmo objetivo do MILP, aproximam-se muito do modelo ótimo: a AoI-Greedy fica a apenas $-3{,}6\%$ (298,5 contra 309,7) e a Score-Greedy a $-3{,}0\%$ (300,5). O NN coleta bem menos ($145,4$, menos da metade do MILP) e degrada sobretudo em mapas grandes com poucos sensores: nos cenários de 5 e 10 sensores (Figura~\ref{fig:cmp_collected_a}), sua curva despenca à medida que $L$ cresce, enquanto o MILP se mantém estável. Com o aumento da densidade (Figuras~\ref{fig:cmp_collected_b} e~\ref{fig:cmp_collected_c}), a diferença entre as estratégias diminui, pois há mais sensores próximos disponíveis para coleta.
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=\textwidth]{figs/cmp_all_collected_aoi_p1.png}
-  \caption{AoI coletada por rodada em função do tamanho do mapa, para 5 e 10 sensores (quatro estratégias).}
-  \label{fig:cmp_all_collected_aoi_p1}
+  \begin{subfigure}{0.8\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figs/cmp_all_collected_aoi_p1.png}
+    \caption{5 e 10 sensores}
+    \label{fig:cmp_collected_a}
+  \end{subfigure}
+
+  \begin{subfigure}{0.8\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figs/cmp_all_collected_aoi_p2.png}
+    \caption{15 e 20 sensores}
+    \label{fig:cmp_collected_b}
+  \end{subfigure}
+
+  \begin{subfigure}{0.8\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figs/cmp_all_collected_aoi_p3.png}
+    \caption{25 e 30 sensores}
+    \label{fig:cmp_collected_c}
+  \end{subfigure}
+  \caption{AoI coletada por rodada em função do tamanho do mapa, para as quatro estratégias.}
+  \label{fig:cmp_all_collected_aoi}
 \end{figure}
+
+A AoI média final (Figura~\ref{fig:cmp_all_avg_final_aoi}) mede quão atualizados ficam os dados ao término da missão. O MILP entrega a menor idade residual (17,8), seguido de perto pela Score-Greedy (28,5) e pela AoI-Greedy (29,5), ambas cerca de $38$ a $40\%$ acima do MILP, porém muito melhores que o NN, que é o pior por larga margem (127,2). O contraste aparece com mais nitidez nos cenários de baixa densidade (Figura~\ref{fig:cmp_avg_a}), em que a curva do NN se descola das demais, refletindo sua incapacidade de manter a rede atualizada quando os sensores estão distantes.
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=\textwidth]{figs/cmp_all_collected_aoi_p2.png}
-  \caption{AoI coletada por rodada em função do tamanho do mapa, para 15 e 20 sensores (quatro estratégias).}
-  \label{fig:cmp_all_collected_aoi_p2}
+  \begin{subfigure}{0.8\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figs/cmp_all_avg_final_aoi_p1.png}
+    \caption{5 e 10 sensores}
+    \label{fig:cmp_avg_a}
+  \end{subfigure}
+
+  \begin{subfigure}{0.8\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figs/cmp_all_avg_final_aoi_p2.png}
+    \caption{15 e 20 sensores}
+    \label{fig:cmp_avg_b}
+  \end{subfigure}
+
+  \begin{subfigure}{0.8\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figs/cmp_all_avg_final_aoi_p3.png}
+    \caption{25 e 30 sensores}
+    \label{fig:cmp_avg_c}
+  \end{subfigure}
+  \caption{AoI média final dos sensores em função do tamanho do mapa, para as quatro estratégias.}
+  \label{fig:cmp_all_avg_final_aoi}
 \end{figure}
+
+O consumo de energia (Figura~\ref{fig:cmp_all_energy}) evidencia o ponto fraco das heurísticas gulosas por AoI: a AoI-Greedy gasta $+43{,}7\%$ (64.571\,J contra 44.943\,J do MILP) e a Score-Greedy $+28{,}5\%$ (57.738\,J), pois maximizam a AoI sem ponderar adequadamente o custo do deslocamento. O NN consome pouco (48.711\,J, apenas $+7{,}7\%$ sobre o MILP), mas à custa de coletar pouco. A vantagem de ponderar a distância fica clara na comparação entre as duas gulosas: a Score-Greedy domina a AoI-Greedy, coletando essencialmente a mesma AoI ($+0{,}7\%$) com $-10{,}6\%$ de energia e $-12{,}6\%$ de distância. Em todas as estratégias, o consumo cresce de forma acentuada com $L$ (Figuras~\ref{fig:cmp_energy_a} a~\ref{fig:cmp_energy_c}).
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=\textwidth]{figs/cmp_all_collected_aoi_p3.png}
-  \caption{AoI coletada por rodada em função do tamanho do mapa, para 25 e 30 sensores (quatro estratégias).}
-  \label{fig:cmp_all_collected_aoi_p3}
+  \begin{subfigure}{0.8\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figs/cmp_all_energy_p1.png}
+    \caption{5 e 10 sensores}
+    \label{fig:cmp_energy_a}
+  \end{subfigure}
+
+  \begin{subfigure}{0.8\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figs/cmp_all_energy_p2.png}
+    \caption{15 e 20 sensores}
+    \label{fig:cmp_energy_b}
+  \end{subfigure}
+
+  \begin{subfigure}{0.8\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figs/cmp_all_energy_p3.png}
+    \caption{25 e 30 sensores}
+    \label{fig:cmp_energy_c}
+  \end{subfigure}
+  \caption{Energia final consumida em função do tamanho do mapa, para as quatro estratégias.}
+  \label{fig:cmp_all_energy}
 \end{figure}
 
-\begin{figure}[htbp]
-  \centering
-  \includegraphics[width=\textwidth]{figs/cmp_all_avg_final_aoi_p1.png}
-  \caption{AoI média final dos sensores em função do tamanho do mapa, para 5 e 10 sensores (quatro estratégias).}
-  \label{fig:cmp_all_avg_final_aoi_p1}
-\end{figure}
-
-\begin{figure}[htbp]
-  \centering
-  \includegraphics[width=\textwidth]{figs/cmp_all_avg_final_aoi_p2.png}
-  \caption{AoI média final dos sensores em função do tamanho do mapa, para 15 e 20 sensores (quatro estratégias).}
-  \label{fig:cmp_all_avg_final_aoi_p2}
-\end{figure}
-
-\begin{figure}[htbp]
-  \centering
-  \includegraphics[width=\textwidth]{figs/cmp_all_avg_final_aoi_p3.png}
-  \caption{AoI média final dos sensores em função do tamanho do mapa, para 25 e 30 sensores (quatro estratégias).}
-  \label{fig:cmp_all_avg_final_aoi_p3}
-\end{figure}
-
-\begin{figure}[htbp]
-  \centering
-  \includegraphics[width=\textwidth]{figs/cmp_all_energy_p1.png}
-  \caption{Energia final consumida em função do tamanho do mapa, para 5 e 10 sensores (quatro estratégias).}
-  \label{fig:cmp_all_energy_p1}
-\end{figure}
-
-\begin{figure}[htbp]
-  \centering
-  \includegraphics[width=\textwidth]{figs/cmp_all_energy_p2.png}
-  \caption{Energia final consumida em função do tamanho do mapa, para 15 e 20 sensores (quatro estratégias).}
-  \label{fig:cmp_all_energy_p2}
-\end{figure}
-
-\begin{figure}[htbp]
-  \centering
-  \includegraphics[width=\textwidth]{figs/cmp_all_energy_p3.png}
-  \caption{Energia final consumida em função do tamanho do mapa, para 25 e 30 sensores (quatro estratégias).}
-  \label{fig:cmp_all_energy_p3}
-\end{figure}
-
-\subsubsection{MILP comparado ao Nearest Neighbor}
-O NN é a baseline mais simples e a que apresenta o pior desempenho nas métricas de qualidade. O MILP coleta $+113\%$ de AoI por rodada (309,7 contra 145,4, fator $2{,}13\times$) e mantém a AoI média final $86\%$ menor (17,8 contra 127,2), entregando dados muito mais recentes. O MILP ainda consome $7{,}7\%$ menos energia que o NN. A única métrica em que o NN apresenta valor inferior é a distância percorrida ($-34\%$), o que não configura vantagem: a estratégia gulosa por proximidade retorna cedo à base e fica pairando nos \textit{slots} restantes, percorrendo menos porém coletando menos. O número de sensores visitados é praticamente idêntico (8,33 contra 8,22): a diferença não está em \emph{quantos} sensores são visitados, e sim em \emph{quanta} AoI é extraída e em manter os dados atualizados. O NN degrada especialmente em mapas grandes com poucos sensores (1000×1000\,m com 5 ou 10 sensores), em que a escolha gulosa esgota bateria e \textit{slots} antes de cobrir bem o conjunto, enquanto o MILP se mantém estável (Figuras~\ref{fig:cmp_all_collected_aoi_p1}--\ref{fig:cmp_all_collected_aoi_p3}).
-
-\subsubsection{MILP comparado às heurísticas gulosas por AoI}
-As heurísticas AoI-Greedy e Score-Greedy, por serem construídas em torno do mesmo objetivo do MILP, aproximam-se muito da AoI coletada pelo modelo ótimo: a AoI-Greedy fica a apenas $-3{,}6\%$ (298,5 contra 309,7) e a Score-Greedy a $-3{,}0\%$ (300,5). Em atualidade dos dados (AoI média final), o MILP ainda lidera, com valores $40\%$ e $38\%$ menores, respectivamente, mas ambas ficam muito mais próximas do MILP do que o NN. O ponto fraco dessas heurísticas é a energia: a AoI-Greedy gasta $+43{,}7\%$ (64.571\,J contra 44.943\,J) e a Score-Greedy $+28{,}5\%$ (57.738\,J), pois buscam maximizar a AoI e a atualidade dos dados sem considerar adequadamente o custo energético do deslocamento. É exatamente nesse ponto que o MILP se destaca: por ser multiobjetivo lexicográfico (maximiza a AoI coletada e, em seguida, minimiza a energia entre as soluções de AoI ótima), entrega a maior AoI coletada com consumo energético significativamente menor.
-
-\subsubsection{Score-Greedy comparada à AoI-Greedy}
-A ponderação por distância melhora a eficiência sem perder coleta: a Score-Greedy coleta essencialmente a mesma AoI da AoI-Greedy ($+0{,}7\%$), com $-10{,}6\%$ de energia (57.738\,J contra 64.571\,J) e $-12{,}6\%$ de distância (1.502\,m contra 1.719\,m), além de dados ligeiramente mais recentes. Assim, a Score-Greedy domina a AoI-Greedy e é a melhor heurística do conjunto, sendo também a mais próxima do MILP. Ainda assim, permanece $28{,}5\%$ acima do MILP em consumo energético, o que evidencia o valor do modelo de otimização: nenhuma das heurísticas construtivas alcança simultaneamente a alta AoI coletada e o baixo consumo energético obtidos pela formulação MILP.
+Em síntese, cada heurística privilegia um aspecto isolado: o NN economiza energia mas coleta pouco e desatualiza a rede, enquanto as gulosas por AoI coletam quase tanto quanto o MILP, porém a um custo energético muito maior. A Score-Greedy é a melhor heurística do conjunto, dominando a AoI-Greedy e sendo a mais próxima do MILP, mas ainda assim permanece $28{,}5\%$ acima dele em energia. Isso evidencia o valor da formulação exata: por ser multiobjetivo lexicográfica (maximiza a AoI coletada e, em seguida, minimiza a energia entre as soluções de AoI ótima), o MILP é a única estratégia que alcança, ao mesmo tempo, a maior AoI coletada e o menor consumo energético.
 
 \subsection{Variante com Revisitas}
 
@@ -295,67 +269,82 @@ Para contornar esses problemas, foram adotadas três medidas: (i) limitação do
 \subsubsection{Resultados e comparativo}
 Os resultados do modelo com revisitas foram comparados com o modelo base para os mesmos 36 cenários, utilizando as mesmas posições de sensores e os mesmos parâmetros do Parrot Anafi USA.
 
+A análise revela que a variante com revisitas \textbf{não trouxe melhora na qualidade da solução} em termos de AoI. Como mostra a Figura~\ref{fig:cmp_aoi_vs_map}, as curvas do modelo base e da variante com revisitas praticamente se sobrepõem em todas as faixas de densidade, dos cenários esparsos (Figura~\ref{fig:rev_aoi_a}) aos mais densos (Figura~\ref{fig:rev_aoi_c}). O mapa de variação percentual da AoI (Figura~\ref{fig:delta_aoi}) confirma o quadro: a AoI média final permaneceu estatisticamente equivalente ao modelo base em praticamente todos os cenários, com variações menores que $\pm 3\%$, dentro da margem de ruído das 30 rodadas.
+
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=\textwidth]{figs/cmp_aoi_vs_map_p1.png}
-  \caption{AoI média final: comparativo base vs revisitas ($K=3$), para 5 e 10 sensores.}
-  \label{fig:cmp_aoi_vs_map_p1}
+  \begin{subfigure}{0.8\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figs/cmp_aoi_vs_map_p1.png}
+    \caption{5 e 10 sensores}
+    \label{fig:rev_aoi_a}
+  \end{subfigure}
+
+  \begin{subfigure}{0.8\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figs/cmp_aoi_vs_map_p2.png}
+    \caption{15 e 20 sensores}
+    \label{fig:rev_aoi_b}
+  \end{subfigure}
+
+  \begin{subfigure}{0.8\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figs/cmp_aoi_vs_map_p3.png}
+    \caption{25 e 30 sensores}
+    \label{fig:rev_aoi_c}
+  \end{subfigure}
+  \caption{AoI média final: comparativo entre o modelo base e a variante com revisitas ($K=3$).}
+  \label{fig:cmp_aoi_vs_map}
+\end{figure}
+
+Em contrapartida, o consumo energético aumentou substancialmente com as revisitas (Figura~\ref{fig:cmp_energy_vs_map}). Para mapas pequenos ($L \leq 200$\,m), o acréscimo foi modesto ($+3$ a $+6\%$), mas cresce fortemente com a área: entre $+33\%$ e $+45\%$ para $L=400$\,m e entre $+108\%$ e $+189\%$ para $L \geq 600$\,m, efeito que se acentua dos cenários de baixa densidade (Figura~\ref{fig:rev_energy_a}) aos de alta (Figura~\ref{fig:rev_energy_c}) e que o mapa de variação da energia (Figura~\ref{fig:delta_energy}) resume. Em vários cenários com $L \geq 600$\,m, a energia da variante ultrapassou $100$\,kJ, aproximando-se do limite de bateria de $141$\,kJ.
+
+\begin{figure}[htbp]
+  \centering
+  \begin{subfigure}{0.8\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figs/cmp_energy_vs_map_p1.png}
+    \caption{5 e 10 sensores}
+    \label{fig:rev_energy_a}
+  \end{subfigure}
+
+  \begin{subfigure}{0.8\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figs/cmp_energy_vs_map_p2.png}
+    \caption{15 e 20 sensores}
+    \label{fig:rev_energy_b}
+  \end{subfigure}
+
+  \begin{subfigure}{0.8\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figs/cmp_energy_vs_map_p3.png}
+    \caption{25 e 30 sensores}
+    \label{fig:rev_energy_c}
+  \end{subfigure}
+  \caption{Energia média consumida: comparativo entre o modelo base e a variante com revisitas ($K=3$).}
+  \label{fig:cmp_energy_vs_map}
 \end{figure}
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=\textwidth]{figs/cmp_aoi_vs_map_p2.png}
-  \caption{AoI média final: comparativo base vs revisitas ($K=3$), para 15 e 20 sensores.}
-  \label{fig:cmp_aoi_vs_map_p2}
+  \begin{subfigure}[t]{0.49\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figs/delta_aoi_heatmap.png}
+    \caption{AoI média final}
+    \label{fig:delta_aoi}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[t]{0.49\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figs/delta_energy_heatmap.png}
+    \caption{Energia consumida}
+    \label{fig:delta_energy}
+  \end{subfigure}
+  \caption{Variação percentual (revisit $-$ base) / base entre a variante com revisitas e o modelo base. Valores positivos indicam piora (aumento).}
+  \label{fig:delta_heatmaps}
 \end{figure}
 
-\begin{figure}[htbp]
-  \centering
-  \includegraphics[width=\textwidth]{figs/cmp_aoi_vs_map_p3.png}
-  \caption{AoI média final: comparativo base vs revisitas ($K=3$), para 25 e 30 sensores.}
-  \label{fig:cmp_aoi_vs_map_p3}
-\end{figure}
-
-\begin{figure}[htbp]
-  \centering
-  \includegraphics[width=\textwidth]{figs/cmp_energy_vs_map_p1.png}
-  \caption{Energia média consumida: comparativo base vs revisitas ($K=3$), para 5 e 10 sensores.}
-  \label{fig:cmp_energy_vs_map_p1}
-\end{figure}
-
-\begin{figure}[htbp]
-  \centering
-  \includegraphics[width=\textwidth]{figs/cmp_energy_vs_map_p2.png}
-  \caption{Energia média consumida: comparativo base vs revisitas ($K=3$), para 15 e 20 sensores.}
-  \label{fig:cmp_energy_vs_map_p2}
-\end{figure}
-
-\begin{figure}[htbp]
-  \centering
-  \includegraphics[width=\textwidth]{figs/cmp_energy_vs_map_p3.png}
-  \caption{Energia média consumida: comparativo base vs revisitas ($K=3$), para 25 e 30 sensores.}
-  \label{fig:cmp_energy_vs_map_p3}
-\end{figure}
-
-\begin{figure}[htbp]
-  \centering
-  \includegraphics[width=0.8\textwidth]{figs/delta_aoi_heatmap.png}
-  \caption{Variação percentual da AoI média (revisit $-$ base) / base. Valores positivos indicam piora.}
-  \label{fig:delta_aoi_heatmap}
-\end{figure}
-
-\begin{figure}[htbp]
-  \centering
-  \includegraphics[width=0.8\textwidth]{figs/delta_energy_heatmap.png}
-  \caption{Variação percentual da energia consumida (revisit $-$ base) / base.}
-  \label{fig:delta_energy_heatmap}
-\end{figure}
-
-A análise dos resultados revela que a variante com revisitas \textbf{não trouxe melhora na qualidade da solução} em termos de AoI. Conforme ilustrado nas Figuras~\ref{fig:cmp_aoi_vs_map_p1}--\ref{fig:cmp_aoi_vs_map_p3} e~\ref{fig:delta_aoi_heatmap}, a AoI média final permaneceu estatisticamente equivalente ao modelo base em praticamente todos os cenários, com variações menores que $\pm 3\%$, dentro da margem de ruído experimental das 30 rodadas.
-
-Em contrapartida, o consumo energético aumentou substancialmente com as revisitas (Figuras~\ref{fig:cmp_energy_vs_map_p1}--\ref{fig:cmp_energy_vs_map_p3} e~\ref{fig:delta_energy_heatmap}). Para mapas pequenos ($L \leq 200$\,m), o acréscimo foi modesto ($+3$ a $+6\%$). Porém, para mapas maiores, o custo energético cresceu de forma expressiva: entre $+33\%$ e $+45\%$ para $L=400$\,m, e entre $+108\%$ e $+189\%$ para $L \geq 600$\,m. Em vários cenários com $L \geq 600$\,m, a energia consumida pelo modelo com revisitas chegou a ser superior a $100$\,kJ, próxima ao limite de bateria de $141$\,kJ.
-
-Esse comportamento pode ser explicado pela natureza do modelo de otimização: ao permitir revisitas, o solver passa a incluir trajetórias em que o VANT retorna a sensores já visitados para coletar a AoI acumulada no mesmo \textit{slot} posterior, mas esse ganho marginal de AoI não compensa o custo energético do deslocamento adicional. Com $K=3$, o orçamento de hovers disponível é distribuído em menos sensores distintos, reduzindo a diversidade de coleta e, consequentemente, sem benefício líquido para a AoI média da rede.
+Esse comportamento pode ser explicado pela natureza do modelo de otimização: ao permitir revisitas, o solver passa a incluir trajetórias em que o VANT retorna a sensores já visitados para coletar a AoI acumulada no mesmo \textit{slot} posterior, mas esse ganho marginal de AoI não compensa o custo energético do deslocamento adicional. Com $K=3$, o orçamento de tempo pairado disponível é distribuído em menos sensores distintos, reduzindo a diversidade de coleta e, consequentemente, sem benefício líquido para a AoI média da rede.
 
 Conclui-se que, para a configuração estudada ($K=3$, 20 slots de 10\,s, Parrot Anafi USA), a restrição de visita única é uma escolha eficiente: ela força o otimizador a diversificar as visitas, obtendo qualidade de AoI equivalente a um custo energético significativamente menor.
 
@@ -364,7 +353,7 @@ Conclui-se que, para a configuração estudada ($K=3$, 20 slots de 10\,s, Parrot
 
 Os experimentos apresentados restringiram-se a áreas de até $1000\times1000$\,m. Essa escolha decorre da discretização adotada no modelo de energia (Capítulo~\ref{sec:modelagem}): como cada transição entre nós é concluída em um único \textit{slot} de duração fixa $\Delta t = 10$\,s, áreas maiores implicariam velocidades nominais irrealistas e, com frequência, um custo energético por deslocamento superior à própria capacidade da bateria, tornando o cenário fisicamente inviável sob essa parametrização.
 
-As heurísticas construtivas, por si só, não são o fator limitante: elas podem ser executadas em áreas maiores sem dificuldade. Para tornar tais áreas energeticamente viáveis, entretanto, seria necessário aumentar a duração do \textit{slot} $\Delta t$, permitindo velocidades menores e um custo de deslocamento compatível com a bateria. Esse ajuste, porém, altera a base temporal do experimento e inviabiliza a comparação direta com os cenários menores, que adotam $\Delta t = 10$\,s. Além disso, um $\Delta t$ maior é contraproducente no cenário menor: como o custo de \textit{hover} cresce linearmente com $\Delta t$, o consumo mínimo da missão, mesmo sem deslocamentos, pode se aproximar ou exceder a capacidade da bateria, dificultando a obtenção de soluções viáveis. Não havendo uma parametrização única de $\Delta t$ que permita comparar de forma justa cenários de escalas muito distintas, optou-se por não apresentar resultados de heurísticas em áreas maiores.
+As heurísticas construtivas, por si só, não são o fator limitante: elas podem ser executadas em áreas maiores sem dificuldade. Para tornar tais áreas energeticamente viáveis, entretanto, seria necessário aumentar a duração do \textit{slot} $\Delta t$, permitindo velocidades menores e um custo de deslocamento compatível com a bateria. Esse ajuste, porém, altera a base temporal do experimento e inviabiliza a comparação direta com os cenários menores, que adotam $\Delta t = 10$\,s. Além disso, um $\Delta t$ maior é contraproducente no cenário menor: como o custo do voo pairado cresce linearmente com $\Delta t$, o consumo mínimo da missão, mesmo sem deslocamentos, pode se aproximar ou exceder a capacidade da bateria, dificultando a obtenção de soluções viáveis. Não havendo uma parametrização única de $\Delta t$ que permita comparar de forma justa cenários de escalas muito distintas, optou-se por não apresentar resultados de heurísticas em áreas maiores.
 
 Cabe destacar, ainda, o custo computacional do modelo exato. A demanda de memória do resolvedor cresce rapidamente com o tamanho da instância. Na prática, os cenários de $1000\times1000$\,m com $20$ ou mais sensores exigiram consumo de memória próximo aos limites do ambiente de teste, chegando a comprometer a estabilidade da máquina durante a otimização. Esse comportamento reforça que, à medida que a instância cresce, a resolução exata torna-se progressivamente mais custosa não apenas em tempo, mas também em recursos de hardware.
 
