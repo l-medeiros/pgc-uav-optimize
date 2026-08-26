@@ -11,7 +11,7 @@ Além disso, definiu-se o cenário base da simulação, como a área de cobertur
 
 \section{Modelagem Matemática}
 
-Com os dados obtidos, foi formulado o modelo matemático para o problema de coleta de dados por VANTs. O problema é estruturado como uma variante de roteamento com restrições energéticas, inspirado em modelos de roteamento capacitado e problemas de cobertura com múltiplos alvos.
+Com os dados obtidos, foi formulado o modelo matemático para o problema de coleta de dados por VANTs. O problema é estruturado como uma variante de roteamento com restrições energéticas, inspirado em modelos de roteamento capacitado~\cite{toth2002vrp} e em problemas de cobertura com múltiplos alvos~\cite{church1974maximal}.
 
 A função objetivo pode ser definida como a minimização da energia total consumida ou da idade média da informação (AoI), sujeita a restrições de:
 
@@ -72,7 +72,7 @@ Os resultados obtidos são analisados quantitativamente, com referência aos pad
 Os experimentos foram conduzidos com dois modelos distintos de VANT, cujos parâmetros físicos alimentam o modelo de potência de asa rotativa (Equação~\eqref{eq:potencia}). Cada modelo dá origem a um conjunto de experimentos sobre os mesmos 36 cenários, descritos a seguir.
 
 \subsubsection{DJI Matrice 300 RTK}
-O primeiro conjunto de experimentos utiliza os parâmetros físicos do DJI Matrice 300 RTK, um drone de uso profissional amplamente empregado em aplicações industriais e de monitoramento. Para estes experimentos, a capacidade de bateria foi fixada em $E^{\max} = 2$\,MJ, representando um subconjunto da autonomia total do veículo com o objetivo de avaliar o comportamento do otimizador em condições mais restritivas de energia.
+O primeiro conjunto de experimentos utiliza os parâmetros físicos do DJI Matrice 300 RTK, um drone de uso profissional amplamente empregado em aplicações industriais e de monitoramento. Para estes experimentos, a capacidade de bateria foi fixada em $E^{\max} = 2$\,MJ, representando uma fração da autonomia total do veículo com o objetivo de avaliar o comportamento do otimizador em condições mais restritivas de energia.
 
 \subsubsection{Parrot Anafi USA}
 O segundo conjunto de experimentos foi realizado com os parâmetros do Parrot Anafi USA, um drone compacto voltado para aplicações de segurança e mapeamento. Para este modelo, a capacidade de bateria utilizada foi $E^{\max} = 141.372$\,J, correspondendo à capacidade real da bateria do equipamento.
@@ -264,7 +264,7 @@ A modificação consiste na substituição da restrição de visita única (Equa
 \subsubsection{Desafios computacionais}
 A adoção de revisitas amplia consideravelmente o espaço de soluções viáveis do modelo MILP. Com $K = 3$, o número de combinações possíveis de padrões de visita cresce exponencialmente, tornando a exploração da árvore de \textit{branch-and-bound} pelo Gurobi significativamente mais custosa em memória. Em cenários com $n_s \geq 20$ e $L \geq 600$\,m, o processo de otimização chegou a consumir vários gigabytes de RAM, causando instabilidades no ambiente de execução.
 
-Para contornar esses problemas, foram adotadas três medidas: (i) limitação do número de \textit{threads} do Gurobi a 2, reduzindo o paralelismo da exploração da árvore, (ii) ativação do parâmetro \texttt{NodefileStart = 0.5\,GB}, que instrui o solver a descarregar nós da árvore para disco ao atingir esse limite de memória RAM, e (iii) definição de \texttt{SoftMemLimit = 4\,GB}, que encerra a otimização graciosamente e retorna a melhor solução encontrada até o momento quando o uso de memória ultrapassa esse valor. Adicionalmente, rodadas em que o solver não encontrou solução viável dentro do limite de tempo ou memória são registradas com métricas zeradas e AoI envelhecida normalmente, garantindo a consistência da cadeia de estado entre rodadas.
+Para contornar esses problemas, foram adotadas três medidas: (i) limitação do número de \textit{threads} do Gurobi a 2, reduzindo o paralelismo da exploração da árvore, (ii) ativação do parâmetro \texttt{NodefileStart = 0.5\,GB}, que instrui o solver a descarregar nós da árvore para disco ao atingir esse limite de memória RAM, e (iii) definição de \texttt{SoftMemLimit = 4\,GB}, que encerra a otimização de forma controlada e retorna a melhor solução encontrada até o momento quando o uso de memória ultrapassa esse valor. Adicionalmente, rodadas em que o solver não encontrou solução viável dentro do limite de tempo ou memória são registradas com métricas zeradas e AoI envelhecida normalmente, garantindo a consistência da cadeia de estado entre rodadas.
 
 \subsubsection{Resultados e comparativo}
 Os resultados do modelo com revisitas foram comparados com o modelo base para os mesmos 36 cenários, utilizando as mesmas posições de sensores e os mesmos parâmetros do Parrot Anafi USA.
@@ -344,7 +344,7 @@ Em contrapartida, o consumo energético aumentou substancialmente com as revisit
   \label{fig:delta_heatmaps}
 \end{figure}
 
-Esse comportamento pode ser explicado pela natureza do modelo de otimização: ao permitir revisitas, o solver passa a incluir trajetórias em que o VANT retorna a sensores já visitados para coletar a AoI acumulada no mesmo \textit{slot} posterior, mas esse ganho marginal de AoI não compensa o custo energético do deslocamento adicional. Com $K=3$, o orçamento de tempo pairado disponível é distribuído em menos sensores distintos, reduzindo a diversidade de coleta e, consequentemente, sem benefício líquido para a AoI média da rede.
+Esse comportamento pode ser explicado pela natureza do modelo de otimização: ao permitir revisitas, o solver passa a incluir trajetórias em que o VANT retorna a sensores já visitados para coletar, em um \textit{slot} posterior, a AoI que eles voltaram a acumular desde a visita anterior, mas esse ganho marginal de AoI não compensa o custo energético do deslocamento adicional. Com $K=3$, o orçamento de tempo pairado disponível é distribuído em menos sensores distintos, reduzindo a diversidade de coleta e, consequentemente, sem benefício líquido para a AoI média da rede.
 
 Conclui-se que, para a configuração estudada ($K=3$, 20 slots de 10\,s, Parrot Anafi USA), a restrição de visita única é uma escolha eficiente: ela força o otimizador a diversificar as visitas, obtendo qualidade de AoI equivalente a um custo energético significativamente menor.
 

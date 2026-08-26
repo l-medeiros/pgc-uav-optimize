@@ -28,7 +28,7 @@
     \include{pretextual/capa}
 
     \begin{resumo}
-        A coleta de dados em redes de sensores da Internet das Coisas (IoT) por meio de veículos aéreos não tripulados (VANTs) exige o planejamento cuidadoso da trajetória de voo, de modo a equilibrar a qualidade da informação coletada e o consumo energético do veículo. Este trabalho propõe uma formulação de Programação Linear Inteira Mista (MILP) para o problema de otimização do plano de voo de um VANT dedicado à coleta de dados de sensores distribuídos em uma área geográfica. O modelo discretiza o horizonte da missão em intervalos de tempo (\textit{slots}) e descreve o deslocamento do veículo entre os sensores e a base, incorporando um modelo de potência de asa rotativa para estimar o custo energético de cada deslocamento e dos períodos de pairar (\textit{hovering}). A idade da informação (\textit{Age of Information}, AoI) é utilizada como medida da relevância temporal dos dados, e a missão é otimizada de forma multiobjetivo lexicográfica: maximiza-se primeiro a AoI efetivamente coletada e, em seguida, minimiza-se a energia consumida. A formulação foi implementada no resolvedor Gurobi e avaliada em 36 cenários, variando a quantidade de sensores e o tamanho do mapa, com parâmetros físicos do DJI Matrice 300 RTK e do Parrot Anafi USA, e comparada a heurísticas construtivas de referência (\textit{Nearest Neighbor}, AoI-Greedy e Score-Greedy). Os resultados indicam que o modelo exato encontra soluções de boa qualidade nas escalas avaliadas e que a restrição de visita única a cada sensor constitui uma escolha eficiente, obtendo qualidade de AoI equivalente à de uma variante com revisitas, porém com consumo energético significativamente menor.
+        A coleta de dados em redes de sensores da Internet das Coisas (IoT) por meio de veículos aéreos não tripulados (VANTs) exige o planejamento cuidadoso da trajetória de voo, de modo a equilibrar a qualidade da informação coletada e o consumo energético do veículo. Este trabalho propõe uma formulação de Programação Linear Inteira Mista (MILP) para o problema de otimização do plano de voo de um VANT dedicado à coleta de dados de sensores distribuídos em uma área geográfica. O modelo discretiza o horizonte da missão em intervalos de tempo (\textit{slots}) e descreve o deslocamento do veículo entre os sensores e a base, incorporando um modelo de potência de asa rotativa para estimar o custo energético de cada deslocamento e dos períodos de pairar (\textit{hovering}). A idade da informação (AoI, do inglês \textit{Age of Information}) é utilizada como medida da relevância temporal dos dados, e a missão é otimizada de forma multiobjetivo lexicográfica: maximiza-se primeiro a AoI efetivamente coletada e, em seguida, minimiza-se a energia consumida. A formulação foi implementada no resolvedor Gurobi e avaliada em 36 cenários, variando a quantidade de sensores e o tamanho do mapa, com parâmetros físicos do DJI Matrice 300 RTK e do Parrot Anafi USA, e comparada a heurísticas construtivas de referência (\textit{Nearest Neighbor}, AoI-Greedy e Score-Greedy). Os resultados indicam que o modelo exato encontra soluções de boa qualidade nas escalas avaliadas e que a restrição de visita única a cada sensor constitui uma escolha eficiente, obtendo uma qualidade de AoI equivalente àquela obtida por uma variante com revisitas, porém com consumo energético significativamente menor.
 
         \vspace{\onelineskip}
         \noindent\textbf{Palavras-chave}: VANT, Internet das Coisas, idade da informação, otimização, programação linear inteira mista, eficiência energética.
@@ -128,7 +128,7 @@ O modelo representa o voo do VANT como uma sequência de estados discretos no te
     \section{Formulação do Problema}
     
     Seja $T = \{1, 2, \dots, \tau\}$ o conjunto de intervalos de tempo discretos. O objetivo
-    é planejar a trajetória de um ou mais VANTs para coleta eficiente de dados em sensores IoT, respeitando restrições de mobilidade, energia, e requisitos de comunicação. O problema pode ser formulado pelas equações descritas nas subseções a seguir.
+    é planejar a trajetória de um ou mais VANTs para coleta eficiente de dados em sensores IoT, respeitando restrições de mobilidade, energia e requisitos de comunicação. O problema pode ser formulado pelas equações descritas nas subseções a seguir.
 
     \subsection{Definição do Grafo de Movimento}
 
@@ -160,13 +160,13 @@ O modelo representa o voo do VANT como uma sequência de estados discretos no te
         \node[sensor] (s3) at (6,0) {$s_3$};
 
         \foreach \i/\j in {b/s1, b/s2, b/s3, s1/s2, s1/s3, s2/s3}{
-          \draw[<->, gray!70] (\i) -- (\j);
+          \draw[gray!70] (\i) -- (\j);
         }
 
-        \draw[->, thick] (s3) to[out=-40, in=40, looseness=9]
+        \draw[thick] (s3) to[out=-40, in=40, looseness=9]
           node[right=1pt]{\footnotesize pairar/coleta ($x_{jjt}$)} (s3);
       \end{tikzpicture}
-      \caption{Exemplo do grafo de movimento $N = S \cup \{b\}$ com a base $b$ e três sensores. As arestas dirigidas conectam todos os pares de nós (transições $i \to j$ realizadas em um \textit{slot}). O laço próprio $(j,j)$ representa o voo pairado do VANT sobre o nó, associado à coleta quando $v_{j,t} = x_{jjt} = 1$.}
+      \caption{Exemplo do grafo de movimento $N = S \cup \{b\}$ com a base $b$ e três sensores. As arestas representam os deslocamentos possíveis do VANT entre os pares de nós em um \textit{slot}. O laço próprio $(j,j)$ representa o voo pairado do VANT sobre o nó, associado à coleta quando $v_{j,t} = x_{jjt} = 1$.}
       \label{fig:grafo-movimento}
     \end{figure}
 

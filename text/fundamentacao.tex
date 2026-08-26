@@ -1,6 +1,8 @@
 \chapter{Fundamentação Teórica}
 \label{sec:fundamentacao}
 
+Este capítulo reúne os fundamentos teóricos necessários à compreensão do modelo proposto. A Seção~\ref{sec:prog-linear} apresenta a programação linear e sua extensão aos domínios inteiro e misto, base formal da formulação. A Seção~\ref{sec:iot-wsn} aborda a Internet das Coisas e as redes de sensores sem fio, contexto de aplicação do trabalho, e a Seção~\ref{sec:aoi} define a idade da informação (AoI), métrica central de qualidade da coleta. A Seção~\ref{sec:vants} caracteriza os veículos aéreos não tripulados, e a Seção~\ref{sec:modelo-energia} apresenta o modelo de energia de asa rotativa que estima o consumo do veículo. Por fim, a Seção~\ref{sec:modelo-comunicacao} descreve o modelo de comunicação adotado para a coleta de dados.
+
 \section{Programação Linear e Otimização Inteira}
 \label{sec:prog-linear}
 
@@ -28,16 +30,18 @@ A principal técnica para resolver problemas de PLI e MILP de forma exata é o \
 O problema de planejamento de voo abordado neste trabalho é formulado como um MILP: variáveis binárias descrevem a posição do VANT, os deslocamentos e as coletas, enquanto variáveis contínuas registram a energia acumulada e a idade da informação (AoI) dos sensores. Termos não lineares, como o produto entre a AoI e a decisão de coleta, são convertidos em restrições lineares por meio de técnicas de linearização (Capítulo~\ref{sec:modelagem}, Equações~\eqref{eq:lin-a}--\eqref{eq:lin-c}), preservando a estrutura linear necessária à resolução exata pelo Gurobi.
 
 \section{IoT e WSN}
+\label{sec:iot-wsn}
 
-A Internet das Coisas (IoT, do inglês \textit{Internet of Things}) é um paradigma que integra objetos físicos (sensores, atuadores e dispositivos embarcados) à infraestrutura digital por meio de protocolos de comunicação sem fio, permitindo a coleta, transmissão e processamento autônomo de dados do ambiente \cite{yang2020surveyUAVIoT}. Dentro desse paradigma, as redes de sensores sem fio (WSNs, do inglês \textit{Wireless Sensor Networks}) constituem uma das tecnologias de suporte mais consolidadas: consistem em conjuntos de nós de baixo consumo energético, distribuídos em uma área de interesse, responsáveis por amostrar grandezas físicas (temperatura, umidade, vibração, entre outras) e encaminhá-las periodicamente a um ponto de coleta centralizado \cite{liu2018uavWSN}.
+A Internet das Coisas (IoT, do inglês \textit{Internet of Things}) é um paradigma que integra objetos físicos (sensores, atuadores e dispositivos embarcados) à infraestrutura digital da Internet por meio de protocolos de comunicação sem fio, permitindo a coleta, transmissão e processamento autônomo de dados do ambiente \cite{yang2020surveyUAVIoT}. Dentro desse paradigma, as redes de sensores sem fio (WSNs, do inglês \textit{Wireless Sensor Networks}) constituem uma das tecnologias de suporte mais consolidadas: consistem em conjuntos de nós de baixo consumo energético, distribuídos em uma área de interesse, responsáveis por amostrar grandezas físicas (temperatura, umidade, vibração, entre outras) e encaminhá-las periodicamente a um ponto de coleta centralizado \cite{liu2018uavWSN}.
 
 Em aplicações de monitoramento ambiental, agricultura de precisão, vigilância urbana e resposta a desastres, os nós sensores frequentemente operam em áreas de difícil acesso ou sem cobertura de infraestrutura fixa. Nesse contexto, VANTs têm sido explorados como coletores móveis (\emph{sinks}), percorrendo a área de missão para coletar dados diretamente dos sensores \cite{messaoudi2023survey,wei2022survey}.
 
 \section{Idade da Informação (AoI)}
+\label{sec:aoi}
 
 Os modelos adotados neste trabalho utilizam uma representação de \emph{tempo discreto}: o horizonte de uma missão é particionado em $T_f$ intervalos de igual duração $\Delta t$, denominados \emph{slots}. Em cada slot, o estado do sistema (posição do VANT, energia acumulada e idade da informação dos sensores) é considerado constante, e as decisões de movimento e coleta são tomadas slot a slot. Essa discretização transforma a evolução contínua da missão em uma sequência finita de estados, viabilizando a formulação por programação linear inteira. O conceito de slot é utilizado ao longo de toda a fundamentação e da modelagem.
 
-Uma métrica central para avaliar a qualidade da informação coletada nessas redes é a idade da informação (\emph{Age of Information}, AoI), introduzida para quantificar a \emph{atualidade} dos dados disponíveis em um ponto de destino \cite{messaoudi2023survey}. Intuitivamente, a AoI mede há quanto tempo a última atualização de um determinado sensor foi recebida. Quanto maior a AoI, mais tempo se passou desde a última coleta, ou seja, mais desatualizada está a informação.
+Uma métrica central para avaliar a qualidade da informação coletada nessas redes é a idade da informação (AoI, do inglês \emph{Age of Information}), introduzida para quantificar a \emph{atualidade} dos dados disponíveis em um ponto de destino \cite{messaoudi2023survey}. Intuitivamente, a AoI mede há quanto tempo a última atualização de um determinado sensor foi recebida. Quanto maior a AoI, mais tempo se passou desde a última coleta, ou seja, mais desatualizada está a informação.
 
 \subsection{Definição formal}
 
@@ -57,7 +61,8 @@ onde $A_j^0$ é o valor inicial carregado do estado persistido entre missões e 
 
 Quando o VANT coleta o sensor $j$ no slot $t$, a AoI é zerada no slot seguinte, pois o destino passa a dispor de uma atualização recente. Caso contrário, a AoI cresce em uma unidade por slot, refletindo o envelhecimento da informação. Maximizar a soma $\sum_{j,t} A_{j,t}\, v_{j,t}$, isto é, priorizar sensores com AoI mais alta no momento da coleta, é equivalente a maximizar o \emph{ganho informacional} acumulado pela missão, incentivando visitas a sensores que tenham mais dados antigos a serem transmitidos.
 
-\section{VANTs}
+\section{Veículos aéreos não tripulados}
+\label{sec:vants}
 
 Veículos aéreos não tripulados (VANTs), popularmente chamados de drones, são aeronaves controladas remotamente ou de forma autônoma, sem piloto a bordo \cite{messaoudi2023survey}. Originalmente desenvolvidos para fins militares, os VANTs passaram a ser amplamente utilizados em aplicações civis como mapeamento, agricultura de precisão, vigilância, entrega de cargas e, em particular, coleta de dados em redes IoT \cite{wei2022survey}.
 
@@ -95,6 +100,7 @@ A operação de um VANT de asa rotativa é condicionada por dois limites princip
 A interação entre esses dois limites é central para o problema de otimização formulado neste trabalho: aumentar o número de sensores visitados exige mais deslocamentos e mais tempo pairado, elevando o consumo e eventualmente inviabilizando a missão dentro do orçamento energético disponível.
 
 \section{Modelo de energia de VANT de asa rotativa}
+\label{sec:modelo-energia}
 
 O consumo energético de VANTs de asa rotativa é fortemente dependente do regime de voo: manter-se estacionário, isto é, pairar (\emph{hover}), exige potência elevada para sustentar o peso do veículo contra a gravidade, enquanto o deslocamento horizontal apresenta um ponto ótimo de eficiência situado entre o custo de sustentação e o arrasto aerodinâmico.
 
@@ -113,6 +119,7 @@ Os parâmetros físicos completos utilizados nos experimentos, obtidos de \cite{
 O custo energético de cada deslocamento do VANT é obtido multiplicando a potência calculada pela duração do slot $\Delta t = 10$\,s (Equação~\eqref{eq:custo-energia}, Capítulo~\ref{sec:modelagem}). As restrições de acumulação e capacidade de energia no modelo MILP são apresentadas no Capítulo~\ref{sec:modelagem} (Equações~\eqref{eq:energia-inicial}--\eqref{eq:energia-capacidade}).
 
 \section{Modelo de comunicação}
+\label{sec:modelo-comunicacao}
 
 Em sistemas VANT-IoT, modelos de comunicação detalhados descrevem explicitamente o canal de rádio (perda de percurso, desvanecimento, relação sinal-ruído e protocolos de controle de acesso ao meio) condicionando a taxa de sucesso à qualidade do enlace~\cite{wei2022survey,messaoudi2023survey}. Esses modelos são relevantes quando a mobilidade do VANT provoca variações significativas de distância ou ângulo durante a coleta.
 
